@@ -96,6 +96,11 @@ main {
   backdrop-filter: blur(2px);
 }
 
+.tile-link {
+  text-decoration: none;
+  color: inherit;
+}
+
 /* POZNÁMKY */
 .notes {
   background: var(--notes-bg);
@@ -171,7 +176,9 @@ svg {
 <main>
 
   <section class="tiles">
-    <div class="tile">Email</div>
+    <a href="https://outlook.office.com/mail/" class="tile-link">
+  <div class="tile">Email</div>
+</a>
     <div class="tile">Kalendář</div>
     <div class="tile">Systémy</div>
     <div class="tile">Projekt A</div>

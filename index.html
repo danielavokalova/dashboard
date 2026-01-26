@@ -6,33 +6,37 @@
 
 <style>
 :root {
-  /* barvy převzaté z tapety */
-  --ink: #2e3a3a;
-  --blue-soft: #9aaeb0;
-  --blue-muted: #7f9696;
-  --paper: rgba(245,246,244,0.88);
+  /* barvy z tapety – lehce ztmavené */
+  --ink: #243030;
+  --blue-soft: #8fa6a8;
+  --blue-muted: #6f8a8c;
+  --paper: rgba(245,246,244,0.9);
 
-  --tile-bg: rgba(245,246,244,0.85);
-  --tile-shadow: rgba(120,140,140,0.25);
+  --tile-bg: rgba(245,246,244,0.88);
+  --tile-shadow: rgba(110,130,130,0.28);
 
-  --notes-bg: rgba(245,246,244,0.9);
+  --notes-bg: rgba(245,246,244,0.92);
   --accent: #ff6b7a;
 }
 
-/* reset */
+/* RESET */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+/* STRÁNKA */
 body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   font-family: "Segoe UI", system-ui, sans-serif;
   background: url("botanicus.png") repeat;
   color: var(--ink);
 }
 
-/* header */
+/* HEADER */
 header {
   padding: 36px 56px 24px;
 }
@@ -40,12 +44,12 @@ header {
 .header-row {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 }
 
 h1 {
-  font-size: 22px;
-  letter-spacing: 0.25em;
+  font-size: 24px;
+  letter-spacing: 0.26em;
   font-weight: 500;
   color: var(--blue-muted);
 }
@@ -54,22 +58,23 @@ h1 {
   height: 2px;
   background: var(--blue-muted);
   margin-top: 18px;
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
-/* layout */
+/* MAIN */
 main {
+  flex: 1; /* DŮLEŽITÉ – vytlačí patičku dolů */
   display: grid;
-  grid-template-columns: 1fr 260px;
-  gap: 36px;
+  grid-template-columns: 1fr 320px; /* širší poznámky */
+  gap: 40px;
   padding: 40px 56px;
 }
 
-/* tiles */
+/* DLAŽDICE */
 .tiles {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
-  gap: 20px;
+  gap: 22px;
 }
 
 .tile {
@@ -81,50 +86,52 @@ main {
   justify-content: center;
   text-transform: uppercase;
   font-size: 12px;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   color: var(--blue-muted);
-  box-shadow: 0 6px 16px var(--tile-shadow);
+  box-shadow: 0 6px 18px var(--tile-shadow);
   backdrop-filter: blur(2px);
 }
 
-/* notes */
+/* POZNÁMKY */
 .notes {
   background: var(--notes-bg);
-  border-radius: 20px;
-  padding: 22px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.08);
 }
 
 .notes h2 {
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.22em;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   color: var(--blue-muted);
 }
 
 .notes textarea {
   width: 100%;
-  height: 100%;
+  height: calc(100% - 30px);
   border: none;
   background: transparent;
   resize: none;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.6;
   color: var(--ink);
 }
 
-/* footer */
+/* FOOTER – FAKT DOLE */
 footer {
-  height: 120px;
-  padding: 28px 56px;
   background: var(--paper);
   border-top: 2px solid var(--blue-muted);
+  padding: 30px 56px;
+  height: 120px;
   display: flex;
   align-items: center;
+  color: var(--blue-muted);
+  font-size: 13px;
 }
 
-/* octopus */
+/* CHOBOTNICE */
 svg {
   flex-shrink: 0;
 }
@@ -136,8 +143,8 @@ svg {
 <header>
   <div class="header-row">
 
-    <!-- minimalist octopus -->
-    <svg width="40" height="40" viewBox="0 0 120 120">
+    <!-- jemná chobotnice -->
+    <svg width="42" height="42" viewBox="0 0 120 120">
       <g fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round">
         <circle cx="60" cy="38" r="18" fill="var(--accent)" stroke="none"/>
         <path d="M42 58 C30 82, 26 96, 34 112"/>
@@ -174,7 +181,9 @@ svg {
 </main>
 
 <footer>
-  <div>texty · odkazy · kredity</div>
+  <div>
+    texty · odkazy · poznámky · kredity
+  </div>
 </footer>
 
 </body>

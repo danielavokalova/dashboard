@@ -6,16 +6,20 @@
 
 <style>
 :root {
-  --paper: #f7f6f3;
-  --olive-line: #3a4f3c;
-  --tile-ochre: #ead8b5;
-  --tile-shadow: #d6c29a;
-  --text-soft: #2b2b2b;
-  --octopus: #ff6b7a;
-  --notes-bg: #e6d2a6;
+  /* barvy převzaté z tapety */
+  --ink: #2e3a3a;
+  --blue-soft: #9aaeb0;
+  --blue-muted: #7f9696;
+  --paper: rgba(245,246,244,0.88);
+
+  --tile-bg: rgba(245,246,244,0.85);
+  --tile-shadow: rgba(120,140,140,0.25);
+
+  --notes-bg: rgba(245,246,244,0.9);
+  --accent: #ff6b7a;
 }
 
-/* RESET */
+/* reset */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -24,13 +28,11 @@
 
 body {
   font-family: "Segoe UI", system-ui, sans-serif;
-  background:
-    url("botanicka-tapeta.png") repeat,
-    var(--paper);
-  color: var(--text-soft);
+  background: url("botanicus.png") repeat;
+  color: var(--ink);
 }
 
-/* HEADER */
+/* header */
 header {
   padding: 36px 56px 24px;
 }
@@ -38,62 +40,66 @@ header {
 .header-row {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 14px;
 }
 
 h1 {
-  font-size: 26px;
-  letter-spacing: 0.18em;
+  font-size: 22px;
+  letter-spacing: 0.25em;
   font-weight: 500;
+  color: var(--blue-muted);
 }
 
 .divider {
   height: 2px;
-  background: var(--olive-line);
+  background: var(--blue-muted);
   margin-top: 18px;
+  opacity: 0.6;
 }
 
-/* MAIN */
+/* layout */
 main {
   display: grid;
-  grid-template-columns: 1fr 280px;
+  grid-template-columns: 1fr 260px;
   gap: 36px;
   padding: 40px 56px;
 }
 
-/* TILES */
+/* tiles */
 .tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
+  gap: 20px;
 }
 
 .tile {
-  background: var(--tile-ochre);
-  border-radius: 18px;
-  height: 120px;
+  height: 105px;
+  background: var(--tile-bg);
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 13px;
-  box-shadow:
-    0 6px 0 var(--tile-shadow),
-    0 14px 24px rgba(0,0,0,0.06);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--blue-muted);
+  box-shadow: 0 6px 16px var(--tile-shadow);
+  backdrop-filter: blur(2px);
 }
 
-/* NOTES */
+/* notes */
 .notes {
   background: var(--notes-bg);
-  border-radius: 24px;
+  border-radius: 20px;
   padding: 22px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
 }
 
 .notes h2 {
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  margin-bottom: 14px;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  margin-bottom: 12px;
+  color: var(--blue-muted);
 }
 
 .notes textarea {
@@ -105,19 +111,20 @@ main {
   font-family: inherit;
   font-size: 13px;
   line-height: 1.6;
+  color: var(--ink);
 }
 
-/* FOOTER */
+/* footer */
 footer {
-  background: var(--paper);
   height: 120px;
   padding: 28px 56px;
+  background: var(--paper);
+  border-top: 2px solid var(--blue-muted);
   display: flex;
   align-items: center;
-  border-top: 2px solid var(--olive-line);
 }
 
-/* OCTOPUS */
+/* octopus */
 svg {
   flex-shrink: 0;
 }
@@ -129,15 +136,15 @@ svg {
 <header>
   <div class="header-row">
 
-    <!-- MINIMAL OCTOPUS -->
-    <svg width="46" height="46" viewBox="0 0 120 120">
-      <g fill="none" stroke="var(--octopus)" stroke-width="8" stroke-linecap="round">
-        <circle cx="60" cy="40" r="22" fill="var(--octopus)" stroke="none"/>
-        <path d="M40 60 C30 90, 20 100, 30 115"/>
-        <path d="M52 62 C48 92, 42 102, 50 116"/>
-        <path d="M68 62 C72 92, 78 102, 70 116"/>
-        <path d="M80 60 C92 90, 102 100, 92 115"/>
-        <path d="M60 64 C60 98, 60 112, 60 120"/>
+    <!-- minimalist octopus -->
+    <svg width="40" height="40" viewBox="0 0 120 120">
+      <g fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round">
+        <circle cx="60" cy="38" r="18" fill="var(--accent)" stroke="none"/>
+        <path d="M42 58 C30 82, 26 96, 34 112"/>
+        <path d="M54 60 C48 86, 44 100, 50 114"/>
+        <path d="M66 60 C72 86, 76 100, 70 114"/>
+        <path d="M78 58 C92 82, 96 96, 88 112"/>
+        <path d="M60 62 C60 92, 60 108, 60 120"/>
       </g>
     </svg>
 
@@ -152,7 +159,7 @@ svg {
   <section class="tiles">
     <div class="tile">Email</div>
     <div class="tile">Kalendář</div>
-    <div class="tile">Interní systémy</div>
+    <div class="tile">Systémy</div>
     <div class="tile">Projekt A</div>
     <div class="tile">Projekt B</div>
     <div class="tile">Reporty</div>
@@ -167,7 +174,7 @@ svg {
 </main>
 
 <footer>
-  <div>texty · odkazy · poznámky</div>
+  <div>texty · odkazy · kredity</div>
 </footer>
 
 </body>

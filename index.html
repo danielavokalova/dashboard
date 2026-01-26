@@ -6,17 +6,21 @@
 
 <style>
 :root {
-  /* barvy z tapety – lehce ztmavené */
-  --ink: #243030;
-  --blue-soft: #8fa6a8;
-  --blue-muted: #6f8a8c;
-  --paper: rgba(245,246,244,0.9);
+  /* TMAVŠÍ BARVY Z TAPETY */
+  --ink: #1f2a2a;          /* hlavní text – výraznější */
+  --ink-soft: #2e3d3e;     /* sekundární text */
+  --blue-muted: #5f7b7d;   /* titul, dlaždice */
+  --blue-line: #506a6c;    /* oddělovače */
 
-  --tile-bg: rgba(245,246,244,0.88);
-  --tile-shadow: rgba(110,130,130,0.28);
+  --paper: rgba(245,246,244,0.92);
 
-  --notes-bg: rgba(245,246,244,0.92);
-  --accent: #ff6b7a;
+  --tile-bg: rgba(245,246,244,0.9);
+  --tile-shadow: rgba(90,115,115,0.35);
+
+  --notes-bg: rgba(245,246,244,0.94);
+
+  /* CHOBOTNICE – TLUMENÁ RŮŽOVÁ V TÓNU */
+  --octopus: #a35a67;
 }
 
 /* RESET */
@@ -44,29 +48,29 @@ header {
 .header-row {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
 }
 
 h1 {
-  font-size: 24px;
-  letter-spacing: 0.26em;
+  font-size: 26px;
+  letter-spacing: 0.28em;
   font-weight: 500;
   color: var(--blue-muted);
 }
 
 .divider {
   height: 2px;
-  background: var(--blue-muted);
+  background: var(--blue-line);
   margin-top: 18px;
-  opacity: 0.7;
+  opacity: 0.9;
 }
 
 /* MAIN */
 main {
-  flex: 1; /* DŮLEŽITÉ – vytlačí patičku dolů */
+  flex: 1;
   display: grid;
-  grid-template-columns: 1fr 320px; /* širší poznámky */
-  gap: 40px;
+  grid-template-columns: 1fr 340px;
+  gap: 44px;
   padding: 40px 56px;
 }
 
@@ -74,42 +78,42 @@ main {
 .tiles {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
-  gap: 22px;
+  gap: 24px;
 }
 
 .tile {
-  height: 105px;
+  height: 110px;
   background: var(--tile-bg);
-  border-radius: 16px;
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-transform: uppercase;
-  font-size: 12px;
-  letter-spacing: 0.16em;
+  font-size: 13px;
+  letter-spacing: 0.18em;
   color: var(--blue-muted);
-  box-shadow: 0 6px 18px var(--tile-shadow);
+  box-shadow: 0 8px 22px var(--tile-shadow);
   backdrop-filter: blur(2px);
 }
 
 /* POZNÁMKY */
 .notes {
   background: var(--notes-bg);
-  border-radius: 22px;
-  padding: 24px;
-  box-shadow: 0 6px 22px rgba(0,0,0,0.08);
+  border-radius: 24px;
+  padding: 26px;
+  box-shadow: 0 8px 26px rgba(0,0,0,0.1);
 }
 
 .notes h2 {
   font-size: 12px;
-  letter-spacing: 0.22em;
-  margin-bottom: 14px;
+  letter-spacing: 0.24em;
+  margin-bottom: 16px;
   color: var(--blue-muted);
 }
 
 .notes textarea {
   width: 100%;
-  height: calc(100% - 30px);
+  height: calc(100% - 36px);
   border: none;
   background: transparent;
   resize: none;
@@ -119,15 +123,15 @@ main {
   color: var(--ink);
 }
 
-/* FOOTER – FAKT DOLE */
+/* FOOTER */
 footer {
   background: var(--paper);
-  border-top: 2px solid var(--blue-muted);
-  padding: 30px 56px;
+  border-top: 2px solid var(--blue-line);
+  padding: 32px 56px;
   height: 120px;
   display: flex;
   align-items: center;
-  color: var(--blue-muted);
+  color: var(--ink-soft);
   font-size: 13px;
 }
 
@@ -143,14 +147,17 @@ svg {
 <header>
   <div class="header-row">
 
-    <!-- jemná chobotnice -->
-    <svg width="42" height="42" viewBox="0 0 120 120">
-      <g fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round">
-        <circle cx="60" cy="38" r="18" fill="var(--accent)" stroke="none"/>
-        <path d="M42 58 C30 82, 26 96, 34 112"/>
-        <path d="M54 60 C48 86, 44 100, 50 114"/>
-        <path d="M66 60 C72 86, 76 100, 70 114"/>
-        <path d="M78 58 C92 82, 96 96, 88 112"/>
+    <!-- LEPŠÍ, ORGANICKÁ CHOBOTNICE -->
+    <svg width="44" height="44" viewBox="0 0 120 120">
+      <g fill="none" stroke="var(--octopus)" stroke-width="7" stroke-linecap="round">
+        <!-- hlava -->
+        <path d="M40 38 C40 18, 80 18, 80 38 C80 54, 60 58, 60 58 C60 58, 40 54, 40 38 Z"
+              fill="var(--octopus)" stroke="none"/>
+        <!-- chapadla -->
+        <path d="M44 58 C28 78, 24 98, 34 116"/>
+        <path d="M54 60 C46 84, 44 102, 50 116"/>
+        <path d="M66 60 C74 84, 76 102, 70 116"/>
+        <path d="M76 58 C92 78, 96 98, 86 116"/>
         <path d="M60 62 C60 92, 60 108, 60 120"/>
       </g>
     </svg>

@@ -26,7 +26,6 @@
   padding: 0;
 }
 
-/* STRÁNKA */
 body {
   min-height: 100vh;
   display: flex;
@@ -76,7 +75,6 @@ main {
   gap: 24px;
 }
 
-/* DLAŽDICE = ODKAZY */
 .tile {
   height: 110px;
   background: var(--tile-bg);
@@ -135,11 +133,6 @@ footer {
   color: var(--ink-soft);
   font-size: 13px;
 }
-
-/* CHOBOTNICE */
-svg {
-  flex-shrink: 0;
-}
 </style>
 </head>
 
@@ -147,8 +140,6 @@ svg {
 
 <header>
   <div class="header-row">
-
-    <!-- CHOBOTNICE -->
     <svg width="44" height="44" viewBox="0 0 120 120">
       <g fill="none" stroke="var(--octopus)" stroke-width="7" stroke-linecap="round">
         <path d="M40 38 C40 18, 80 18, 80 38 C80 54, 60 58, 60 58 C60 58, 40 54, 40 38 Z"
@@ -160,20 +151,17 @@ svg {
         <path d="M60 62 C60 92, 60 108, 60 120"/>
       </g>
     </svg>
-
     <h1>DASHBOARD</h1>
   </div>
-
   <div class="divider"></div>
 </header>
 
 <main>
 
   <section class="tiles">
-    <!-- EMAIL – DESKTOP OUTLOOK -->
-    <a class="tile" href="mailto:">Email</a>
+    <!-- EMAIL – GMAIL -->
+    <a class="tile" href="https://mail.google.com/" target="_blank">Email</a>
 
-    <!-- DALŠÍ DLAŽDICE -->
     <a class="tile" href="#">Kalendář</a>
     <a class="tile" href="#">Systémy</a>
     <a class="tile" href="#">Projekt A</a>
@@ -190,9 +178,7 @@ svg {
 </main>
 
 <footer>
-  <div>
-    texty · odkazy · poznámky · kredity
-  </div>
+  <div>texty · odkazy · poznámky · kredity</div>
 </footer>
 
 </body>

@@ -6,20 +6,16 @@
 
 <style>
 :root {
-  /* TMAVŠÍ BARVY Z TAPETY */
-  --ink: #1f2a2a;          /* hlavní text – výraznější */
-  --ink-soft: #2e3d3e;     /* sekundární text */
-  --blue-muted: #5f7b7d;   /* titul, dlaždice */
-  --blue-line: #506a6c;    /* oddělovače */
+  --ink: #1f2a2a;
+  --ink-soft: #2e3d3e;
+  --blue-muted: #5f7b7d;
+  --blue-line: #506a6c;
 
   --paper: rgba(245,246,244,0.92);
-
   --tile-bg: rgba(245,246,244,0.9);
   --tile-shadow: rgba(90,115,115,0.35);
-
   --notes-bg: rgba(245,246,244,0.94);
 
-  /* CHOBOTNICE – TLUMENÁ RŮŽOVÁ V TÓNU */
   --octopus: #a35a67;
 }
 
@@ -62,7 +58,6 @@ h1 {
   height: 2px;
   background: var(--blue-line);
   margin-top: 18px;
-  opacity: 0.9;
 }
 
 /* MAIN */
@@ -81,6 +76,7 @@ main {
   gap: 24px;
 }
 
+/* DLAŽDICE = ODKAZY */
 .tile {
   height: 110px;
   background: var(--tile-bg);
@@ -88,25 +84,17 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
+
   text-transform: uppercase;
   font-size: 13px;
   letter-spacing: 0.18em;
   color: var(--blue-muted);
+
   box-shadow: 0 8px 22px var(--tile-shadow);
   backdrop-filter: blur(2px);
-}
-.tile {
-  cursor: pointer;
-  text-decoration: none;
-}
-.tile {
-  position: relative;
-  z-index: 1;
-}
 
-.tile-link {
   text-decoration: none;
-  color: inherit;
+  cursor: pointer;
 }
 
 /* POZNÁMKY */
@@ -160,13 +148,11 @@ svg {
 <header>
   <div class="header-row">
 
-    <!-- LEPŠÍ, ORGANICKÁ CHOBOTNICE -->
+    <!-- CHOBOTNICE -->
     <svg width="44" height="44" viewBox="0 0 120 120">
       <g fill="none" stroke="var(--octopus)" stroke-width="7" stroke-linecap="round">
-        <!-- hlava -->
         <path d="M40 38 C40 18, 80 18, 80 38 C80 54, 60 58, 60 58 C60 58, 40 54, 40 38 Z"
               fill="var(--octopus)" stroke="none"/>
-        <!-- chapadla -->
         <path d="M44 58 C28 78, 24 98, 34 116"/>
         <path d="M54 60 C46 84, 44 102, 50 116"/>
         <path d="M66 60 C74 84, 76 102, 70 116"/>
@@ -184,18 +170,16 @@ svg {
 <main>
 
   <section class="tiles">
-    <a href="https://outlook.office.com/mail/" class="tile-link">
- <a class="tile" href="https://outlook.office.com/mail/" target="_blank">
-  Email
-</a>
+    <!-- EMAIL – DESKTOP OUTLOOK -->
+    <a class="tile" href="mailto:">Email</a>
 
-    <div class="tile">Kalendář</div>
-    <div class="tile">Email</div>
-    <div class="tile">Systémy</div>
-    <div class="tile">Projekt A</div>
-    <div class="tile">Projekt B</div>
-    <div class="tile">Reporty</div>
-    <div class="tile">Tabulky</div>
+    <!-- DALŠÍ DLAŽDICE -->
+    <a class="tile" href="#">Kalendář</a>
+    <a class="tile" href="#">Systémy</a>
+    <a class="tile" href="#">Projekt A</a>
+    <a class="tile" href="#">Projekt B</a>
+    <a class="tile" href="#">Reporty</a>
+    <a class="tile" href="#">Tabulky</a>
   </section>
 
   <aside class="notes">

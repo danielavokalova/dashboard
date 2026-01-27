@@ -95,6 +95,14 @@ main {
   box-shadow: 0 8px 22px var(--tile-shadow);
   backdrop-filter: blur(2px);
 }
+.tile {
+  cursor: pointer;
+  text-decoration: none;
+}
+.tile {
+  position: relative;
+  z-index: 1;
+}
 
 .tile-link {
   text-decoration: none;
@@ -177,8 +185,10 @@ svg {
 
   <section class="tiles">
     <a href="https://outlook.office.com/mail/" class="tile-link">
-  <div class="tile">Email</div>
+ <a class="tile" href="https://outlook.office.com/mail/" target="_blank">
+  Email
 </a>
+
     <div class="tile">Kalendář</div>
     <div class="tile">Systémy</div>
     <div class="tile">Projekt A</div>

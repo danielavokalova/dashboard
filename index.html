@@ -7,19 +7,17 @@
 <style>
 :root {
   --ink: #1f2a2a;
-  --ink-soft: #2e3d3e;
-  --blue-muted: #5f7b7d;
-  --blue-line: #506a6c;
+  --blue-muted: #4f6a6c;
+  --blue-line: #425c5e;
 
   --paper: rgba(245,246,244,0.92);
   --tile-bg: rgba(245,246,244,0.9);
   --tile-shadow: rgba(90,115,115,0.35);
-  --notes-bg: rgba(245,246,244,0.94);
 
-  --octopus: #a35a67;
+  --notes-bg: rgba(245,246,244,0.94);
+  --octopus: #8f3e4a;
 }
 
-/* RESET */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -43,7 +41,7 @@ header {
 .header-row {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 22px;
 }
 
 h1 {
@@ -63,80 +61,64 @@ h1 {
 main {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr 360px;
+  grid-template-columns: 1fr 380px;
   gap: 44px;
   padding: 40px 56px;
 }
 
-/* DLAŽDICE */
+/* TILES */
 .tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 26px;
 }
 
 .tile {
-  height: 120px;
+  height: 110px;
   background: var(--tile-bg);
   border-radius: 18px;
+
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
 
   text-transform: uppercase;
   font-size: 12px;
   letter-spacing: 0.18em;
   color: var(--blue-muted);
+  text-align: center;
 
   box-shadow: 0 8px 22px var(--tile-shadow);
   backdrop-filter: blur(2px);
 
   text-decoration: none;
   cursor: pointer;
-
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-/* HOVER EFEKT */
 .tile:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(90,115,115,0.45);
+  box-shadow: 0 14px 32px rgba(90,115,115,0.45);
 }
 
-/* IKONKY */
-.tile svg {
-  width: 26px;
-  height: 26px;
-  stroke: var(--blue-muted);
-}
-
-/* MALÝ ŠTÍTEK */
-.badge {
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  opacity: 0.6;
-}
-
-/* POZNÁMKY */
+/* NOTES */
 .notes {
   background: var(--notes-bg);
-  border-radius: 24px;
-  padding: 26px;
+  border-radius: 26px;
+  padding: 28px;
   box-shadow: 0 8px 26px rgba(0,0,0,0.1);
 }
 
 .notes h2 {
   font-size: 12px;
   letter-spacing: 0.24em;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   color: var(--blue-muted);
 }
 
 .notes textarea {
   width: 100%;
-  height: calc(100% - 36px);
+  height: calc(100% - 40px);
   border: none;
   background: transparent;
   resize: none;
@@ -154,8 +136,15 @@ footer {
   height: 120px;
   display: flex;
   align-items: center;
-  color: var(--ink-soft);
+  color: var(--blue-muted);
   font-size: 13px;
+}
+
+/* OCTOPUS */
+.logo-chobotnice {
+  color: var(--octopus);
+  width: 56px;
+  height: 56px;
 }
 </style>
 </head>
@@ -164,68 +153,50 @@ footer {
 
 <header>
   <div class="header-row">
-    <!-- chobotnice -->
-    <svg width="44" height="44" viewBox="0 0 120 120">
-      <g fill="none" stroke="var(--octopus)" stroke-width="7" stroke-linecap="round">
-        <path d="M40 38 C40 18, 80 18, 80 38 C80 54, 60 58, 60 58 C60 58, 40 54, 40 38 Z"
-              fill="var(--octopus)" stroke="none"/>
-        <path d="M44 58 C28 78, 24 98, 34 116"/>
-        <path d="M54 60 C46 84, 44 102, 50 116"/>
-        <path d="M66 60 C74 84, 76 102, 70 116"/>
-        <path d="M76 58 C92 78, 96 98, 86 116"/>
-        <path d="M60 62 C60 92, 60 108, 60 120"/>
-      </g>
-    </svg>
 
-    <h1>DASHBOARD</h1>
-  </div>
-  <div class="divider"></div>
+<svg class="logo-chobotnice" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="50" cy="40" r="25" fill="currentColor"/>
+  <g fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round">
+    <path d="M 50,65 C 45,75 55,85 50,95" />
+    <path d="M 40,63 C 30,75 45,85 35,95" />
+    <path d="M 60,63 C 70,75 55,85 65,95" />
+    <path d="M 30,58 C 15,70 35,85 20,92" />
+    <path d="M 70,58 C 85,70 65,85 80,92" />
+  </g>
+  <g fill="white">
+    <circle cx="42" cy="40" r="3.5"/>
+    <circle cx="58" cy="40" r="3.5"/>
+  </g>
+</svg>
+
+<h1>DASHBOARD</h1>
+</div>
+<div class="divider"></div>
 </header>
 
 <main>
 
 <section class="tiles">
+  <a class="tile" href="https://bo.golibe.com/" target="_blank">GOL IBE AC</a>
+  <a class="tile" href="https://admin-console.tripmanager.com/" target="_blank">TM AC</a>
+  <a class="tile" href="https://admin-console.tripmanager.com/" target="_blank">TCP AC</a>
 
-  <!-- EMAIL – DESKTOP -->
-  <a class="tile" href="mailto:">
-    <svg viewBox="0 0 24 24" fill="none">
-      <rect x="3" y="5" width="18" height="14" rx="2"/>
-      <path d="M3 7l9 6 9-6"/>
-    </svg>
-    Email
-    <div class="badge">desktop</div>
-  </a>
+  <a class="tile" href="https://docs.google.com/spreadsheets/d/18cAQwVzeSfboPnsGZ81aw8PVmEIUmxRQ9Rmly6b7bS4/edit?gid=475830105#gid=475830105" target="_blank">GOL IBE IMPLEMENTACE</a>
 
-  <!-- GMAIL -->
-  <a class="tile" href="https://mail.google.com" target="_blank">
-    <svg viewBox="0 0 24 24" fill="none">
-      <rect x="3" y="5" width="18" height="14" rx="2"/>
-      <path d="M3 7l9 6 9-6"/>
-    </svg>
-    Gmail
-    <div class="badge">web</div>
-  </a>
+  <a class="tile" href="https://docs.google.com/spreadsheets/d/1ActGLRron0vpIoFHCzofLSreyVburlIPo64lSMbLJ0c/edit?gid=0#gid=0" target="_blank">TRIPGATE IMPLEMENTACE</a>
 
-  <!-- KALENDÁŘ -->
-  <a class="tile" href="#">
-    <svg viewBox="0 0 24 24" fill="none">
-      <rect x="3" y="4" width="18" height="18" rx="2"/>
-      <path d="M3 10h18"/>
-    </svg>
-    Kalendář
-  </a>
+  <a class="tile" href="https://docs.google.com/spreadsheets/d/1cvwpJnr7AdIddGa4R8WFH7j3He9SOgbppY-6e-zeViw/edit?gid=0#gid=0" target="_blank">GOL IBE MEETINGS</a>
 
-  <a class="tile" href="#">Systémy</a>
-  <a class="tile" href="#">Projekt A</a>
-  <a class="tile" href="#">Projekt B</a>
-  <a class="tile" href="#">Reporty</a>
-  <a class="tile" href="#">Tabulky</a>
+  <a class="tile" href="https://docs.google.com/spreadsheets/d/1F1HjyKIFm5dDzMzM1-GAIKnH13lbHRYgYWgArbI00yg/edit" target="_blank">ZALETSI OPENED TASKS</a>
 
+  <a class="tile" href="https://docs.google.com/spreadsheets/d/1PwXopixBNOhwgZTDGmHUTCzz9dZPqtHiGZIkAVO4aw0/edit?gid=0#gid=0" target="_blank">VDV OPENED TASKS</a>
+
+  <a class="tile" href="https://cee-support.zendesk.com/auth/v2/login/signin?return_to=https%3A%2F%2Fsupport.cee-systems.com%2Fagent%2Ffilters%2F65499989" target="_blank">ZENDESK</a>
 </section>
 
 <aside class="notes">
   <h2>POZNÁMKY</h2>
-  <textarea id="notes" placeholder="Sem si piš…"></textarea>
+  <textarea id="notes" placeholder="Klidné poznámky…"></textarea>
 </aside>
 
 </main>
@@ -235,10 +206,8 @@ footer {
 </footer>
 
 <script>
-/* ULOŽENÍ POZNÁMEK */
 const textarea = document.getElementById("notes");
 textarea.value = localStorage.getItem("dashboardNotes") || "";
-
 textarea.addEventListener("input", () => {
   localStorage.setItem("dashboardNotes", textarea.value);
 });

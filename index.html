@@ -13,8 +13,8 @@
   --paper: rgba(245,246,244,0.92);
   --tile-bg: rgba(245,246,244,0.9);
   --tile-shadow: rgba(90,115,115,0.35);
-
   --notes-bg: rgba(245,246,244,0.94);
+
   --octopus: #8f3e4a;
 }
 
@@ -69,12 +69,12 @@ main {
 /* TILES */
 .tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 26px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 22px;
 }
 
 .tile {
-  height: 110px;
+  height: 100px;
   background: var(--tile-bg);
   border-radius: 18px;
 
@@ -83,10 +83,12 @@ main {
   justify-content: center;
 
   text-transform: uppercase;
-  font-size: 12px;
-  letter-spacing: 0.18em;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   color: var(--blue-muted);
   text-align: center;
+  line-height: 1.4;
 
   box-shadow: 0 8px 22px var(--tile-shadow);
   backdrop-filter: blur(2px);
@@ -101,8 +103,20 @@ main {
   box-shadow: 0 14px 32px rgba(90,115,115,0.45);
 }
 
+/* POZNÁMKY + EMAIL */
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.email-tile {
+  height: 100px;
+}
+
 /* NOTES */
 .notes {
+  flex: 1;
   background: var(--notes-bg);
   border-radius: 26px;
   padding: 28px;
@@ -157,11 +171,11 @@ footer {
 <svg class="logo-chobotnice" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
   <circle cx="50" cy="40" r="25" fill="currentColor"/>
   <g fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round">
-    <path d="M 50,65 C 45,75 55,85 50,95" />
-    <path d="M 40,63 C 30,75 45,85 35,95" />
-    <path d="M 60,63 C 70,75 55,85 65,95" />
-    <path d="M 30,58 C 15,70 35,85 20,92" />
-    <path d="M 70,58 C 85,70 65,85 80,92" />
+    <path d="M50 65 C45 75 55 85 50 95"/>
+    <path d="M40 63 C30 75 45 85 35 95"/>
+    <path d="M60 63 C70 75 55 85 65 95"/>
+    <path d="M30 58 C15 70 35 85 20 92"/>
+    <path d="M70 58 C85 70 65 85 80 92"/>
   </g>
   <g fill="white">
     <circle cx="42" cy="40" r="3.5"/>
@@ -177,26 +191,32 @@ footer {
 <main>
 
 <section class="tiles">
-  <a class="tile" href="https://bo.golibe.com/" target="_blank">GOL IBE AC</a>
+
+  <!-- 1. řada -->
+  <a class="tile" href="https://bo.golibe.com/" target="_blank">GOL IBE<br>AC</a>
+  <a class="tile" href="https://docs.google.com/spreadsheets/d/18cAQwVzeSfboPnsGZ81aw8PVmEIUmxRQ9Rmly6b7bS4/edit" target="_blank">GOL IBE<br>IMPLEMENTACE</a>
+  <a class="tile" href="#" >GOL IBE</a>
+  <a class="tile" href="https://docs.google.com/spreadsheets/d/1cvwpJnr7AdIddGa4R8WFH7j3He9SOgbppY-6e-zeViw/edit" target="_blank">GOL IBE<br>MEETINGS</a>
+  <a class="tile" href="https://cee-support.zendesk.com/" target="_blank">ZENDESK</a>
+
+  <!-- 2. řada -->
+  <a class="tile" href="https://docs.google.com/spreadsheets/d/1ActGLRron0vpIoFHCzofLSreyVburlIPo64lSMbLJ0c/edit" target="_blank">TRIPGATE<br>IMPLEMENTACE</a>
+  <a class="tile" href="https://admin-console.tripmanager.com/" target="_blank">TCP</a>
   <a class="tile" href="https://admin-console.tripmanager.com/" target="_blank">TM AC</a>
-  <a class="tile" href="https://admin-console.tripmanager.com/" target="_blank">TCP AC</a>
 
-  <a class="tile" href="https://docs.google.com/spreadsheets/d/18cAQwVzeSfboPnsGZ81aw8PVmEIUmxRQ9Rmly6b7bS4/edit?gid=475830105#gid=475830105" target="_blank">GOL IBE IMPLEMENTACE</a>
+  <!-- 3. řada -->
+  <a class="tile" href="https://docs.google.com/spreadsheets/d/1F1HjyKIFm5dDzMzM1-GAIKnH13lbHRYgYWgArbI00yg/edit" target="_blank">ZALETSI</a>
+  <a class="tile" href="https://docs.google.com/spreadsheets/d/1PwXopixBNOhwgZTDGmHUTCzz9dZPqtHiGZIkAVO4aw0/edit" target="_blank">VDV</a>
 
-  <a class="tile" href="https://docs.google.com/spreadsheets/d/1ActGLRron0vpIoFHCzofLSreyVburlIPo64lSMbLJ0c/edit?gid=0#gid=0" target="_blank">TRIPGATE IMPLEMENTACE</a>
-
-  <a class="tile" href="https://docs.google.com/spreadsheets/d/1cvwpJnr7AdIddGa4R8WFH7j3He9SOgbppY-6e-zeViw/edit?gid=0#gid=0" target="_blank">GOL IBE MEETINGS</a>
-
-  <a class="tile" href="https://docs.google.com/spreadsheets/d/1F1HjyKIFm5dDzMzM1-GAIKnH13lbHRYgYWgArbI00yg/edit" target="_blank">ZALETSI OPENED TASKS</a>
-
-  <a class="tile" href="https://docs.google.com/spreadsheets/d/1PwXopixBNOhwgZTDGmHUTCzz9dZPqtHiGZIkAVO4aw0/edit?gid=0#gid=0" target="_blank">VDV OPENED TASKS</a>
-
-  <a class="tile" href="https://cee-support.zendesk.com/auth/v2/login/signin?return_to=https%3A%2F%2Fsupport.cee-systems.com%2Fagent%2Ffilters%2F65499989" target="_blank">ZENDESK</a>
 </section>
 
-<aside class="notes">
-  <h2>POZNÁMKY</h2>
-  <textarea id="notes" placeholder="Klidné poznámky…"></textarea>
+<aside class="side">
+  <a class="tile email-tile" href="mailto:">EMAIL</a>
+
+  <div class="notes">
+    <h2>POZNÁMKY</h2>
+    <textarea id="notes" placeholder="Klidné poznámky…"></textarea>
+  </div>
 </aside>
 
 </main>

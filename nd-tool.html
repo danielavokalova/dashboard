@@ -5,304 +5,218 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Notification Designer — GOL IBE</title>
 <style>
-/* ── RESET ── */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── ROOT ── */
 :root {
   --bg-page: #0f1117;
   --surface: rgba(255,255,255,0.05);
-  --surface-hover: rgba(255,255,255,0.08);
   --border: rgba(255,255,255,0.1);
-  --text: #e8eaf0;
+  --text-ui: #e8eaf0;
   --muted: #8890a8;
-  --accent: #6c8ff8;
+  --accent-ui: #6c8ff8;
 }
 
-/* ── BODY ── */
 body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-  background-color: var(--bg-page);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: #0f1117;
   background-image:
     radial-gradient(ellipse 80% 50% at 20% -10%, rgba(108,143,248,0.15), transparent),
-    radial-gradient(ellipse 60% 40% at 80% 110%, rgba(167,108,248,0.1), transparent),
-    linear-gradient(180deg, #0f1117 0%, #131620 100%);
-  color: var(--text);
+    radial-gradient(ellipse 60% 40% at 80% 110%, rgba(167,108,248,0.1), transparent);
+  color: var(--text-ui);
 }
 
-/* ── HEADER ── */
+/* HEADER */
 header {
-  padding: 28px 52px 22px;
+  padding: 22px 48px;
   border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 20px;
+  display: flex; align-items: center; gap: 16px;
+  background: rgba(15,17,23,0.9);
   backdrop-filter: blur(8px);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: rgba(15,17,23,0.85);
+  position: sticky; top: 0; z-index: 10;
 }
-
 .logo {
-  width: 36px; height: 36px;
+  width: 34px; height: 34px;
   background: linear-gradient(135deg, #6c8ff8, #a76cf8);
-  border-radius: 10px;
+  border-radius: 9px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
+  font-size: 16px; flex-shrink: 0;
 }
-
-.header-text h1 {
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  color: var(--text);
-}
-
-.header-text p {
-  font-size: 11px;
-  color: var(--muted);
-  letter-spacing: 0.06em;
-  margin-top: 2px;
-}
-
+.header-text h1 { font-size: 15px; font-weight: 600; letter-spacing: 0.04em; }
+.header-text p { font-size: 11px; color: var(--muted); margin-top: 2px; }
 .header-badge {
   margin-left: auto;
   background: rgba(108,143,248,0.15);
   border: 1px solid rgba(108,143,248,0.3);
   color: #6c8ff8;
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-weight: 700;
-  padding: 5px 12px;
-  border-radius: 20px;
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700;
+  padding: 4px 12px; border-radius: 20px;
 }
 
-/* ── MAIN ── */
+/* LAYOUT */
 main {
   flex: 1;
   display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 0;
+  grid-template-columns: 280px 1fr;
 }
 
-/* ── SIDEBAR ── */
+/* SIDEBAR */
 .sidebar {
   border-right: 1px solid var(--border);
-  padding: 24px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
+  padding: 20px 18px;
+  display: flex; flex-direction: column; gap: 24px;
   overflow-y: auto;
 }
-
 .section-title {
-  font-size: 9px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--muted);
-  font-weight: 700;
-  margin-bottom: 12px;
+  font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--muted); font-weight: 700; margin-bottom: 10px;
 }
 
-/* ── THEME CARDS ── */
-.theme-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
+/* THEME CARDS */
+.theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
 .theme-card {
-  border-radius: 12px;
-  overflow: hidden;
-  cursor: pointer;
+  border-radius: 10px; overflow: hidden; cursor: pointer;
   border: 2px solid transparent;
-  transition: border-color 0.2s, transform 0.18s;
+  transition: border-color 0.2s, transform 0.15s;
   background: var(--surface);
 }
 .theme-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.2); }
-.theme-card.active { border-color: var(--accent); }
-
-.theme-swatch {
-  height: 60px;
-  display: flex; align-items: center; justify-content: center;
-  position: relative;
-}
-
+.theme-card.active { border-color: var(--accent-ui); }
+.theme-swatch { height: 54px; display: flex; align-items: center; justify-content: center; }
 .mini-email {
-  width: 48px; height: 40px;
-  border-radius: 5px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.4);
-  display: flex; flex-direction: column;
-  overflow: hidden;
+  width: 44px; height: 36px; border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  display: flex; flex-direction: column; overflow: hidden;
 }
-.mini-top { height: 13px; width: 100%; }
-.mini-body { flex: 1; padding: 4px 5px; display: flex; flex-direction: column; gap: 2px; }
+.mini-top { height: 10px; width: 100%; }
+.mini-body { flex: 1; padding: 3px 4px; display: flex; flex-direction: column; gap: 2px; }
 .mini-line { height: 2px; border-radius: 1px; }
-
 .theme-name {
-  padding: 7px 10px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-  text-align: center;
+  padding: 6px 8px; font-size: 9px; font-weight: 600;
+  letter-spacing: 0.06em; color: var(--muted); text-align: center;
 }
-.theme-card.active .theme-name { color: var(--accent); }
+.theme-card.active .theme-name { color: var(--accent-ui); }
 
-/* ── FINE-TUNE ── */
+/* CONTROLS */
 .control-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 0; border-bottom: 1px solid var(--border);
 }
 .control-row:last-child { border-bottom: none; }
-
-.control-label {
-  font-size: 12px;
-  color: var(--muted);
-}
-
+.control-label { font-size: 12px; color: var(--muted); }
 input[type="color"] {
-  width: 36px; height: 26px;
-  border: 2px solid var(--border);
-  border-radius: 8px;
-  background: transparent;
-  cursor: pointer;
-  padding: 1px;
+  width: 34px; height: 24px; border: 2px solid var(--border);
+  border-radius: 7px; background: transparent; cursor: pointer; padding: 1px;
 }
-
 select {
-  font-family: inherit;
-  font-size: 11px;
-  color: var(--text);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 5px 8px;
-  cursor: pointer;
-  outline: none;
-  max-width: 130px;
+  font-family: inherit; font-size: 11px; color: var(--text-ui);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 7px; padding: 4px 7px; cursor: pointer; outline: none; max-width: 120px;
 }
 select option { background: #1e2030; }
 
-/* ── BUTTONS ── */
-.btn-group { display: flex; flex-direction: column; gap: 8px; }
-
+/* BUTTONS */
+.btn-group { display: flex; flex-direction: column; gap: 7px; }
 .btn {
-  width: 100%;
-  padding: 11px;
-  border: none;
-  border-radius: 10px;
-  font-family: inherit;
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  font-weight: 700;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: opacity 0.18s, transform 0.18s;
+  width: 100%; padding: 10px; border: none; border-radius: 9px;
+  font-family: inherit; font-size: 11px; letter-spacing: 0.14em;
+  font-weight: 700; text-transform: uppercase; cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
 }
 .btn:hover { opacity: 0.85; transform: translateY(-1px); }
 .btn:active { transform: translateY(0); }
+.btn-preview { background: #ffffff; color: #1a1a2e; border: 1px solid rgba(255,255,255,0.25); }
+.btn-primary { background: linear-gradient(135deg, #6c8ff8, #a76cf8); color: white; }
+.btn-secondary { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
 
-.btn-preview {
-  background: #ffffff;
-  color: #1a1a2e;
-  border: 1px solid rgba(255,255,255,0.3);
-  font-size: 12px;
-}
-.btn-primary {
-  background: linear-gradient(135deg, #6c8ff8, #a76cf8);
-  color: white;
-}
-.btn-secondary {
-  background: var(--surface);
-  color: var(--muted);
-  border: 1px solid var(--border);
-}
-
-/* ── PREVIEW AREA ── */
-.preview-area {
-  display: flex;
-  flex-direction: column;
-}
-
+/* PREVIEW AREA */
+.preview-area { display: flex; flex-direction: column; overflow: hidden; }
 .preview-toolbar {
-  padding: 14px 24px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  padding: 12px 22px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
 }
-
-.preview-dots { display: flex; gap: 6px; }
-.dot { width: 11px; height: 11px; border-radius: 50%; }
+.preview-dots { display: flex; gap: 5px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; }
 .dot-r { background: #ff5f57; }
 .dot-y { background: #febc2e; }
 .dot-g { background: #28c840; }
+.preview-label { font-size: 11px; color: var(--muted); letter-spacing: 0.05em; }
 
-.preview-label {
-  font-size: 11px;
-  color: var(--muted);
-  letter-spacing: 0.06em;
-}
-
-/* ── LIVE PREVIEW ── */
 .preview-scroll {
-  flex: 1;
-  overflow-y: auto;
-  background: #e8e8ec;
-  padding: 32px 24px;
+  flex: 1; overflow-y: auto;
+  background: #d8d9de;
+  padding: 28px 20px;
+}
+.preview-sheet {
+  max-width: 560px; margin: 0 auto;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.08);
+  transform-origin: top center;
 }
 
-.preview-sheet {
-  max-width: 600px;
-  margin: 0 auto;
-  background: #ffffff;
-  box-shadow: 0 2px 24px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06);
-  border-radius: 3px;
+/* MODAL */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 200; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: #1a1b23; border-radius: 16px;
+  border: 1px solid var(--border);
+  width: 90vw; max-width: 680px;
+  max-height: 88vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.6);
   overflow: hidden;
 }
+.modal-header {
+  padding: 14px 20px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+}
+.modal-title { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; color: var(--text-ui); }
+.modal-close {
+  background: rgba(255,255,255,0.08); border: none; color: var(--muted);
+  width: 28px; height: 28px; border-radius: 8px; cursor: pointer;
+  font-size: 16px; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.modal-close:hover { background: rgba(255,255,255,0.15); }
+.modal-body {
+  overflow-y: auto; background: #d8d9de; padding: 24px 20px; flex: 1;
+}
+.modal-email-sheet {
+  max-width: 500px; margin: 0 auto;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+}
 
-/* ── TOAST ── */
+/* TOAST */
 .toast {
-  position: fixed; bottom: 28px; right: 32px;
+  position: fixed; bottom: 24px; right: 28px;
   background: linear-gradient(135deg, #6c8ff8, #a76cf8);
-  color: white;
-  padding: 11px 22px;
-  border-radius: 10px;
-  font-size: 11px; letter-spacing: 0.14em;
-  font-weight: 700; text-transform: uppercase;
-  box-shadow: 0 8px 24px rgba(108,143,248,0.35);
-  transform: translateY(80px);
-  transition: transform 0.3s ease;
-  pointer-events: none; z-index: 100;
+  color: white; padding: 10px 20px; border-radius: 9px;
+  font-size: 11px; letter-spacing: 0.14em; font-weight: 700; text-transform: uppercase;
+  box-shadow: 0 6px 20px rgba(108,143,248,0.35);
+  transform: translateY(70px); transition: transform 0.28s ease;
+  pointer-events: none; z-index: 300;
 }
 .toast.show { transform: translateY(0); }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <header>
   <div class="logo">✉</div>
   <div class="header-text">
     <h1>Notification Designer</h1>
-    <p>GOL IBE · Booking Confirmation Template</p>
+    <p>GOL IBE · Booking Confirmation</p>
   </div>
   <div class="header-badge">Preview Tool</div>
 </header>
 
 <main>
-
-  <!-- SIDEBAR -->
   <aside class="sidebar">
 
     <div>
@@ -313,7 +227,7 @@ select option { background: #1e2030; }
     <div>
       <div class="section-title">Fine-tune</div>
       <div class="control-row">
-        <span class="control-label">Background</span>
+        <span class="control-label">Email background</span>
         <input type="color" id="cBg">
       </div>
       <div class="control-row">
@@ -321,8 +235,12 @@ select option { background: #1e2030; }
         <input type="color" id="cAccent">
       </div>
       <div class="control-row">
-        <span class="control-label">Text colour</span>
+        <span class="control-label">Body text</span>
         <input type="color" id="cText">
+      </div>
+      <div class="control-row">
+        <span class="control-label">Label text</span>
+        <input type="color" id="cLabel">
       </div>
       <div class="control-row">
         <span class="control-label">Font</span>
@@ -340,7 +258,7 @@ select option { background: #1e2030; }
     <div>
       <div class="section-title">Preview &amp; Export</div>
       <div class="btn-group">
-        <button class="btn btn-preview" onclick="openPreview()">&#128065; Open Full Preview</button>
+        <button class="btn btn-preview" onclick="openPreview()">👁 Preview</button>
         <button class="btn btn-primary" onclick="copyHTML()">Copy HTML</button>
         <button class="btn btn-secondary" onclick="downloadHTML()">Download HTML</button>
       </div>
@@ -348,7 +266,6 @@ select option { background: #1e2030; }
 
   </aside>
 
-  <!-- PREVIEW -->
   <section class="preview-area">
     <div class="preview-toolbar">
       <div class="preview-dots">
@@ -356,14 +273,26 @@ select option { background: #1e2030; }
         <div class="dot dot-y"></div>
         <div class="dot dot-g"></div>
       </div>
-      <span class="preview-label">Booking Confirmation — live preview</span>
+      <span class="preview-label">Live preview — updates as you change settings</span>
     </div>
     <div class="preview-scroll">
       <div class="preview-sheet" id="previewSheet"></div>
     </div>
   </section>
-
 </main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="previewModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">📧 Booking Confirmation — Email Preview</span>
+      <button class="modal-close" onclick="closePreview()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-email-sheet" id="modalSheet"></div>
+    </div>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -371,71 +300,52 @@ select option { background: #1e2030; }
 const themes = [
   {
     name: 'Sky',
-    outerBg: '#f5f6f8', innerBg: '#ffffff',
-    stripe: '#1a6faf', accent: '#1a6faf',
-    title: '#1a6faf', label: '#1a6faf',
-    text: '#333333', footerMsg: '#666666', footerGrey: '#999999',
-    border: '#ebebeb',
+    outerBg: '#e8f4fd', accent: '#1a6faf',
+    text: '#2c2c2c', labelColor: '#aaaaaa',
   },
   {
     name: 'Slate',
-    outerBg: '#f5f6f8', innerBg: '#ffffff',
-    stripe: '#2c3e50', accent: '#2980b9',
-    title: '#2c3e50', label: '#2980b9',
-    text: '#333333', footerMsg: '#555555', footerGrey: '#888888',
-    border: '#ebebeb',
+    outerBg: '#edf0f4', accent: '#2980b9',
+    text: '#2c3e50', labelColor: '#9eaab8',
   },
   {
     name: 'Emerald',
-    outerBg: '#f5f6f8', innerBg: '#ffffff',
-    stripe: '#00897b', accent: '#00897b',
-    title: '#00695c', label: '#00897b',
-    text: '#333333', footerMsg: '#555555', footerGrey: '#888888',
-    border: '#ebebeb',
+    outerBg: '#e6f4f1', accent: '#00897b',
+    text: '#1a2e2b', labelColor: '#8ab5af',
   },
   {
     name: 'Rose',
-    outerBg: '#f5f6f8', innerBg: '#ffffff',
-    stripe: '#c0392b', accent: '#c0392b',
-    title: '#922b21', label: '#c0392b',
-    text: '#333333', footerMsg: '#555555', footerGrey: '#888888',
-    border: '#ebebeb',
+    outerBg: '#fdeef0', accent: '#c0392b',
+    text: '#2e1a1a', labelColor: '#c4a0a0',
   },
   {
     name: 'Plum',
-    outerBg: '#f5f6f8', innerBg: '#ffffff',
-    stripe: '#6c3483', accent: '#6c3483',
-    title: '#512e5f', label: '#6c3483',
-    text: '#333333', footerMsg: '#555555', footerGrey: '#888888',
-    border: '#ebebeb',
+    outerBg: '#f0eaf6', accent: '#6c3483',
+    text: '#2a1a35', labelColor: '#b09abe',
   },
   {
-    name: 'Carbon',
-    outerBg: '#f5f6f8', innerBg: '#ffffff',
-    stripe: '#1a1a2e', accent: '#e94560',
-    title: '#1a1a2e', label: '#e94560',
-    text: '#333333', footerMsg: '#555555', footerGrey: '#888888',
-    border: '#ebebeb',
+    name: 'Warm',
+    outerBg: '#fdf6ec', accent: '#d35400',
+    text: '#2e200e', labelColor: '#c4a882',
   },
 ];
 
 let state = { ...themes[0], font: "'Inter', Helvetica, Arial, sans-serif" };
 
-/* ── THEME CARDS ── */
+/* THEME CARDS */
 const grid = document.getElementById('themeGrid');
 themes.forEach((t, i) => {
-  const dark = isDark(t.outerBg);
   const card = document.createElement('div');
   card.className = 'theme-card' + (i === 0 ? ' active' : '');
   card.innerHTML = `
     <div class="theme-swatch" style="background:${t.outerBg}">
-      <div class="mini-email" style="background:${t.innerBg}">
-        <div class="mini-top" style="background:${t.stripe}"></div>
+      <div class="mini-email" style="background:#ffffff">
+        <div class="mini-top" style="background:${t.accent}"></div>
         <div class="mini-body">
-          <div class="mini-line" style="background:${dark?'rgba(255,255,255,0.2)':'#ddd'};width:75%"></div>
-          <div class="mini-line" style="background:${t.accent};width:55%"></div>
-          <div class="mini-line" style="background:${dark?'rgba(255,255,255,0.12)':'#e8e8e8'};width:90%"></div>
-          <div class="mini-line" style="background:${dark?'rgba(255,255,255,0.12)':'#e8e8e8'};width:65%"></div>
+          <div class="mini-line" style="background:${t.labelColor};width:70%"></div>
+          <div class="mini-line" style="background:${t.accent};width:50%"></div>
+          <div class="mini-line" style="background:${t.labelColor};width:85%"></div>
+          <div class="mini-line" style="background:${t.labelColor};width:60%"></div>
         </div>
       </div>
     </div>
@@ -451,182 +361,147 @@ themes.forEach((t, i) => {
   grid.appendChild(card);
 });
 
-function isDark(hex) {
-  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
-  return (r*299+g*587+b*114)/1000 < 128;
-}
-
-/* ── PICKERS ── */
+/* PICKERS */
 function syncPickers() {
   document.getElementById('cBg').value = state.outerBg;
   document.getElementById('cAccent').value = state.accent;
   document.getElementById('cText').value = state.text;
+  document.getElementById('cLabel').value = state.labelColor;
 }
 document.getElementById('cBg').addEventListener('input', e => { state.outerBg = e.target.value; renderPreview(); });
-document.getElementById('cAccent').addEventListener('input', e => {
-  state.accent = e.target.value; state.stripe = e.target.value; state.label = e.target.value;
-  renderPreview();
-});
+document.getElementById('cAccent').addEventListener('input', e => { state.accent = e.target.value; renderPreview(); });
 document.getElementById('cText').addEventListener('input', e => { state.text = e.target.value; renderPreview(); });
+document.getElementById('cLabel').addEventListener('input', e => { state.labelColor = e.target.value; renderPreview(); });
 document.getElementById('fontSel').addEventListener('change', e => { state.font = e.target.value; renderPreview(); });
 
-/* ── BUILD HTML ── */
+/* BUILD EMAIL HTML */
 function buildHTML() {
-  const { accent, outerBg, text, font: f } = state;
+  const { outerBg, accent, text, labelColor: lc, font: f } = state;
   return `<table style="border-collapse:collapse;width:100%;background:${outerBg};" border="0" cellspacing="0" cellpadding="0">
-<tbody><tr><td style="padding:40px 20px;" align="center">
-<table style="border-collapse:collapse;width:100%;max-width:560px;background:#ffffff;" border="0" cellspacing="0" cellpadding="0">
+<tbody><tr><td style="padding:36px 20px;" align="center">
+<table style="border-collapse:collapse;width:100%;max-width:540px;background:#ffffff;" border="0" cellspacing="0" cellpadding="0">
 <tbody>
 
 <!-- LOGO -->
-<tr>
-<td style="padding-bottom:32px;" align="center">
-  <span style="font-family:${f};font-size:26px;font-weight:800;color:${accent};letter-spacing:-0.5px;">{agency.company}</span>
-</td>
-</tr>
+<tr><td style="padding:28px 40px 24px 40px;" align="center">
+  <span style="font-family:${f};font-size:24px;font-weight:800;color:${accent};letter-spacing:-0.4px;">{agency.company}</span>
+</td></tr>
 
-<!-- INTRO TEXT -->
-<tr>
-<td style="padding-bottom:8px;" align="center">
+<!-- INTRO -->
+<tr><td style="padding:0 40px 8px 40px;" align="center">
   <span style="font-family:${f};font-size:15px;color:${text};line-height:1.6;">Here's everything you need for your booking.</span>
-</td>
-</tr>
-<tr>
-<td style="padding-bottom:28px;" align="center">
-  <span style="font-family:${f};font-size:14px;color:#aaaaaa;">Hello <strong style="color:#555555;">{reservation.billing_info.contact_name}</strong></span>
-</td>
-</tr>
+</td></tr>
+<tr><td style="padding:0 40px 24px 40px;" align="center">
+  <span style="font-family:${f};font-size:13px;color:${lc};">Hello <strong style="color:${text};">{reservation.billing_info.contact_name}</strong></span>
+</td></tr>
 
 <!-- REFERENCE BOX -->
-<tr>
-<td style="padding-bottom:8px;" align="center">
-  <span style="font-family:${f};font-size:12px;color:#aaaaaa;letter-spacing:0.08em;">Booking confirmation reference</span>
-</td>
-</tr>
-<tr>
-<td style="padding-bottom:10px;" align="center">
-  <table style="border-collapse:collapse;border:2px solid #dddddd;border-radius:6px;" border="0" cellspacing="0" cellpadding="0"><tbody><tr>
-  <td style="padding:14px 40px;" align="center">
-    <span style="font-family:'Courier New',monospace;font-size:26px;font-weight:700;color:#222222;letter-spacing:0.18em;">{reservation.remote_system_reference}</span>
-  </td>
-  </tr></tbody></table>
-</td>
-</tr>
+<tr><td style="padding:0 40px 8px 40px;" align="center">
+  <span style="font-family:${f};font-size:11px;color:${lc};letter-spacing:0.08em;">Booking confirmation reference</span>
+</td></tr>
+<tr><td style="padding:0 40px 10px 40px;" align="center">
+  <table style="border-collapse:collapse;border:2px solid #dddddd;border-radius:5px;" border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+  <td style="padding:12px 36px;" align="center">
+    <span style="font-family:'Courier New',monospace;font-size:24px;font-weight:700;color:${text};letter-spacing:0.16em;">{reservation.remote_system_reference}</span>
+  </td></tr></tbody></table>
+</td></tr>
 
-<!-- VIEW TRIP LINK -->
-<tr>
-<td style="padding-bottom:36px;" align="center">
+<!-- VIEW LINK -->
+<tr><td style="padding:0 40px 32px 40px;" align="center">
   <span style="font-family:${f};font-size:13px;color:${accent};font-weight:600;">{viewtrip_link}</span>
-</td>
-</tr>
+</td></tr>
 
 <!-- DIVIDER -->
-<tr><td style="border-top:1px solid #eeeeee;padding-bottom:28px;font-size:0;">&nbsp;</td></tr>
+<tr><td style="border-top:1px solid #eeeeee;font-size:0;">&nbsp;</td></tr>
 
-<!-- CUSTOMER SECTION LABEL -->
-<tr>
-<td style="padding-bottom:12px;">
-  <span style="font-family:${f};font-size:13px;font-weight:700;color:${accent};">Customer</span>
-</td>
-</tr>
-
-<!-- CUSTOMER ROWS -->
-<tr>
-<td style="padding-bottom:28px;">
-<table style="border-collapse:collapse;width:100%;" border="0" cellspacing="0" cellpadding="0"><tbody>
-<tr>
-  <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;width:46%;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">Name and Surname</span></td>
-  <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.billing_info.contact_name}</span></td>
-</tr>
-<tr>
-  <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">Phone</span></td>
-  <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.billing_info.phone}</span></td>
-</tr>
-<tr>
-  <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">E-mail</span></td>
-  <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.billing_info.email}</span></td>
-</tr>
-<tr>
-  <td style="padding:9px 0;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">Username</span></td>
-  <td style="padding:9px 0;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{customer.reservation_creator_info}</span></td>
-</tr>
-</tbody></table>
-</td>
-</tr>
-
-<!-- BOOKING SECTION LABEL -->
-<tr>
-<td style="padding-bottom:12px;">
-  <span style="font-family:${f};font-size:13px;font-weight:700;color:${accent};">Booking Details</span>
-</td>
-</tr>
-
-<!-- BOOKING ROWS -->
-<tr>
-<td style="padding-bottom:36px;">
-<table style="border-collapse:collapse;width:100%;" border="0" cellspacing="0" cellpadding="0"><tbody>
-<tr>
-  <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;width:46%;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">Delivery Method</span></td>
-  <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.ticketplace}</span></td>
-</tr>
-<tr>
-  <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">Payment Method</span></td>
-  <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.paymentform}</span></td>
-</tr>
-<tr>
-  <td style="padding:9px 0;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">Customer's Remark</span></td>
-  <td style="padding:9px 0;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.remark}</span></td>
-</tr>
-</tbody></table>
-</td>
-</tr>
+<!-- CUSTOMER -->
+<tr><td style="padding:22px 40px 10px 40px;">
+  <span style="font-family:${f};font-size:12px;font-weight:700;color:${accent};">Customer</span>
+</td></tr>
+<tr><td style="padding:0 40px 22px 40px;">
+  <table style="border-collapse:collapse;width:100%;" border="0" cellspacing="0" cellpadding="0"><tbody>
+  <tr>
+    <td style="padding:8px 0;border-bottom:1px solid #f2f2f2;width:46%;"><span style="font-family:${f};font-size:12px;color:${lc};">Name and Surname</span></td>
+    <td style="padding:8px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.billing_info.contact_name}</span></td>
+  </tr>
+  <tr>
+    <td style="padding:8px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:12px;color:${lc};">Phone</span></td>
+    <td style="padding:8px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.billing_info.phone}</span></td>
+  </tr>
+  <tr>
+    <td style="padding:8px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:12px;color:${lc};">E-mail</span></td>
+    <td style="padding:8px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.billing_info.email}</span></td>
+  </tr>
+  <tr>
+    <td style="padding:8px 0;"><span style="font-family:${f};font-size:12px;color:${lc};">Username</span></td>
+    <td style="padding:8px 0;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{customer.reservation_creator_info}</span></td>
+  </tr>
+  </tbody></table>
+</td></tr>
 
 <!-- DIVIDER -->
-<tr><td style="border-top:1px solid #eeeeee;padding-bottom:24px;font-size:0;">&nbsp;</td></tr>
+<tr><td style="border-top:1px solid #eeeeee;font-size:0;">&nbsp;</td></tr>
+
+<!-- BOOKING -->
+<tr><td style="padding:22px 40px 10px 40px;">
+  <span style="font-family:${f};font-size:12px;font-weight:700;color:${accent};">Booking Details</span>
+</td></tr>
+<tr><td style="padding:0 40px 28px 40px;">
+  <table style="border-collapse:collapse;width:100%;" border="0" cellspacing="0" cellpadding="0"><tbody>
+  <tr>
+    <td style="padding:8px 0;border-bottom:1px solid #f2f2f2;width:46%;"><span style="font-family:${f};font-size:12px;color:${lc};">Delivery Method</span></td>
+    <td style="padding:8px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.ticketplace}</span></td>
+  </tr>
+  <tr>
+    <td style="padding:8px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:12px;color:${lc};">Payment Method</span></td>
+    <td style="padding:8px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.paymentform}</span></td>
+  </tr>
+  <tr>
+    <td style="padding:8px 0;"><span style="font-family:${f};font-size:12px;color:${lc};">Customer's Remark</span></td>
+    <td style="padding:8px 0;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.remark}</span></td>
+  </tr>
+  </tbody></table>
+</td></tr>
 
 <!-- FOOTER -->
-<tr>
-<td style="padding-bottom:6px;">
-  <span style="font-family:${f};font-size:12px;color:#aaaaaa;line-height:1.7;">Please find other details attached. If you have any inquiries, please contact us.</span>
-</td>
-</tr>
-<tr>
-<td>
-  <span style="font-family:${f};font-size:12px;font-weight:700;color:#555555;">{agency.company}</span><br>
-  <span style="font-family:${f};font-size:12px;color:#aaaaaa;">{agency.street}, {agency.postal_code} {agency.city}, {agency.country}</span><br>
-  <span style="font-family:${f};font-size:12px;color:${accent};">{agency.email} &nbsp;·&nbsp; {agency.phone}</span>
-</td>
-</tr>
+<tr><td style="background:${outerBg};border-top:1px solid #eeeeee;padding:20px 40px;">
+  <span style="font-family:${f};font-size:12px;color:${lc};line-height:1.7;">Please find other details attached. If you have any inquiries, please contact us.</span><br><br>
+  <span style="font-family:${f};font-size:12px;font-weight:700;color:${text};">{agency.company}</span><br>
+  <span style="font-family:${f};font-size:12px;color:${lc};">{agency.street}, {agency.postal_code} {agency.city}, {agency.country}</span><br>
+  <span style="font-family:${f};font-size:12px;color:${accent};">{agency.email} · {agency.phone}</span>
+</td></tr>
 
-</tbody>
-</table>
+</tbody></table>
 </td></tr></tbody></table>`;
 }
 
-/* ── RENDER PREVIEW ── */
+/* RENDER LIVE PREVIEW */
 function renderPreview() {
   document.getElementById('previewSheet').innerHTML = buildHTML();
 }
 
+/* MODAL PREVIEW */
 function openPreview() {
-  const fullDoc = `<!DOCTYPE html><html><head><meta charset="UTF-8">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-<style>body{margin:0;padding:40px 0;background:#f5f6f8;}</style>
-<title>Email Preview</title>
-</head><body>${buildHTML()}</body></html>`;
-  const blob = new Blob([fullDoc], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  window.open(url, '_blank');
+  document.getElementById('modalSheet').innerHTML = buildHTML();
+  document.getElementById('previewModal').classList.add('open');
 }
+function closePreview() {
+  document.getElementById('previewModal').classList.remove('open');
+}
+document.getElementById('previewModal').addEventListener('click', function(e) {
+  if (e.target === this) closePreview();
+});
 
+/* EXPORT */
 function copyHTML() {
   navigator.clipboard.writeText(buildHTML()).then(() => toast('Copied!'));
 }
 function downloadHTML() {
   const blob = new Blob([buildHTML()], { type: 'text/html' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = 'booking-confirmation.html'; a.click();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'booking-confirmation.html';
+  a.click();
   toast('Downloaded!');
 }
 function toast(msg) {

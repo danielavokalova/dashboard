@@ -254,12 +254,21 @@ select option { background: #1e2030; }
   letter-spacing: 0.06em;
 }
 
-iframe#preview {
+/* ── LIVE PREVIEW ── */
+.preview-scroll {
   flex: 1;
-  border: none;
-  width: 100%;
-  min-height: calc(100vh - 130px);
-  background: #f0f0f0;
+  overflow-y: auto;
+  background: #e8e8ec;
+  padding: 32px 24px;
+}
+
+.preview-sheet {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #ffffff;
+  box-shadow: 0 2px 24px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06);
+  border-radius: 3px;
+  overflow: hidden;
 }
 
 /* ── TOAST ── */
@@ -349,7 +358,9 @@ iframe#preview {
       </div>
       <span class="preview-label">Booking Confirmation — live preview</span>
     </div>
-    <iframe id="preview"></iframe>
+    <div class="preview-scroll">
+      <div class="preview-sheet" id="previewSheet"></div>
+    </div>
   </section>
 
 </main>
@@ -594,12 +605,7 @@ function buildHTML() {
 
 /* ── RENDER PREVIEW ── */
 function renderPreview() {
-  const doc = `<!DOCTYPE html><html><head><meta charset="UTF-8">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-<style>body{margin:0;padding:0;}</style>
-</head><body>${buildHTML()}</body></html>`;
-  document.getElementById('preview').srcdoc = doc;
+  document.getElementById('previewSheet').innerHTML = buildHTML();
 }
 
 function openPreview() {

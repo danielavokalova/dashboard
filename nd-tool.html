@@ -461,8 +461,8 @@ document.getElementById('fontSel').addEventListener('change', e => { state.font 
 
 /* ── BUILD HTML ── */
 function buildHTML() {
-  const { accent, font: f } = state;
-  return `<table style="border-collapse:collapse;width:100%;background:#ffffff;" border="0" cellspacing="0" cellpadding="0">
+  const { accent, outerBg, text, font: f } = state;
+  return `<table style="border-collapse:collapse;width:100%;background:${outerBg};" border="0" cellspacing="0" cellpadding="0">
 <tbody><tr><td style="padding:40px 20px;" align="center">
 <table style="border-collapse:collapse;width:100%;max-width:560px;background:#ffffff;" border="0" cellspacing="0" cellpadding="0">
 <tbody>
@@ -477,7 +477,7 @@ function buildHTML() {
 <!-- INTRO TEXT -->
 <tr>
 <td style="padding-bottom:8px;" align="center">
-  <span style="font-family:${f};font-size:15px;color:#333333;line-height:1.6;">Here's everything you need for your booking.</span>
+  <span style="font-family:${f};font-size:15px;color:${text};line-height:1.6;">Here's everything you need for your booking.</span>
 </td>
 </tr>
 <tr>
@@ -525,19 +525,19 @@ function buildHTML() {
 <table style="border-collapse:collapse;width:100%;" border="0" cellspacing="0" cellpadding="0"><tbody>
 <tr>
   <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;width:46%;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">Name and Surname</span></td>
-  <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:#333333;font-weight:500;">{reservation.billing_info.contact_name}</span></td>
+  <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.billing_info.contact_name}</span></td>
 </tr>
 <tr>
   <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">Phone</span></td>
-  <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:#333333;font-weight:500;">{reservation.billing_info.phone}</span></td>
+  <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.billing_info.phone}</span></td>
 </tr>
 <tr>
   <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">E-mail</span></td>
-  <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:#333333;font-weight:500;">{reservation.billing_info.email}</span></td>
+  <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.billing_info.email}</span></td>
 </tr>
 <tr>
   <td style="padding:9px 0;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">Username</span></td>
-  <td style="padding:9px 0;"><span style="font-family:${f};font-size:13px;color:#333333;font-weight:500;">{customer.reservation_creator_info}</span></td>
+  <td style="padding:9px 0;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{customer.reservation_creator_info}</span></td>
 </tr>
 </tbody></table>
 </td>
@@ -556,15 +556,15 @@ function buildHTML() {
 <table style="border-collapse:collapse;width:100%;" border="0" cellspacing="0" cellpadding="0"><tbody>
 <tr>
   <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;width:46%;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">Delivery Method</span></td>
-  <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:#333333;font-weight:500;">{reservation.ticketplace}</span></td>
+  <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.ticketplace}</span></td>
 </tr>
 <tr>
   <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">Payment Method</span></td>
-  <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:#333333;font-weight:500;">{reservation.paymentform}</span></td>
+  <td style="padding:9px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.paymentform}</span></td>
 </tr>
 <tr>
   <td style="padding:9px 0;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">Customer's Remark</span></td>
-  <td style="padding:9px 0;"><span style="font-family:${f};font-size:13px;color:#333333;font-weight:500;">{reservation.remark}</span></td>
+  <td style="padding:9px 0;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.remark}</span></td>
 </tr>
 </tbody></table>
 </td>
@@ -594,11 +594,10 @@ function buildHTML() {
 
 /* ── RENDER PREVIEW ── */
 function renderPreview() {
-  const pageBg = isDark(state.outerBg) ? '#0a0a0c' : '#e8e8e8';
   const doc = `<!DOCTYPE html><html><head><meta charset="UTF-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
-<style>body{margin:0;padding:28px 0;background:${pageBg};}</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>body{margin:0;padding:0;}</style>
 </head><body>${buildHTML()}</body></html>`;
   document.getElementById('preview').srcdoc = doc;
 }

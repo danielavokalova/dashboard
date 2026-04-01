@@ -386,7 +386,7 @@ function buildHTML() {
   const card = `border:2px solid ${bc};border-radius:12px;background:#ffffff;overflow:hidden;`;
   return `<table style="border-collapse:collapse;width:100%;background:${outerBg};" border="0" cellspacing="0" cellpadding="0">
 <tbody><tr><td style="padding:28px 24px;" align="center">
-<table style="border-collapse:collapse;width:100%;max-width:540px;" border="0" cellspacing="0" cellpadding="0">
+<table style="border-collapse:collapse;width:100%;max-width:540px;border:2px solid ${bc};border-radius:14px;overflow:hidden;" border="0" cellspacing="0" cellpadding="0">
 <tbody>
 
 <!-- CARD 1: HEADER -->
@@ -405,7 +405,7 @@ function buildHTML() {
     <span style="font-family:${f};font-size:11px;color:${lc};letter-spacing:0.08em;">Booking confirmation reference</span>
   </td></tr>
   <tr><td style="padding:0 36px 10px 36px;" align="center">
-    <table style="border-collapse:collapse;border:2px solid #dddddd;border-radius:6px;" border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+    <table style="border-collapse:collapse;border:2px solid ${bc};border-radius:12px;" border="0" cellspacing="0" cellpadding="0"><tbody><tr>
     <td style="padding:10px 32px;" align="center">
       <span style="font-family:'Courier New',monospace;font-size:22px;font-weight:700;color:${text};letter-spacing:0.14em;">{reservation.remote_system_reference}</span>
     </td></tr></tbody></table>

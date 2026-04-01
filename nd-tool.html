@@ -377,94 +377,95 @@ document.getElementById('fontSel').addEventListener('change', e => { state.font 
 /* BUILD EMAIL HTML */
 function buildHTML() {
   const { outerBg, accent, text, labelColor: lc, font: f } = state;
+  const card = `border:2px solid ${accent};border-radius:12px;background:#ffffff;overflow:hidden;`;
   return `<table style="border-collapse:collapse;width:100%;background:${outerBg};" border="0" cellspacing="0" cellpadding="0">
-<tbody><tr><td style="padding:36px 20px;" align="center">
-<table style="border-collapse:collapse;width:100%;max-width:540px;background:#ffffff;" border="0" cellspacing="0" cellpadding="0">
+<tbody><tr><td style="padding:28px 24px;" align="center">
+<table style="border-collapse:collapse;width:100%;max-width:540px;" border="0" cellspacing="0" cellpadding="0">
 <tbody>
 
-<!-- LOGO -->
-<tr><td style="padding:28px 40px 24px 40px;" align="center">
-  <span style="font-family:${f};font-size:24px;font-weight:800;color:${accent};letter-spacing:-0.4px;">{agency.company}</span>
-</td></tr>
-
-<!-- INTRO -->
-<tr><td style="padding:0 40px 8px 40px;" align="center">
-  <span style="font-family:${f};font-size:15px;color:${text};line-height:1.6;">Here's everything you need for your booking.</span>
-</td></tr>
-<tr><td style="padding:0 40px 24px 40px;" align="center">
-  <span style="font-family:${f};font-size:13px;color:${lc};">Hello <strong style="color:${text};">{reservation.billing_info.contact_name}</strong></span>
-</td></tr>
-
-<!-- REFERENCE BOX -->
-<tr><td style="padding:0 40px 8px 40px;" align="center">
-  <span style="font-family:${f};font-size:11px;color:${lc};letter-spacing:0.08em;">Booking confirmation reference</span>
-</td></tr>
-<tr><td style="padding:0 40px 10px 40px;" align="center">
-  <table style="border-collapse:collapse;border:2px solid #dddddd;border-radius:5px;" border="0" cellspacing="0" cellpadding="0"><tbody><tr>
-  <td style="padding:12px 36px;" align="center">
-    <span style="font-family:'Courier New',monospace;font-size:24px;font-weight:700;color:${text};letter-spacing:0.16em;">{reservation.remote_system_reference}</span>
-  </td></tr></tbody></table>
-</td></tr>
-
-<!-- VIEW LINK -->
-<tr><td style="padding:0 40px 32px 40px;" align="center">
-  <span style="font-family:${f};font-size:13px;color:${accent};font-weight:600;">{viewtrip_link}</span>
-</td></tr>
-
-<!-- DIVIDER -->
-<tr><td style="border-top:1px solid #eeeeee;font-size:0;">&nbsp;</td></tr>
-
-<!-- CUSTOMER -->
-<tr><td style="padding:22px 40px 10px 40px;">
-  <span style="font-family:${f};font-size:12px;font-weight:700;color:${accent};">Customer</span>
-</td></tr>
-<tr><td style="padding:0 40px 22px 40px;">
-  <table style="border-collapse:collapse;width:100%;" border="0" cellspacing="0" cellpadding="0"><tbody>
-  <tr>
-    <td style="padding:8px 0;border-bottom:1px solid #f2f2f2;width:46%;"><span style="font-family:${f};font-size:12px;color:${lc};">Name and Surname</span></td>
-    <td style="padding:8px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.billing_info.contact_name}</span></td>
-  </tr>
-  <tr>
-    <td style="padding:8px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:12px;color:${lc};">Phone</span></td>
-    <td style="padding:8px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.billing_info.phone}</span></td>
-  </tr>
-  <tr>
-    <td style="padding:8px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:12px;color:${lc};">E-mail</span></td>
-    <td style="padding:8px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.billing_info.email}</span></td>
-  </tr>
-  <tr>
-    <td style="padding:8px 0;"><span style="font-family:${f};font-size:12px;color:${lc};">Username</span></td>
-    <td style="padding:8px 0;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{customer.reservation_creator_info}</span></td>
-  </tr>
+<!-- CARD 1: HEADER -->
+<tr><td style="padding-bottom:14px;">
+  <table style="${card}" border="0" cellspacing="0" cellpadding="0" width="100%"><tbody>
+  <tr><td style="padding:28px 36px 24px 36px;" align="center">
+    <span style="font-family:${f};font-size:22px;font-weight:800;color:${accent};letter-spacing:-0.3px;">{agency.company}</span>
+  </td></tr>
+  <tr><td style="padding:0 36px 8px 36px;" align="center">
+    <span style="font-family:${f};font-size:14px;color:${text};line-height:1.6;">Here's everything you need for your booking.</span>
+  </td></tr>
+  <tr><td style="padding:0 36px 20px 36px;" align="center">
+    <span style="font-family:${f};font-size:13px;color:${lc};">Hello <strong style="color:${text};">{reservation.billing_info.contact_name}</strong></span>
+  </td></tr>
+  <tr><td style="padding:0 36px 6px 36px;" align="center">
+    <span style="font-family:${f};font-size:11px;color:${lc};letter-spacing:0.08em;">Booking confirmation reference</span>
+  </td></tr>
+  <tr><td style="padding:0 36px 10px 36px;" align="center">
+    <table style="border-collapse:collapse;border:2px solid #dddddd;border-radius:6px;" border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+    <td style="padding:10px 32px;" align="center">
+      <span style="font-family:'Courier New',monospace;font-size:22px;font-weight:700;color:${text};letter-spacing:0.14em;">{reservation.remote_system_reference}</span>
+    </td></tr></tbody></table>
+  </td></tr>
+  <tr><td style="padding:0 36px 24px 36px;" align="center">
+    <span style="font-family:${f};font-size:13px;color:${accent};font-weight:600;">{viewtrip_link}</span>
+  </td></tr>
   </tbody></table>
 </td></tr>
 
-<!-- DIVIDER -->
-<tr><td style="border-top:1px solid #eeeeee;font-size:0;">&nbsp;</td></tr>
-
-<!-- BOOKING -->
-<tr><td style="padding:22px 40px 10px 40px;">
-  <span style="font-family:${f};font-size:12px;font-weight:700;color:${accent};">Booking Details</span>
-</td></tr>
-<tr><td style="padding:0 40px 28px 40px;">
-  <table style="border-collapse:collapse;width:100%;" border="0" cellspacing="0" cellpadding="0"><tbody>
-  <tr>
-    <td style="padding:8px 0;border-bottom:1px solid #f2f2f2;width:46%;"><span style="font-family:${f};font-size:12px;color:${lc};">Delivery Method</span></td>
-    <td style="padding:8px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.ticketplace}</span></td>
-  </tr>
-  <tr>
-    <td style="padding:8px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:12px;color:${lc};">Payment Method</span></td>
-    <td style="padding:8px 0;border-bottom:1px solid #f2f2f2;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.paymentform}</span></td>
-  </tr>
-  <tr>
-    <td style="padding:8px 0;"><span style="font-family:${f};font-size:12px;color:${lc};">Customer's Remark</span></td>
-    <td style="padding:8px 0;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.remark}</span></td>
-  </tr>
+<!-- CARD 2: CUSTOMER -->
+<tr><td style="padding-bottom:14px;">
+  <table style="${card}" border="0" cellspacing="0" cellpadding="0" width="100%"><tbody>
+  <tr><td style="padding:18px 28px 12px 28px;">
+    <span style="font-family:${f};font-size:12px;font-weight:700;color:${accent};">Customer</span>
+  </td></tr>
+  <tr><td style="padding:0 28px 18px 28px;">
+    <table style="border-collapse:collapse;width:100%;" border="0" cellspacing="0" cellpadding="0"><tbody>
+    <tr>
+      <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;width:44%;"><span style="font-family:${f};font-size:12px;color:${lc};">Name and Surname</span></td>
+      <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.billing_info.contact_name}</span></td>
+    </tr>
+    <tr>
+      <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;"><span style="font-family:${f};font-size:12px;color:${lc};">Phone</span></td>
+      <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.billing_info.phone}</span></td>
+    </tr>
+    <tr>
+      <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;"><span style="font-family:${f};font-size:12px;color:${lc};">E-mail</span></td>
+      <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.billing_info.email}</span></td>
+    </tr>
+    <tr>
+      <td style="padding:8px 0;"><span style="font-family:${f};font-size:12px;color:${lc};">Username</span></td>
+      <td style="padding:8px 0;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{customer.reservation_creator_info}</span></td>
+    </tr>
+    </tbody></table>
+  </td></tr>
   </tbody></table>
 </td></tr>
 
-<!-- FOOTER -->
-<tr><td style="background:${outerBg};border-top:1px solid #eeeeee;padding:20px 40px;">
+<!-- CARD 3: BOOKING DETAILS -->
+<tr><td style="padding-bottom:14px;">
+  <table style="${card}" border="0" cellspacing="0" cellpadding="0" width="100%"><tbody>
+  <tr><td style="padding:18px 28px 12px 28px;">
+    <span style="font-family:${f};font-size:12px;font-weight:700;color:${accent};">Booking Details</span>
+  </td></tr>
+  <tr><td style="padding:0 28px 18px 28px;">
+    <table style="border-collapse:collapse;width:100%;" border="0" cellspacing="0" cellpadding="0"><tbody>
+    <tr>
+      <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;width:44%;"><span style="font-family:${f};font-size:12px;color:${lc};">Delivery Method</span></td>
+      <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.ticketplace}</span></td>
+    </tr>
+    <tr>
+      <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;"><span style="font-family:${f};font-size:12px;color:${lc};">Payment Method</span></td>
+      <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.paymentform}</span></td>
+    </tr>
+    <tr>
+      <td style="padding:8px 0;"><span style="font-family:${f};font-size:12px;color:${lc};">Customer's Remark</span></td>
+      <td style="padding:8px 0;"><span style="font-family:${f};font-size:13px;color:${text};font-weight:500;">{reservation.remark}</span></td>
+    </tr>
+    </tbody></table>
+  </td></tr>
+  </tbody></table>
+</td></tr>
+
+<!-- FOOTER (no card) -->
+<tr><td style="padding:6px 8px 8px 8px;">
   <span style="font-family:${f};font-size:12px;color:${lc};line-height:1.7;">Please find other details attached. If you have any inquiries, please contact us.</span><br><br>
   <span style="font-family:${f};font-size:12px;font-weight:700;color:${text};">{agency.company}</span><br>
   <span style="font-family:${f};font-size:12px;color:${lc};">{agency.street}, {agency.postal_code} {agency.city}, {agency.country}</span><br>

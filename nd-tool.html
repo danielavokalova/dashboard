@@ -212,6 +212,12 @@ select option { background: #1e2030; }
 .btn:hover { opacity: 0.85; transform: translateY(-1px); }
 .btn:active { transform: translateY(0); }
 
+.btn-preview {
+  background: #ffffff;
+  color: #1a1a2e;
+  border: 1px solid rgba(255,255,255,0.3);
+  font-size: 12px;
+}
 .btn-primary {
   background: linear-gradient(135deg, #6c8ff8, #a76cf8);
   color: white;
@@ -323,8 +329,9 @@ iframe#preview {
     </div>
 
     <div>
-      <div class="section-title">Export</div>
+      <div class="section-title">Preview &amp; Export</div>
       <div class="btn-group">
+        <button class="btn btn-preview" onclick="openPreview()">&#128065; Open Full Preview</button>
         <button class="btn btn-primary" onclick="copyHTML()">Copy HTML</button>
         <button class="btn btn-secondary" onclick="downloadHTML()">Download HTML</button>
       </div>
@@ -594,6 +601,18 @@ function renderPreview() {
 <style>body{margin:0;padding:28px 0;background:${pageBg};}</style>
 </head><body>${buildHTML()}</body></html>`;
   document.getElementById('preview').srcdoc = doc;
+}
+
+function openPreview() {
+  const fullDoc = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>body{margin:0;padding:40px 0;background:#f5f6f8;}</style>
+<title>Email Preview</title>
+</head><body>${buildHTML()}</body></html>`;
+  const blob = new Blob([fullDoc], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
 }
 
 function copyHTML() {

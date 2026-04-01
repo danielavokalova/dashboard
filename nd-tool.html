@@ -352,52 +352,52 @@ iframe#preview {
 <script>
 const themes = [
   {
-    name: 'Glacier',
-    outerBg: '#dff0f5', innerBg: '#ffffff',
-    stripe: '#006d77', accent: '#006d77',
-    title: '#004d40', label: '#006d77',
-    text: '#2d3a3a', footerMsg: '#006d77', footerGrey: '#5a7a7a',
-    border: '#b2dfdb',
+    name: 'Sky',
+    outerBg: '#f5f6f8', innerBg: '#ffffff',
+    stripe: '#1a6faf', accent: '#1a6faf',
+    title: '#1a6faf', label: '#1a6faf',
+    text: '#333333', footerMsg: '#666666', footerGrey: '#999999',
+    border: '#ebebeb',
   },
   {
-    name: 'Midnight',
-    outerBg: '#12112e', innerBg: '#1e1d40',
-    stripe: '#7b5ea7', accent: '#c084fc',
-    title: '#e0d8ff', label: '#a78bfa',
-    text: '#c4c0e0', footerMsg: '#a5b4fc', footerGrey: '#9090b8',
-    border: '#2e2b52',
+    name: 'Slate',
+    outerBg: '#f5f6f8', innerBg: '#ffffff',
+    stripe: '#2c3e50', accent: '#2980b9',
+    title: '#2c3e50', label: '#2980b9',
+    text: '#333333', footerMsg: '#555555', footerGrey: '#888888',
+    border: '#ebebeb',
   },
   {
-    name: 'Blossom',
-    outerBg: '#fde8ef', innerBg: '#ffffff',
-    stripe: '#c2185b', accent: '#ad1457',
-    title: '#880e4f', label: '#c2185b',
-    text: '#4a2030', footerMsg: '#880e4f', footerGrey: '#a06070',
-    border: '#f8bbd0',
+    name: 'Emerald',
+    outerBg: '#f5f6f8', innerBg: '#ffffff',
+    stripe: '#00897b', accent: '#00897b',
+    title: '#00695c', label: '#00897b',
+    text: '#333333', footerMsg: '#555555', footerGrey: '#888888',
+    border: '#ebebeb',
   },
   {
-    name: 'Ember',
-    outerBg: '#fff0e0', innerBg: '#ffffff',
-    stripe: '#e65100', accent: '#d84315',
-    title: '#bf360c', label: '#e65100',
-    text: '#4e2e1e', footerMsg: '#bf360c', footerGrey: '#8d6050',
-    border: '#ffe0c0',
+    name: 'Rose',
+    outerBg: '#f5f6f8', innerBg: '#ffffff',
+    stripe: '#c0392b', accent: '#c0392b',
+    title: '#922b21', label: '#c0392b',
+    text: '#333333', footerMsg: '#555555', footerGrey: '#888888',
+    border: '#ebebeb',
   },
   {
-    name: 'Amethyst',
-    outerBg: '#ede7f6', innerBg: '#ffffff',
-    stripe: '#4527a0', accent: '#4527a0',
-    title: '#311b92', label: '#5e35b1',
-    text: '#2e1b6a', footerMsg: '#311b92', footerGrey: '#7e57c2',
-    border: '#d1c4e9',
+    name: 'Plum',
+    outerBg: '#f5f6f8', innerBg: '#ffffff',
+    stripe: '#6c3483', accent: '#6c3483',
+    title: '#512e5f', label: '#6c3483',
+    text: '#333333', footerMsg: '#555555', footerGrey: '#888888',
+    border: '#ebebeb',
   },
   {
     name: 'Carbon',
-    outerBg: '#1c1c1e', innerBg: '#2a2a2c',
-    stripe: '#ff9f0a', accent: '#ff9f0a',
-    title: '#f5f5f7', label: '#ff9f0a',
-    text: '#c8c8cc', footerMsg: '#ebebf5', footerGrey: '#8e8e93',
-    border: '#3a3a3c',
+    outerBg: '#f5f6f8', innerBg: '#ffffff',
+    stripe: '#1a1a2e', accent: '#e94560',
+    title: '#1a1a2e', label: '#e94560',
+    text: '#333333', footerMsg: '#555555', footerGrey: '#888888',
+    border: '#ebebeb',
   },
 ];
 
@@ -455,123 +455,135 @@ document.getElementById('fontSel').addEventListener('change', e => { state.font 
 /* ── BUILD HTML ── */
 function buildHTML() {
   const { outerBg, innerBg, stripe, accent, title, label, text, footerMsg, footerGrey, border, font: f } = state;
-  return `<table style="border-collapse:collapse;width:100%;background:#f4f4f6;" border="0" cellspacing="0" cellpadding="0">
-<tbody><tr><td style="padding:40px 20px;" align="center">
-
-<table style="border-collapse:collapse;width:100%;max-width:620px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(0,0,0,0.10);" border="0" cellspacing="0" cellpadding="0">
+  return `<table style="border-collapse:collapse;width:100%;background:#f5f6f8;" border="0" cellspacing="0" cellpadding="0">
+<tbody><tr><td style="padding:32px 16px;" align="center">
+<table style="border-collapse:collapse;width:100%;max-width:600px;background:#ffffff;" border="0" cellspacing="0" cellpadding="0">
 <tbody>
 
-<!-- HEADER BAND -->
+<!-- TOP LOGO BAR -->
 <tr>
-<td style="background:${stripe};padding:40px 48px 36px 48px;" align="center">
+<td style="padding:24px 40px 20px 40px;border-bottom:1px solid #ebebeb;">
   <table style="border-collapse:collapse;width:100%;" border="0" cellspacing="0" cellpadding="0"><tbody>
-  <tr><td align="center" style="padding-bottom:14px;">
-    <span style="display:inline-block;background:rgba(255,255,255,0.18);border-radius:50px;padding:6px 18px;font-family:${f};font-size:11px;font-weight:700;letter-spacing:0.18em;color:rgba(255,255,255,0.9);text-transform:uppercase;">✓ &nbsp;Booking Confirmed</span>
+  <tr>
+    <td><span style="font-family:${f};font-size:18px;font-weight:800;color:${stripe};letter-spacing:-0.3px;">YourBrand</span></td>
+    <td align="right"><span style="font-family:${f};font-size:11px;color:#aaaaaa;">Issued: {reservation.date}</span></td>
+  </tr>
+  </tbody></table>
+</td>
+</tr>
+
+<!-- HERO BAND -->
+<tr>
+<td style="background:${stripe};padding:36px 40px 32px 40px;" align="center">
+  <table style="border-collapse:collapse;width:100%;" border="0" cellspacing="0" cellpadding="0"><tbody>
+  <tr><td align="center" style="padding-bottom:10px;">
+    <span style="font-family:${f};font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.75);">Booking Confirmed</span>
   </td></tr>
-  <tr><td align="center" style="padding-bottom:20px;">
-    <span style="font-family:${f};font-size:32px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">Booking Confirmation</span>
+  <tr><td align="center" style="padding-bottom:24px;">
+    <span style="font-family:${f};font-size:28px;font-weight:700;color:#ffffff;">Your trip confirmation</span>
   </td></tr>
   <tr><td align="center">
     <table style="border-collapse:collapse;" border="0" cellspacing="0" cellpadding="0"><tbody><tr>
-    <td style="background:rgba(255,255,255,0.15);border-radius:8px;padding:12px 24px;" align="center">
-      <span style="font-family:${f};font-size:12px;color:rgba(255,255,255,0.8);">Booking Reference</span><br>
-      <span style="font-family:${f};font-size:22px;font-weight:800;color:#ffffff;letter-spacing:0.06em;">{reservation.remote_system_reference}</span>
+    <td style="background:#ffffff;border-radius:6px;padding:4px 28px 6px 28px;" align="center">
+      <span style="font-family:${f};font-size:11px;color:#999999;">Record locator</span><br>
+      <span style="font-family:${f};font-size:20px;font-weight:800;color:${stripe};letter-spacing:0.1em;">{reservation.remote_system_reference}</span>
     </td>
     </tr></tbody></table>
   </td></tr>
-  <tr><td align="center" style="padding-top:14px;">
-    <span style="font-family:${f};font-size:12px;color:rgba(255,255,255,0.7);">View booking status: <span style="color:#ffffff;font-weight:600;">{viewtrip_link}</span></span>
+  <tr><td align="center" style="padding-top:20px;">
+    <table style="border-collapse:collapse;" border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+    <td style="border:1px solid rgba(255,255,255,0.5);border-radius:4px;padding:9px 28px;" align="center">
+      <span style="font-family:${f};font-size:13px;color:#ffffff;font-weight:500;">View your trip &rarr;</span>
+    </td>
+    </tr></tbody></table>
   </td></tr>
   </tbody></table>
 </td>
 </tr>
 
-<!-- BODY -->
-<td style="background:${innerBg};padding:36px 48px 0 48px;">
-<table style="border-collapse:collapse;width:100%;" border="0" cellspacing="0" cellpadding="0"><tbody>
+<!-- GREETING -->
+<tr>
+<td style="padding:28px 40px 8px 40px;">
+  <span style="font-family:${f};font-size:14px;color:#555555;">Hello <strong>{reservation.billing_info.contact_name}</strong>,</span><br>
+  <span style="font-family:${f};font-size:13px;color:#aaaaaa;line-height:2;">Please find your booking details below.</span>
+</td>
+</tr>
 
 <!-- CUSTOMER SECTION -->
-<tr><td style="padding-bottom:6px;">
-  <table style="border-collapse:collapse;width:100%;" border="0" cellspacing="0" cellpadding="0"><tbody>
+<tr>
+<td style="padding:20px 40px 0 40px;">
+  <span style="font-family:${f};font-size:12px;font-weight:700;color:${accent};letter-spacing:0.12em;text-transform:uppercase;">Customer</span>
+</td>
+</tr>
+<tr>
+<td style="padding:10px 40px 24px 40px;">
+  <table style="border-collapse:collapse;width:100%;border-top:2px solid ${accent};" border="0" cellspacing="0" cellpadding="0"><tbody>
   <tr>
-    <td style="padding-bottom:16px;">
-      <span style="font-family:${f};font-size:10px;font-weight:800;letter-spacing:0.22em;text-transform:uppercase;color:${label};">Customer</span>
-      <div style="height:2px;background:${label};margin-top:6px;border-radius:2px;width:32px;"></div>
-    </td>
+    <td style="padding:11px 0;border-bottom:1px solid #f0f0f0;width:44%;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">Name and Surname</span></td>
+    <td style="padding:11px 0;border-bottom:1px solid #f0f0f0;"><span style="font-family:${f};font-size:13px;font-weight:600;color:#333333;">{reservation.billing_info.contact_name}</span></td>
+  </tr>
+  <tr>
+    <td style="padding:11px 0;border-bottom:1px solid #f0f0f0;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">Phone</span></td>
+    <td style="padding:11px 0;border-bottom:1px solid #f0f0f0;"><span style="font-family:${f};font-size:13px;font-weight:600;color:#333333;">{reservation.billing_info.phone}</span></td>
+  </tr>
+  <tr>
+    <td style="padding:11px 0;border-bottom:1px solid #f0f0f0;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">E-mail</span></td>
+    <td style="padding:11px 0;border-bottom:1px solid #f0f0f0;"><span style="font-family:${f};font-size:13px;font-weight:600;color:#333333;">{reservation.billing_info.email}</span></td>
+  </tr>
+  <tr>
+    <td style="padding:11px 0;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">Username</span></td>
+    <td style="padding:11px 0;"><span style="font-family:${f};font-size:13px;font-weight:600;color:#333333;">{customer.reservation_creator_info}</span></td>
   </tr>
   </tbody></table>
-</td></tr>
-
-<tr><td style="padding-bottom:28px;">
-<table style="border-collapse:collapse;width:100%;background:${outerBg};border-radius:10px;" border="0" cellspacing="0" cellpadding="0"><tbody>
-<tr>
-  <td style="padding:13px 18px;border-bottom:1px solid ${border};width:42%;"><span style="font-family:${f};font-size:12px;color:${text};opacity:0.7;">Name and Surname</span></td>
-  <td style="padding:13px 18px;border-bottom:1px solid ${border};"><span style="font-family:${f};font-size:13px;font-weight:600;color:${text};">{reservation.billing_info.contact_name}</span></td>
+</td>
 </tr>
-<tr>
-  <td style="padding:13px 18px;border-bottom:1px solid ${border};"><span style="font-family:${f};font-size:12px;color:${text};opacity:0.7;">Phone</span></td>
-  <td style="padding:13px 18px;border-bottom:1px solid ${border};"><span style="font-family:${f};font-size:13px;font-weight:600;color:${text};">{reservation.billing_info.phone}</span></td>
-</tr>
-<tr>
-  <td style="padding:13px 18px;border-bottom:1px solid ${border};"><span style="font-family:${f};font-size:12px;color:${text};opacity:0.7;">E-mail</span></td>
-  <td style="padding:13px 18px;border-bottom:1px solid ${border};"><span style="font-family:${f};font-size:13px;font-weight:600;color:${text};">{reservation.billing_info.email}</span></td>
-</tr>
-<tr>
-  <td style="padding:13px 18px;"><span style="font-family:${f};font-size:12px;color:${text};opacity:0.7;">Username</span></td>
-  <td style="padding:13px 18px;"><span style="font-family:${f};font-size:13px;font-weight:600;color:${text};">{customer.reservation_creator_info}</span></td>
-</tr>
-</tbody></table>
-</td></tr>
 
 <!-- BOOKING SECTION -->
-<tr><td style="padding-bottom:6px;">
-  <table style="border-collapse:collapse;width:100%;" border="0" cellspacing="0" cellpadding="0"><tbody>
-  <tr><td style="padding-bottom:16px;">
-    <span style="font-family:${f};font-size:10px;font-weight:800;letter-spacing:0.22em;text-transform:uppercase;color:${label};">Booking Details</span>
-    <div style="height:2px;background:${label};margin-top:6px;border-radius:2px;width:32px;"></div>
-  </td></tr>
-  </tbody></table>
-</td></tr>
-
-<tr><td style="padding-bottom:36px;">
-<table style="border-collapse:collapse;width:100%;background:${outerBg};border-radius:10px;" border="0" cellspacing="0" cellpadding="0"><tbody>
 <tr>
-  <td style="padding:13px 18px;border-bottom:1px solid ${border};width:42%;"><span style="font-family:${f};font-size:12px;color:${text};opacity:0.7;">Delivery Method</span></td>
-  <td style="padding:13px 18px;border-bottom:1px solid ${border};"><span style="font-family:${f};font-size:13px;font-weight:600;color:${text};">{reservation.ticketplace}</span></td>
-</tr>
-<tr>
-  <td style="padding:13px 18px;border-bottom:1px solid ${border};"><span style="font-family:${f};font-size:12px;color:${text};opacity:0.7;">Payment Method</span></td>
-  <td style="padding:13px 18px;border-bottom:1px solid ${border};"><span style="font-family:${f};font-size:13px;font-weight:600;color:${text};">{reservation.paymentform}</span></td>
-</tr>
-<tr>
-  <td style="padding:13px 18px;"><span style="font-family:${f};font-size:12px;color:${text};opacity:0.7;">Customer's Remark</span></td>
-  <td style="padding:13px 18px;"><span style="font-family:${f};font-size:13px;font-weight:600;color:${text};">{reservation.remark}</span></td>
-</tr>
-</tbody></table>
-</td></tr>
-
-</tbody></table>
+<td style="padding:4px 40px 0 40px;">
+  <span style="font-family:${f};font-size:12px;font-weight:700;color:${accent};letter-spacing:0.12em;text-transform:uppercase;">Booking Details</span>
 </td>
+</tr>
+<tr>
+<td style="padding:10px 40px 32px 40px;">
+  <table style="border-collapse:collapse;width:100%;border-top:2px solid ${accent};" border="0" cellspacing="0" cellpadding="0"><tbody>
+  <tr>
+    <td style="padding:11px 0;border-bottom:1px solid #f0f0f0;width:44%;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">Delivery Method</span></td>
+    <td style="padding:11px 0;border-bottom:1px solid #f0f0f0;"><span style="font-family:${f};font-size:13px;font-weight:600;color:#333333;">{reservation.ticketplace}</span></td>
+  </tr>
+  <tr>
+    <td style="padding:11px 0;border-bottom:1px solid #f0f0f0;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">Payment Method</span></td>
+    <td style="padding:11px 0;border-bottom:1px solid #f0f0f0;"><span style="font-family:${f};font-size:13px;font-weight:600;color:#333333;">{reservation.paymentform}</span></td>
+  </tr>
+  <tr>
+    <td style="padding:11px 0;"><span style="font-family:${f};font-size:12px;color:#aaaaaa;">Customer's Remark</span></td>
+    <td style="padding:11px 0;"><span style="font-family:${f};font-size:13px;font-weight:600;color:#333333;">{reservation.remark}</span></td>
+  </tr>
+  </tbody></table>
+</td>
+</tr>
 
 <!-- FOOTER -->
-<tr><td style="background:${outerBg};padding:28px 48px;border-top:1px solid ${border};">
-<table style="border-collapse:collapse;width:100%;" border="0" cellspacing="0" cellpadding="0"><tbody>
-<tr><td style="padding-bottom:12px;">
-  <span style="font-family:${f};font-size:13px;color:${footerMsg};line-height:1.6;">Please find other details attached. If you have any inquiries, please contact us at the phone number or email address below.</span>
-</td></tr>
-<tr><td>
-  <table style="border-collapse:collapse;" border="0" cellspacing="0" cellpadding="0"><tbody>
-  <tr><td style="padding-right:8px;padding-bottom:2px;"><span style="font-family:${f};font-size:13px;font-weight:700;color:${footerGrey};">{agency.company}</span></td></tr>
-  <tr><td style="padding-bottom:2px;"><span style="font-family:${f};font-size:12px;color:${footerGrey};opacity:0.8;">{agency.street}, {agency.postal_code} {agency.city}, {agency.country}</span></td></tr>
-  <tr><td><span style="font-family:${f};font-size:12px;color:${accent};">{agency.email} &nbsp;·&nbsp; {agency.phone}</span></td></tr>
+<tr>
+<td style="background:#f9f9f9;border-top:1px solid #ebebeb;padding:24px 40px;">
+  <table style="border-collapse:collapse;width:100%;" border="0" cellspacing="0" cellpadding="0"><tbody>
+  <tr><td style="padding-bottom:14px;">
+    <span style="font-family:${f};font-size:12px;color:#888888;line-height:1.7;">Please find other details attached. If you have any inquiries, please contact us at the phone number or email address below.</span>
+  </td></tr>
+  <tr><td>
+    <span style="font-family:${f};font-size:13px;font-weight:700;color:${accent};">{agency.company}</span><br>
+    <span style="font-family:${f};font-size:12px;color:#aaaaaa;">{agency.street}, {agency.postal_code} {agency.city}, {agency.country}</span><br>
+    <span style="font-family:${f};font-size:12px;color:#888888;">{agency.email} &nbsp;·&nbsp; {agency.phone}</span>
+  </td></tr>
   </tbody></table>
-</td></tr>
-</tbody></table>
-</td></tr>
+</td>
+</tr>
+
+<!-- BOTTOM BAR -->
+<tr><td style="background:${stripe};height:5px;font-size:0;line-height:0;">&nbsp;</td></tr>
 
 </tbody>
 </table>
-
 </td></tr></tbody></table>`;
 }
 

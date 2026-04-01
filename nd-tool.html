@@ -243,6 +243,10 @@ select option { background: #1e2030; }
         <input type="color" id="cLabel">
       </div>
       <div class="control-row">
+        <span class="control-label">Card border</span>
+        <input type="color" id="cBorder">
+      </div>
+      <div class="control-row">
         <span class="control-label">Font</span>
         <select id="fontSel">
           <option value="'Inter', Helvetica, Arial, sans-serif">Inter</option>
@@ -300,32 +304,32 @@ select option { background: #1e2030; }
 const themes = [
   {
     name: 'Sky',
-    outerBg: '#e8f4fd', accent: '#1a6faf',
+    outerBg: '#e8f4fd', accent: '#1a6faf', borderColor: '#1a6faf',
     text: '#2c2c2c', labelColor: '#aaaaaa',
   },
   {
     name: 'Slate',
-    outerBg: '#edf0f4', accent: '#2980b9',
+    outerBg: '#edf0f4', accent: '#2980b9', borderColor: '#2c3e50',
     text: '#2c3e50', labelColor: '#9eaab8',
   },
   {
     name: 'Emerald',
-    outerBg: '#e6f4f1', accent: '#00897b',
+    outerBg: '#e6f4f1', accent: '#00897b', borderColor: '#00897b',
     text: '#1a2e2b', labelColor: '#8ab5af',
   },
   {
     name: 'Rose',
-    outerBg: '#fdeef0', accent: '#c0392b',
+    outerBg: '#fdeef0', accent: '#c0392b', borderColor: '#c0392b',
     text: '#2e1a1a', labelColor: '#c4a0a0',
   },
   {
     name: 'Plum',
-    outerBg: '#f0eaf6', accent: '#6c3483',
+    outerBg: '#f0eaf6', accent: '#6c3483', borderColor: '#6c3483',
     text: '#2a1a35', labelColor: '#b09abe',
   },
   {
     name: 'Warm',
-    outerBg: '#fdf6ec', accent: '#d35400',
+    outerBg: '#fdf6ec', accent: '#d35400', borderColor: '#d35400',
     text: '#2e200e', labelColor: '#c4a882',
   },
 ];
@@ -367,17 +371,19 @@ function syncPickers() {
   document.getElementById('cAccent').value = state.accent;
   document.getElementById('cText').value = state.text;
   document.getElementById('cLabel').value = state.labelColor;
+  document.getElementById('cBorder').value = state.borderColor;
 }
 document.getElementById('cBg').addEventListener('input', e => { state.outerBg = e.target.value; renderPreview(); });
 document.getElementById('cAccent').addEventListener('input', e => { state.accent = e.target.value; renderPreview(); });
 document.getElementById('cText').addEventListener('input', e => { state.text = e.target.value; renderPreview(); });
 document.getElementById('cLabel').addEventListener('input', e => { state.labelColor = e.target.value; renderPreview(); });
+document.getElementById('cBorder').addEventListener('input', e => { state.borderColor = e.target.value; renderPreview(); });
 document.getElementById('fontSel').addEventListener('change', e => { state.font = e.target.value; renderPreview(); });
 
 /* BUILD EMAIL HTML */
 function buildHTML() {
-  const { outerBg, accent, text, labelColor: lc, font: f } = state;
-  const card = `border:2px solid ${accent};border-radius:12px;background:#ffffff;overflow:hidden;`;
+  const { outerBg, accent, text, labelColor: lc, borderColor: bc, font: f } = state;
+  const card = `border:2px solid ${bc};border-radius:12px;background:#ffffff;overflow:hidden;`;
   return `<table style="border-collapse:collapse;width:100%;background:${outerBg};" border="0" cellspacing="0" cellpadding="0">
 <tbody><tr><td style="padding:28px 24px;" align="center">
 <table style="border-collapse:collapse;width:100%;max-width:540px;" border="0" cellspacing="0" cellpadding="0">

@@ -1005,6 +1005,149 @@ document.addEventListener('keydown', e => {
   }
 });
 
+// ─── SEED DATA (runs once if storage is empty) ────────────────
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+
+const SEED_WORK = [
+  {
+    title: 'Upravit TG manuál dle GOL manuálu',
+    description: 'Aktualizovat TG manuál tak, aby odpovídal struktuře a obsahu GOL manuálu.',
+    tags: ['manuál', 'dokumentace'],
+    notes: ''
+  },
+  {
+    title: 'Budovat komunikaci nad klienty',
+    description: 'Vytvořit systém / rutinu pro proaktivní komunikaci se zákazníky.',
+    tags: ['klienti', 'komunikace'],
+    notes: ''
+  },
+  {
+    title: 'Zendesk – GitLab ticket',
+    description: 'Založit GitLab ticket propojený se Zendesk požadavkem.',
+    tags: ['zendesk', 'gitlab'],
+    notes: ''
+  },
+  {
+    title: 'PACT – vytvořit',
+    description: 'Vytvořit PACT (pravděpodobně šablona / framework pro procesy).',
+    tags: ['PACT'],
+    notes: ''
+  },
+  {
+    title: 'Open Router',
+    description: 'Prozkoumat a nastavit Open Router pro práci s AI modely.',
+    tags: ['AI', 'nástroje'],
+    notes: ''
+  },
+  {
+    title: 'Znalostní prompt na emaily – systém',
+    description: 'Udělat systémový prompt / znalostní bázi pro zpracování a psaní emailů pomocí AI.',
+    tags: ['AI', 'emaily', 'automatizace'],
+    notes: ''
+  },
+  {
+    title: 'Dovolenková aplikace',
+    description: 'Vytvořit aplikaci pro správu a přehled dovolených.',
+    tags: ['aplikace', 'HR'],
+    notes: ''
+  },
+  {
+    title: 'Widget pro GOL IBE admin konzoli',
+    description: 'Vytvořit widget přímo v GOL IBE admin konzoli pro rychlý přehled nebo akci.',
+    tags: ['GOL IBE', 'widget', 'vývoj'],
+    notes: ''
+  },
+  {
+    title: 'Widget pro další systémy – TCP?',
+    description: 'Rozšířit myšlenku widgetu i na TCP a další systémy.',
+    tags: ['TCP', 'widget', 'vývoj'],
+    notes: ''
+  },
+  {
+    title: 'TF Reporting – zjednodušit flow',
+    description: 'Zjednodušit a zautomatizovat proces tahání TF reportů jednou za měsíc.',
+    tags: ['reporting', 'automatizace'],
+    notes: ''
+  },
+  {
+    title: 'Vlastní AI asistent',
+    description: 'Vytvořit vlastního asistenta – nastavení, znalostní báze, napojení na systémy.',
+    tags: ['AI', 'asistent', 'automatizace'],
+    notes: ''
+  },
+  {
+    title: 'Agent – pracuje za mě',
+    description: 'Vytvořit AI agenta, který automaticky vykonává opakující se úkoly místo mě. Např. Cursor nebo jiný placený nástroj.',
+    tags: ['AI', 'agent', 'automatizace'],
+    notes: 'Zvážit: Cursor, n8n, nebo vlastní agent přes Claude API.'
+  },
+  {
+    title: 'Portál GOL IBE AC pro zákazníky',
+    description: 'Vytvořit zákaznický portál pro GOL IBE. Využít Macaly (zdarma), Google AI Studio.',
+    tags: ['GOL IBE', 'portál', 'vývoj'],
+    notes: 'Postup:\n1. Vypracovat souhrn zadání\n2. Vložit do Macaly → nechat udělat web\n3. Pobavit se s AI o zadání – nechat ji definovat požadavky\n4. Myslet na chytré hlášky, průvodce\n5. Začít iterovat'
+  },
+  {
+    title: 'Google Analytics – spustit',
+    description: 'Spustit GA na relevantních webech / nástrojích.',
+    tags: ['analytics', 'GA'],
+    notes: ''
+  },
+  {
+    title: 'Dashboardy – přehled a správa',
+    description: 'Vytvořit seznam datových dashboardů, které spravuji (implementace, schůzky). Napojit na Metabase.',
+    tags: ['dashboardy', 'data', 'Metabase'],
+    notes: ''
+  },
+  {
+    title: 'Metabase – datový dashboard rezervací',
+    description: 'Datový a aktualizovaný dashboard rezervací – přehled výkonu agentur pro přípravu na meetingy.',
+    tags: ['Metabase', 'data', 'dashboardy', 'GOL IBE'],
+    notes: `CESTA A KONTEXT\nCíl: přehled nad aktivitou agentur – součást přípravy na meetingy + obecný přehled.\nDélka od nápadu po realizaci: cca rok a půl.\n\nČASOVÁ OSA\n• 1.1.2024 – záměr tahat tabulku rezervací automaticky z AC (Mise: nejde z konzole)\n• 24.4.2025 – Martin dostal povolení od Mise, zpracoval tabulku\n• 1.3.2026 – využila jsem Martinovu tabulku, zautomatizovala nalévání dat do DB\n\nNÁSTROJE\n• ChatGPT (lepší na SQL kód), Gemini\n• Docker (úprava BIOS v PC)\n• PostgreSQL\n• Metabase\n• Google Cloud Console – API credentials\n• Martinova tabulka – sdílení přes extra GC emailovou adresu\n• N8N – mezičlánek mezi Dockerem a Metabase (Make nešel – vyžaduje veřejnou IP)\n\nSQL TIPY\nTabulka: gol_reservations_sourcedata_3_20260311130217\n\n-- Docker start:\ndocker start google-sync\n\n-- Dnešní datum:\nSELECT TO_CHAR(CURRENT_DATE, \'FMDDth "of" FMMonth, YYYY\') AS "Dnešní datum";\n\n-- Poslední rezervace:\nSELECT MAX(CASE WHEN reservation_date ~ \'^\\d{2}\\.\\d{2}\\.\\d{4}$\' THEN to_date(reservation_date,\'DD.MM.YYYY\') WHEN reservation_date ~ \'^\\d{4}-\\d{2}-\\d{2}$\' THEN reservation_date::date ELSE NULL END) AS last_reservation_date FROM gol_reservations_sourcedata_3_20260311130217;`
+  },
+  {
+    title: 'GOL IBE web – změna vzhledu',
+    description: 'Napsat kód pro úpravu a změnu vzhledu GOL IBE webů.',
+    tags: ['GOL IBE', 'web', 'vývoj', 'CSS'],
+    notes: ''
+  },
+  {
+    title: 'Mailbox – zpracování pošty',
+    description: 'Vytvořit systém / automatizaci pro zpracování příchozí pošty.',
+    tags: ['emaily', 'automatizace'],
+    notes: ''
+  },
+];
+
+const SEED_PRIVATE = [
+  {
+    title: 'LinkedIn – vyšperkovat profil',
+    description: 'Upravit a vylepšit LinkedIn profil – foto, popis, zkušenosti, doporučení.',
+    tags: ['LinkedIn', 'osobní brand'],
+    notes: ''
+  },
+];
+
+function seedIfEmpty(key, items) {
+  if (localStorage.getItem(key)) return;
+  const now = Date.now();
+  const ideas = items.map((item, i) => ({
+    id:          uid(),
+    title:       item.title,
+    description: item.description,
+    notes:       item.notes || '',
+    tags:        item.tags || [],
+    stage:       'spark',
+    files:       [],
+    created:     now - (items.length - i) * 60000,
+    updated:     now,
+  }));
+  localStorage.setItem(key, JSON.stringify(ideas));
+}
+
+seedIfEmpty('ideas_work',    SEED_WORK);
+seedIfEmpty('ideas_private', SEED_PRIVATE);
+
 // ─── INIT ─────────────────────────────────────────────────────
 renderBoard();
 </script>

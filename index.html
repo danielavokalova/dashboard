@@ -69,23 +69,24 @@ main {
 /* TILES */
 .tiles {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 22px;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 16px;
+  align-content: start;
 }
 
 .tile {
-  height: 100px;
+  aspect-ratio: 1;
   background: var(--tile-bg);
-  border-radius: 18px;
+  border-radius: 14px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
   text-transform: uppercase;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.10em;
   color: var(--blue-muted);
   text-align: center;
   line-height: 1.4;
@@ -111,7 +112,8 @@ main {
 }
 
 .email-tile {
-  height: 100px;
+  aspect-ratio: unset;
+  height: 72px;
 }
 
 /* NOTES */
@@ -207,6 +209,7 @@ footer {
   <a class="tile" href="https://www.notion.so/cee-travel-systems/209a7099a10f807d956cd34b5a96ade4?v=209a7099a10f80449ccc000ca457ae7e" target="_blank">NOTION<br>MANUÁLY</a>
   <a class="tile" href="http://localhost:3000/dashboard/2-gol-dashboard-v1?tab=4-all" target="_blank">METABASE<br>DATA</a>
   <a class="tile" href="https://danielavokalova.github.io/task-dashboard/task-dashboard.html" target="_blank">TO DO</a>
+  <a class="tile" href="https://danielavokalova.github.io/dashboard/ideas.html" target="_blank">IDEAS</a>
 
 </section>
 

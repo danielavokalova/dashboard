@@ -18,15 +18,15 @@
   --shadow:      rgba(60,40,20,0.12);
   --shadow-lg:   rgba(60,40,20,0.22);
 
-  /* accent — deep purple */
-  --accent:      #6234b8;
-  --accent-bg:   #ede5ff;
-  --accent-soft: #ddd0f8;
+  /* accent — teal */
+  --accent:      #00736a;
+  --accent-bg:   #d6f0ee;
+  --accent-soft: #b0e0dc;
 
   /* stage palette — vivid */
-  --s-spark-bg:    #ede0ff;
-  --s-spark-bd:    #b490f0;
-  --s-spark-dot:   #7c3fe8;
+  --s-spark-bg:    #d6f0ee;
+  --s-spark-bd:    #6cc8c0;
+  --s-spark-dot:   #00736a;
 
   --s-explore-bg:  #dceeff;
   --s-explore-bd:  #88bbf5;
@@ -45,8 +45,8 @@
   --s-done-dot:    #1fa81f;
 
   /* tab accent override for private */
-  --tab-work:    #6234b8;
-  --tab-private: #b8346a;
+  --tab-work:    #00736a;
+  --tab-private: #00736a;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -83,7 +83,7 @@ header {
 .brand-icon {
   width: 32px;
   height: 32px;
-  background: linear-gradient(135deg, #9b7fe8, #bf5c8a);
+  background: linear-gradient(135deg, #00736a, #00a896);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -705,13 +705,13 @@ function switchTab(tab) {
   // update accent for private tab
   const r = document.documentElement.style;
   if (tab === 'private') {
-    r.setProperty('--accent', '#bf5c8a');
-    r.setProperty('--accent-bg', '#fceef5');
-    r.setProperty('--accent-soft', '#f7dcea');
+    r.setProperty('--accent', '#005f58');
+    r.setProperty('--accent-bg', '#c8e8e5');
+    r.setProperty('--accent-soft', '#a0d8d4');
   } else {
-    r.setProperty('--accent', '#7c5cbf');
-    r.setProperty('--accent-bg', '#f0ebff');
-    r.setProperty('--accent-soft', '#e8e2f8');
+    r.setProperty('--accent', '#00736a');
+    r.setProperty('--accent-bg', '#d6f0ee');
+    r.setProperty('--accent-soft', '#b0e0dc');
   }
   renderBoard();
 }

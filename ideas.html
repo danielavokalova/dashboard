@@ -8,56 +8,52 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 :root {
-  --cream:       #f5f0fc;
-  --white:       #ffffff;
-  --ink:         #2d2926;
-  --ink-soft:    #5c5651;
-  --ink-muted:   #9b9490;
-  --border:      #e2d9f0;
-  --border-soft: #ede8f8;
-  --shadow:      rgba(100,70,160,0.10);
-  --shadow-lg:   rgba(100,70,160,0.18);
+  --cream:       #e8ddd2;
+  --white:       #f5ede4;
+  --ink:         #0a0a0a;
+  --ink-soft:    #1a1a1a;
+  --ink-muted:   #555550;
+  --border:      #cfc2b4;
+  --border-soft: #ddd0c6;
+  --shadow:      rgba(60,40,20,0.12);
+  --shadow-lg:   rgba(60,40,20,0.22);
 
-  /* accent — Claude-like soft purple */
-  --accent:      #7c5cbf;
-  --accent-bg:   #f0ebff;
-  --accent-soft: #e8e2f8;
+  /* accent — deep purple */
+  --accent:      #6234b8;
+  --accent-bg:   #ede5ff;
+  --accent-soft: #ddd0f8;
 
-  /* stage palette */
-  --s-spark-bg:    #f3eeff;
-  --s-spark-bd:    #d4c4f5;
-  --s-spark-dot:   #9b7fe8;
+  /* stage palette — vivid */
+  --s-spark-bg:    #ede0ff;
+  --s-spark-bd:    #b490f0;
+  --s-spark-dot:   #7c3fe8;
 
-  --s-explore-bg:  #e9f3ff;
-  --s-explore-bd:  #bcd4f5;
-  --s-explore-dot: #5a90e0;
+  --s-explore-bg:  #dceeff;
+  --s-explore-bd:  #88bbf5;
+  --s-explore-dot: #1a6fd6;
 
-  --s-plan-bg:     #e7f8f3;
-  --s-plan-bd:     #b2e0cf;
-  --s-plan-dot:    #34a87c;
+  --s-plan-bg:     #d8f7ec;
+  --s-plan-bd:     #70d4ae;
+  --s-plan-dot:    #0f9e64;
 
-  --s-wip-bg:      #fff5e9;
-  --s-wip-bd:      #f5d9a4;
-  --s-wip-dot:     #e8903a;
+  --s-wip-bg:      #fff0d8;
+  --s-wip-bd:      #f0be6a;
+  --s-wip-dot:     #d97008;
 
-  --s-done-bg:     #edf7ec;
-  --s-done-bd:     #b6dcb4;
-  --s-done-dot:    #4caf50;
+  --s-done-bg:     #d8f5d8;
+  --s-done-bd:     #70cc70;
+  --s-done-dot:    #1fa81f;
 
   /* tab accent override for private */
-  --tab-work:    #7c5cbf;
-  --tab-private: #bf5c8a;
+  --tab-work:    #6234b8;
+  --tab-private: #b8346a;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   min-height: 100vh;
-  background:
-    radial-gradient(ellipse 70% 50% at 15% 0%,   #ddd0f7 0%, transparent 55%),
-    radial-gradient(ellipse 60% 45% at 85% 10%,  #f7d0e8 0%, transparent 55%),
-    radial-gradient(ellipse 55% 40% at 50% 100%, #c9e4f5 0%, transparent 55%),
-    #ede8f5;
+  background: #e2d5c8;
   background-attachment: fixed;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   color: var(--ink);
@@ -196,18 +192,18 @@ header {
 }
 
 .col-dot {
-  width: 9px;
-  height: 9px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
 .col-label {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--ink-soft);
+  color: var(--ink);
 }
 
 .col-count {
@@ -253,16 +249,16 @@ header {
 }
 
 .card-title {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   line-height: 1.45;
-  color: var(--ink);
+  color: #000;
   flex: 1;
 }
 
 .card-excerpt {
-  font-size: 12px;
-  color: var(--ink-muted);
+  font-size: 13px;
+  color: #333;
   line-height: 1.6;
   margin-bottom: 10px;
   display: -webkit-box;

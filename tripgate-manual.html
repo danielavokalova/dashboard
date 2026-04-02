@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Administrační manuál TRIP GATE</title>
+<style>
+  :root {
+    --ink: #1f2a2a;
+    --blue-muted: #4f6a6c;
+    --blue-line: #425c5e;
+    --paper: #f7f8f6;
+    --vyjimka-bg: #fff8e1;
+    --vyjimka-border: #f0c040;
+    --link: #2563a8;
+    --link-hover: #174080;
+    --chapter-bg: #edf2f2;
+    --sub-bg: #f4f7f7;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 32px 80px;
+    line-height: 1.6;
+  }
+
+  /* HEADER */
+  .manual-header {
+    border-bottom: 3px solid var(--blue-line);
+    padding-bottom: 20px;
+    margin-bottom: 36px;
+  }
+
+  .manual-header h1 {
+    font-size: 22px;
+    letter-spacing: 0.2em;
+    font-weight: 600;
+    color: var(--blue-line);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .manual-header .subtitle {
+    font-size: 13px;
+    color: #888;
+  }
+
+  .manual-header .subtitle a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .manual-header .subtitle a:hover {
+    text-decoration: underline;
+  }
+
+  /* NOTE BOX */
+  .note-box {
+    background: #e8f4fd;
+    border-left: 4px solid #2563a8;
+    padding: 14px 18px;
+    border-radius: 4px;
+    font-size: 13px;
+    margin-bottom: 36px;
+    color: #1a3a5c;
+  }
+
+  .note-box strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* CHAPTER */
+  .chapter {
+    margin-bottom: 28px;
+    border: 1px solid #d4dede;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .chapter-title {
+    background: var(--chapter-bg);
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--blue-line);
+  }
+
+  .chapter-title a {
+    color: var(--blue-line);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .chapter-title a:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
+  }
+
+  .chapter-title a::after {
+    content: "↗";
+    font-size: 12px;
+    opacity: 0.6;
+    font-weight: 400;
+  }
+
+  /* SUBCHAPTER */
+  .subchapter {
+    background: var(--sub-bg);
+    padding: 10px 20px 10px 36px;
+    border-top: 1px solid #d4dede;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--blue-muted);
+  }
+
+  .subchapter a {
+    color: var(--blue-muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .subchapter a:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
+  }
+
+  .subchapter a::after {
+    content: "↗";
+    font-size: 11px;
+    opacity: 0.5;
+    font-weight: 400;
+  }
+
+  /* VYJIMKA */
+  .vyjimka {
+    background: var(--vyjimka-bg);
+    border-top: 2px solid var(--vyjimka-border);
+    padding: 16px 20px 16px 36px;
+  }
+
+  .vyjimka-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #a07a00;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .vyjimka-label::before {
+    content: "✱";
+    font-size: 14px;
+  }
+
+  .vyjimka-content {
+    font-size: 13px;
+    color: #5a4a00;
+    min-height: 48px;
+    border: 1px dashed #d4a800;
+    border-radius: 4px;
+    padding: 10px 14px;
+    background: #fffdf0;
+    font-style: italic;
+    opacity: 0.7;
+  }
+
+  /* subchapter vyjimka indented further */
+  .subchapter-vyjimka {
+    padding-left: 56px;
+  }
+
+  /* SECTION DIVIDER */
+  .section-divider {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #aaa;
+    margin: 36px 0 12px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  @media print {
+    body { padding: 20px; }
+    .vyjimka-content { border: 1px dashed #999; }
+  }
+</style>
+</head>
+<body>
+
+<div class="manual-header">
+  <h1>Administrační manuál — TRIP GATE</h1>
+  <div class="subtitle">
+    Šablona odvozená z&nbsp;
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit" target="_blank">
+      Administračního manuálu GOL IBE
+    </a>
+    &nbsp;· Správa obsahu probíhá primárně v GOL IBE manuálu.
+  </div>
+</div>
+
+<div class="note-box">
+  <strong>Jak tento manuál funguje</strong>
+  Každý nadpis odkazuje na příslušnou sekci v manuálu GOL IBE — veškeré změny společných postupů spravujte <strong>výhradně tam</strong>.
+  Odlišnosti a specifika pro TRIP GATE zaznamenávejte pouze v žlutých sekcích <strong>VYJIMKA PRO TRIPGATE</strong> níže u každé kapitoly.
+  <br><br>
+  <em>Tip:</em> Chcete-li doplnit přesné kotvy na konkrétní nadpisy v GOL IBE dokumentu, klikněte pravým tlačítkem na nadpis v Google Docs → <em>Kopírovat odkaz na nadpis</em> a aktualizujte příslušný odkaz.
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<div class="section-divider">Úvodní kapitoly</div>
+
+<!-- 1 -->
+<div class="chapter">
+  <div class="chapter-title">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.checklist" target="_blank">
+      1. CHECK LIST GOL IBE
+    </a>
+  </div>
+  <div class="vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti checklistu pro TRIP GATE…</div>
+  </div>
+</div>
+
+<!-- 2 -->
+<div class="chapter">
+  <div class="chapter-title">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.nastaveni_pcc" target="_blank">
+      2. NASTAVENÍ PCC
+    </a>
+  </div>
+  <div class="vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti nastavení PCC pro TRIP GATE…</div>
+  </div>
+</div>
+
+<!-- 3 -->
+<div class="chapter">
+  <div class="chapter-title">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.prubeh_implementace" target="_blank">
+      3. PRŮBĚH IMPLEMENTACE
+    </a>
+  </div>
+  <div class="vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti průběhu implementace pro TRIP GATE…</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<div class="section-divider">4. Agency</div>
+
+<!-- 4 -->
+<div class="chapter">
+  <div class="chapter-title">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.agency" target="_blank">
+      4. AGENCY
+    </a>
+  </div>
+  <div class="vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Agency nastavení pro TRIP GATE…</div>
+  </div>
+
+  <!-- 4.1 -->
+  <div class="subchapter">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.agency_setting" target="_blank">
+      4.1 AGENCY SETTING
+    </a>
+  </div>
+  <div class="vyjimka subchapter-vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate — 4.1</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Agency Setting pro TRIP GATE…</div>
+  </div>
+
+  <!-- 4.2 -->
+  <div class="subchapter">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.payment_method" target="_blank">
+      4.2 PAYMENT METHOD SETTINGS
+    </a>
+  </div>
+  <div class="vyjimka subchapter-vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate — 4.2</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Payment Method Settings pro TRIP GATE…</div>
+  </div>
+
+  <!-- 4.3 -->
+  <div class="subchapter">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.ticket_delivery" target="_blank">
+      4.3 TICKET DELIVERY METHOD SETTINGS
+    </a>
+  </div>
+  <div class="vyjimka subchapter-vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate — 4.3</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Ticket Delivery Method Settings pro TRIP GATE…</div>
+  </div>
+
+  <!-- 4.4 -->
+  <div class="subchapter">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.working_hours" target="_blank">
+      4.4 WORKING HOURS
+    </a>
+  </div>
+  <div class="vyjimka subchapter-vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate — 4.4</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Working Hours pro TRIP GATE…</div>
+  </div>
+
+  <!-- 4.5 -->
+  <div class="subchapter">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.working_hours_exceptions" target="_blank">
+      4.5 WORKING HOURS EXCEPTIONS
+    </a>
+  </div>
+  <div class="vyjimka subchapter-vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate — 4.5</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Working Hours Exceptions pro TRIP GATE…</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<div class="section-divider">5. Dealers</div>
+
+<!-- 5 -->
+<div class="chapter">
+  <div class="chapter-title">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.dealers" target="_blank">
+      5. DEALERS
+    </a>
+  </div>
+  <div class="vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Dealers pro TRIP GATE…</div>
+  </div>
+
+  <!-- 5.1 -->
+  <div class="subchapter">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.dealers_edit" target="_blank">
+      5.1 DEALERS – EDIT
+    </a>
+  </div>
+  <div class="vyjimka subchapter-vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate — 5.1</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Dealers Edit pro TRIP GATE…</div>
+  </div>
+
+  <!-- 5.2 -->
+  <div class="subchapter">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.dealers_frontend" target="_blank">
+      5.2 DEALERS – FRONTEND SETTINGS
+    </a>
+  </div>
+  <div class="vyjimka subchapter-vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate — 5.2</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Dealers Frontend Settings pro TRIP GATE…</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<div class="section-divider">Správa dat</div>
+
+<!-- 6 -->
+<div class="chapter">
+  <div class="chapter-title">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.customers" target="_blank">
+      6. CUSTOMERS
+    </a>
+  </div>
+  <div class="vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Customers pro TRIP GATE…</div>
+  </div>
+</div>
+
+<!-- 7 -->
+<div class="chapter">
+  <div class="chapter-title">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.reservations" target="_blank">
+      7. RESERVATIONS
+    </a>
+  </div>
+  <div class="vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Reservations pro TRIP GATE…</div>
+  </div>
+</div>
+
+<!-- 8 -->
+<div class="chapter">
+  <div class="chapter-title">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.prices" target="_blank">
+      8. PRICES
+    </a>
+  </div>
+  <div class="vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Prices pro TRIP GATE…</div>
+  </div>
+</div>
+
+<!-- 9 -->
+<div class="chapter">
+  <div class="chapter-title">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.users" target="_blank">
+      9. USERS
+    </a>
+  </div>
+  <div class="vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Users pro TRIP GATE…</div>
+  </div>
+</div>
+
+<!-- 10 -->
+<div class="chapter">
+  <div class="chapter-title">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.code_lists" target="_blank">
+      10. CODE LISTS
+    </a>
+  </div>
+  <div class="vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Code Lists pro TRIP GATE…</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<div class="section-divider">Komunikace &amp; texty</div>
+
+<!-- 11 -->
+<div class="chapter">
+  <div class="chapter-title">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.notifications" target="_blank">
+      11. NOTIFICATIONS
+    </a>
+  </div>
+  <div class="vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Notifications pro TRIP GATE…</div>
+  </div>
+</div>
+
+<!-- 12 -->
+<div class="chapter">
+  <div class="chapter-title">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.supporting_texts" target="_blank">
+      12. SUPPORTING TEXTS
+    </a>
+  </div>
+  <div class="vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Supporting Texts pro TRIP GATE…</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<div class="section-divider">Rozšíření &amp; vyšší verze</div>
+
+<!-- 13 -->
+<div class="chapter">
+  <div class="chapter-title">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.parallel_search" target="_blank">
+      13. PARALLEL SEARCH (BATOŽINOVÉ VYHLEDÁVÁNÍ)
+    </a>
+  </div>
+  <div class="vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Parallel Search pro TRIP GATE…</div>
+  </div>
+</div>
+
+<!-- 14 -->
+<div class="chapter">
+  <div class="chapter-title">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.vyssi_verze" target="_blank">
+      14. VYŠŠÍ VERZE GOL IBE / TRIP GATE
+    </a>
+  </div>
+  <div class="vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti vyšších verzí pro TRIP GATE…</div>
+  </div>
+
+  <!-- 14.1 -->
+  <div class="subchapter">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.enhanced" target="_blank">
+      14.1 GOL IBE ENHANCED
+    </a>
+  </div>
+  <div class="vyjimka subchapter-vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate — 14.1</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Enhanced verze pro TRIP GATE…</div>
+  </div>
+
+  <!-- 14.2 -->
+  <div class="subchapter">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.enterprise" target="_blank">
+      14.2 GOL IBE ENTERPRISE
+    </a>
+  </div>
+  <div class="vyjimka subchapter-vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate — 14.2</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Enterprise verze pro TRIP GATE…</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<div class="section-divider">Ostatní nastavení</div>
+
+<!-- 15 -->
+<div class="chapter">
+  <div class="chapter-title">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.ostatni_nastaveni" target="_blank">
+      15. OSTATNÍ NASTAVENÍ
+    </a>
+  </div>
+  <div class="vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti ostatního nastavení pro TRIP GATE…</div>
+  </div>
+
+  <!-- 15.1 -->
+  <div class="subchapter">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.travelfusion" target="_blank">
+      15.1 TRAVELFUSION
+    </a>
+  </div>
+  <div class="vyjimka subchapter-vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate — 15.1</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Travelfusion pro TRIP GATE…</div>
+  </div>
+
+  <!-- 15.2 -->
+  <div class="subchapter">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.ndc" target="_blank">
+      15.2 NDC
+    </a>
+  </div>
+  <div class="vyjimka subchapter-vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate — 15.2</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti NDC pro TRIP GATE…</div>
+  </div>
+
+  <!-- 15.3 -->
+  <div class="subchapter">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.textorage" target="_blank">
+      15.3 TEXTORAGE A CSS
+    </a>
+  </div>
+  <div class="vyjimka subchapter-vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate — 15.3</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Textorage a CSS pro TRIP GATE…</div>
+  </div>
+</div>
+
+<!-- 16 -->
+<div class="chapter">
+  <div class="chapter-title">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.ostatni" target="_blank">
+      16. OSTATNÍ
+    </a>
+  </div>
+  <div class="vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti pro TRIP GATE — Ostatní…</div>
+  </div>
+</div>
+
+<!-- 17 -->
+<div class="chapter">
+  <div class="chapter-title">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.ndc_gds" target="_blank">
+      17. NDC z GDS
+    </a>
+  </div>
+  <div class="vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti NDC z GDS pro TRIP GATE…</div>
+  </div>
+</div>
+
+<!-- 18 -->
+<div class="chapter">
+  <div class="chapter-title">
+    <a href="https://docs.google.com/document/d/1EMnFNr84sT9mAhf12zYYMwvWDT2qTNVKtdEQzvFCC28/edit#heading=h.hotelovy_obsah" target="_blank">
+      18. HOTELOVÝ OBSAH (GO GLOBAL)
+    </a>
+  </div>
+  <div class="vyjimka">
+    <div class="vyjimka-label">Vyjimka pro TripGate</div>
+    <div class="vyjimka-content">Zde doplňte odlišnosti Hotelového obsahu pro TRIP GATE…</div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -956,10 +956,9 @@ async function submitEvent() {
   const endTot  = h * 60 + m + selectedDuration;
   const endTime = `${pad(Math.floor(endTot / 60) % 24)}:${pad(endTot % 60)}`;
 
-  // timezone offset (CET/CEST)
-  const tzOffset = getTzOffset(date);
-  const startISO = `${date}T${startTime}:00${tzOffset}`;
-  const endISO   = `${date}T${endTime}:00${tzOffset}`;
+  // Make.com Google Calendar modul má TZ: Europe/Prague → posílej BEZ offset suffixu
+  const startISO = `${date}T${startTime}:00`;
+  const endISO   = `${date}T${endTime}:00`;
 
   const roomName = selectedRoom ? (ROOMS.find(r => r.id === selectedRoom)?.name || '') : '';
 
@@ -995,13 +994,8 @@ async function submitEvent() {
     showToast(`✓ "${title}" odesláno — zkontroluj Google Calendar`, 'success');
     resetForm();
   } catch (err) {
-    // catch nastane jen při skutečné síťové chybě (offline, špatná URL)
     console.error('[AGENT KALENDÁŘ] fetch selhal:', err);
     showToast(`Síťová chyba — jsi online? Zkontroluj URL webhooku`, 'error');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'VYTVOŘIT UDÁLOST →';
-  }
   } finally {
     btn.disabled = false;
     btn.textContent = 'VYTVOŘIT UDÁLOST →';

@@ -978,19 +978,46 @@ async function submitEvent() {
   btn.disabled = true;
   btn.textContent = 'Odesílám…';
 
+  console.log('[AGENT KALENDÁŘ] payload:', JSON.stringify(payload, null, 2));
+
   try {
-    // no-cors: request se odešle i přes browser CORS omezení
-    // (Make.com webhook přijme data, response nelze číst – to je v pořádku)
-    await fetch(webhookUrl, {
+    // Pokus 1: standardní fetch s application/json (Make.com podporuje CORS)
+    const res = await fetch(webhookUrl, {
       method: 'POST',
-      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
 
-    showToast(`✓ Událost "${title}" odeslána do Google Calendar!`, 'success');
-    resetForm();
+    if (res.ok) {
+      showToast(`✓ Událost "${title}" vytvořena v Google Calendar!`, 'success');
+      resetForm();
+    } else {
+      const txt = await res.text().catch(() => '');
+      throw new Error(`Make.com vrátil ${res.status}${txt ? ': ' + txt.slice(0, 120) : ''}`);
+    }
+
   } catch (err) {
-    showToast(`Chyba odesílání: ${err.message}`, 'error');
+
+    // Pokus 2: pokud selhal kvůli CORS, zkus no-cors jako zálohu
+    if (err instanceof TypeError || err.message.toLowerCase().includes('fetch')) {
+      console.warn('[AGENT KALENDÁŘ] CORS error, zkouším no-cors zálohu:', err.message);
+      try {
+        await fetch(webhookUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          body: JSON.stringify(payload),
+        });
+        showToast(`✓ Událost "${title}" odeslána (no-cors mode)`, 'success');
+        resetForm();
+      } catch (e2) {
+        showToast(`Síťová chyba: ${e2.message}`, 'error');
+        console.error('[AGENT KALENDÁŘ] no-cors chyba:', e2);
+      }
+    } else {
+      showToast(`Chyba: ${err.message}`, 'error');
+      console.error('[AGENT KALENDÁŘ] chyba:', err);
+    }
+
   } finally {
     btn.disabled = false;
     btn.textContent = 'VYTVOŘIT UDÁLOST →';

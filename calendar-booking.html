@@ -124,6 +124,32 @@ h1 {
   font-weight: 600;
 }
 
+.tmpl-sep {
+  width: 2px;
+  height: 28px;
+  background: var(--border);
+  align-self: center;
+  flex-shrink: 0;
+  border-radius: 2px;
+  margin: 0 2px;
+}
+
+.template-btn.gol {
+  border-color: #9b4d57;
+  color: #7a3340;
+  background: rgba(155,77,87,0.07);
+}
+.template-btn.gol:hover {
+  border-color: #7a3340;
+  background: rgba(155,77,87,0.14);
+  color: #7a3340;
+}
+.template-btn.gol.active {
+  border-color: #7a3340;
+  background: #7a3340;
+  color: white;
+}
+
 /* ── MAIN GRID ── */
 main {
   padding: 24px 32px 32px;
@@ -374,6 +400,7 @@ textarea:focus {
 /* ── NOTES ── */
 textarea#notes {
   min-height: 68px;
+  max-height: 320px;
   resize: vertical;
   font-size: 14px;
 }
@@ -561,8 +588,13 @@ textarea#notes {
       </div>
     </div>
 
+    <div class="field" id="client-name-field" style="display:none">
+      <label class="field-label" for="client-name">Jméno klienta</label>
+      <input type="text" id="client-name" placeholder="Jméno nebo firma — nahradí {{NAME}} v textu…" autocomplete="off">
+    </div>
+
     <div class="field">
-      <label class="field-label" for="notes">Poznámky</label>
+      <label class="field-label" for="notes">Poznámky / text pozvánky</label>
       <textarea id="notes" placeholder="Agenda, odkaz na meet, poznámky…"></textarea>
     </div>
 
@@ -626,14 +658,24 @@ const TEMPLATES = [
   { name: 'Schůzka',    title: 'Schůzka – ',  duration: 60  },
   { name: 'Review',     title: 'Review – ',   duration: 60  },
   { name: 'Onboarding', title: 'Onboarding',  duration: 60  },
+  // GOL IBE templates — vyplní i popis a místnost
+  { name: 'IBE Demo',      title: 'GOL IBE Demo',    duration: 60, room: 'online', isGol: true,
+    description: `<b>Dear {{NAME}},</b>\n\nlet me invite you for a demo of our online booking tool: GOL IBE.\nFurther products may be surely discussed as well.\n\nDay: \nTime: (slot is blocked for whole hour)\nPlace to meet: link included in this invitation.\n\nPrepare all your questions.\n\nLooking forward to e-meet you.\n\nBest Regards,\nDaniela Vokalova\nProduct Deployment Specialist` },
+  { name: 'IBE Meeting L', title: 'GOL IBE Meeting', duration: 60, room: 'online', isGol: true,
+    description: `<b>Dear {{NAME}},</b>\n\nI am so happy that we have agreed on term for our GOL IBE meeting.\nWe would like to discuss approximately about the following:\n- to get to know what you are missing or what you would like to change / how you like the system.\n- to offer you extra guidance in GOL IBE admin console.\n- to tell you about some news in our system.\n- to show you and tell what other tools we develop could help you in your business and your daily work.\n\nWe may surely discuss payment gateway integration together.\nPlace to meet: link included in this invitation.\n\nPlease note that this session is planned for 30 - 40 minutes.\n\nThis invitation shows full hour but it is just to make sure that we keep the meeting room fully at our disposal.\n\nBest Regards,\n\nDaniela Vokalova\nProduct Deployment Specialist` },
+  { name: 'IBE Meeting S', title: 'GOL IBE Meeting', duration: 30, room: 'online', isGol: true,
+    description: `<b>Dear {{NAME}},</b>\n\nas per our email discussion, let me invite you for a brief meeting over your GOL IBE.\n\nLooking forward to e-meet you.\n\nBest Regards,\nDaniela Vokalova\nProduct Deployment Specialist` },
+  { name: 'IBE Webinar',   title: 'GOL IBE Webinar', duration: 60, room: 'online', isGol: true,
+    description: `<b>Dear {{NAME}},</b>\n\nlet me invite you for GOL IBE webinar session.\n\nDay: \nTime: \nPlace to meet: link included in this invitation.\n\nFeel free to share meeting link with whoever you need to.\nPrepare all your questions.\n\nIt will be my pleasure to guide you and enrich you!\n\nBest Regards,\nDaniela Vokalova\nProduct Deployment Specialist` },
 ];
 
 // ─── STAV ────────────────────────────────────────────────────────
-let selectedRoom     = null;
-let selectedDuration = 30;
-let attendees        = [];
-let contacts         = JSON.parse(localStorage.getItem('calContacts') || '[]');
-let activeTemplIdx   = null;
+let selectedRoom       = null;
+let selectedDuration   = 30;
+let attendees          = [];
+let contacts           = JSON.parse(localStorage.getItem('calContacts') || '[]');
+let activeTemplIdx     = null;
+let activeGolDesc      = null;   // raw description template (with {{NAME}}) for active GOL template
 
 // ─── START ───────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -644,6 +686,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initDuration();
   initAttendees();
   initContacts();
+  initClientName();
   initWebhook();
   initSubmit();
 });
@@ -658,9 +701,16 @@ function initHeader() {
 // ─── ŠABLONY ─────────────────────────────────────────────────────
 function initTemplates() {
   const bar = document.getElementById('templates-bar');
+  let separatorAdded = false;
   TEMPLATES.forEach((t, i) => {
+    if (t.isGol && !separatorAdded) {
+      const sep = document.createElement('div');
+      sep.className = 'tmpl-sep';
+      bar.appendChild(sep);
+      separatorAdded = true;
+    }
     const btn = document.createElement('button');
-    btn.className = 'template-btn';
+    btn.className = 'template-btn' + (t.isGol ? ' gol' : '');
     btn.innerHTML = `${t.name} <span class="tmpl-dur">${fmtDur(t.duration)}</span>`;
     btn.addEventListener('click', () => applyTemplate(i, btn));
     bar.appendChild(btn);
@@ -669,7 +719,13 @@ function initTemplates() {
 
 function applyTemplate(idx, btn) {
   document.querySelectorAll('.template-btn').forEach(b => b.classList.remove('active'));
-  if (activeTemplIdx === idx) { activeTemplIdx = null; return; }
+  if (activeTemplIdx === idx) {
+    activeTemplIdx = null;
+    activeGolDesc  = null;
+    document.getElementById('client-name-field').style.display = 'none';
+    document.getElementById('notes').style.minHeight = '';
+    return;
+  }
   btn.classList.add('active');
   activeTemplIdx = idx;
 
@@ -678,9 +734,56 @@ function applyTemplate(idx, btn) {
   titleEl.value = t.title;
   setDuration(t.duration);
 
-  // focus na konec titulku pokud je to šablona s "–"
-  titleEl.focus();
-  titleEl.setSelectionRange(t.title.length, t.title.length);
+  if (t.isGol) {
+    // Vyber místnost "online"
+    document.querySelectorAll('.room-btn').forEach(b => b.classList.remove('active'));
+    selectedRoom = 'online';
+    document.querySelector('.room-btn[data-id="online"]')?.classList.add('active');
+
+    // Ukaž pole pro jméno klienta
+    const clientField = document.getElementById('client-name-field');
+    clientField.style.display = 'block';
+    const clientInput = document.getElementById('client-name');
+
+    // Zkus extrahovat jméno z prvního attendee
+    const autoName = attendees.length ? extractNameFromEmail(attendees[0]) : '';
+    clientInput.value = autoName;
+
+    // Ulož raw template a aplikuj jméno do notes
+    activeGolDesc = t.description;
+    const notesEl = document.getElementById('notes');
+    notesEl.value = applyClientName(t.description, autoName);
+    notesEl.style.minHeight = '180px';
+  } else {
+    activeGolDesc = null;
+    document.getElementById('client-name-field').style.display = 'none';
+    document.getElementById('notes').style.minHeight = '';
+    // focus na konec titulku pokud je to šablona s "–"
+    titleEl.focus();
+    titleEl.setSelectionRange(t.title.length, t.title.length);
+  }
+}
+
+// ─── JMÉNO KLIENTA ────────────────────────────────────────────────
+function extractNameFromEmail(email) {
+  const local = email.split('@')[0];
+  return local
+    .split(/[._\-+]/)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(' ');
+}
+
+function applyClientName(template, name) {
+  const displayName = name.trim() || '{{NAME}}';
+  return template.replace(/\{\{NAME\}\}/g, displayName);
+}
+
+function initClientName() {
+  document.getElementById('client-name').addEventListener('input', e => {
+    if (!activeGolDesc) return;
+    const notesEl = document.getElementById('notes');
+    notesEl.value = applyClientName(activeGolDesc, e.target.value);
+  });
 }
 
 // ─── MÍSTNOSTI ───────────────────────────────────────────────────
@@ -1034,7 +1137,10 @@ function resetForm() {
   document.querySelectorAll('.room-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.template-btn').forEach(b => b.classList.remove('active'));
   activeTemplIdx = null;
-  document.getElementById('payload-hint').style.display = 'none';
+  activeGolDesc  = null;
+  document.getElementById('client-name').value = '';
+  document.getElementById('client-name-field').style.display = 'none';
+  document.getElementById('notes').style.minHeight = '';
   initDateTime();
 }
 

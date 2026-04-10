@@ -75,6 +75,17 @@ main {
   padding: 40px 56px;
 }
 
+.content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 44px;
+  align-items: start;
+}
+
+.col-left, .col-right {
+  min-width: 0;
+}
+
 /* SECTIONS */
 .section-container {
   margin-bottom: 45px;
@@ -214,6 +225,7 @@ footer {
 
 <main>
   <div class="content">
+  <div class="col-left">
 
     <div class="section-container">
       <span class="section-label">Produkty</span>
@@ -255,6 +267,19 @@ footer {
       </div>
     </div>
 
+  </div>
+  <div class="col-right">
+
+    <div class="section-container">
+      <span class="section-label">Gitlab</span>
+      <div class="tiles">
+        <a class="tile" href="https://gitlab.in.cee-systems.com/gol-support/frontends/-/blob/master/etc/d4_frontends.yml" target="_blank">MAGIC</a>
+        <a class="tile" href="https://gitlab.in.cee-systems.com/support/project-management/-/boards" target="_blank">DEVELOPMENT</a>
+        <a class="tile" href="https://gitlab.in.cee-systems.com/support/support/-/work_items" target="_blank">SUPPORT</a>
+      </div>
+    </div>
+
+  </div>
   </div>
 
   <aside class="side">

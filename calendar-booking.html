@@ -597,8 +597,12 @@ textarea#notes {
 const LS_WEBHOOK     = 'calWebhookUrl';
 const DEFAULT_WEBHOOK = 'https://hook.eu1.make.com/k1dqspccrcitj3rh3by9csukhomf84do';
 function getWebhookUrl() {
-  if (!localStorage.getItem(LS_WEBHOOK)) saveWebhookUrl(DEFAULT_WEBHOOK);
-  return localStorage.getItem(LS_WEBHOOK);
+  const stored = localStorage.getItem(LS_WEBHOOK);
+  if (!stored || !stored.startsWith('http')) {
+    saveWebhookUrl(DEFAULT_WEBHOOK);
+    return DEFAULT_WEBHOOK;
+  }
+  return stored;
 }
 function saveWebhookUrl(url) { localStorage.setItem(LS_WEBHOOK, url.trim()); }
 
@@ -937,12 +941,7 @@ function initSubmit() {
 }
 
 function submitEvent() {
-  const webhookUrl = getWebhookUrl();
-  if (!webhookUrl) {
-    document.getElementById('wh-editor').classList.add('open');
-    showToast('Nejprve ulož URL webhooku (⚙ Nastavení níže)', 'error');
-    return;
-  }
+  const webhookUrl = getWebhookUrl() || DEFAULT_WEBHOOK;
 
   const title     = document.getElementById('ev-title').value.trim();
   const date      = document.getElementById('ev-date').value;

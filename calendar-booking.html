@@ -593,9 +593,8 @@ textarea#notes {
 <script>
 // ─── KONFIGURACE ─────────────────────────────────────────────────
 const LS_WEBHOOK     = 'calWebhookUrl';
-const DEFAULT_WEBHOOK = 'https://hook.eu1.make.com/nl6o3lymb6hkurmk0vvgpuj3m1ncar2m';
+const DEFAULT_WEBHOOK = 'https://hook.eu1.make.com/k1dqspccrcitj3rh3by9csukhomf84do';
 function getWebhookUrl() {
-  // Pokud URL ještě není v localStorage, přednastaví se výchozí
   if (!localStorage.getItem(LS_WEBHOOK)) saveWebhookUrl(DEFAULT_WEBHOOK);
   return localStorage.getItem(LS_WEBHOOK);
 }
@@ -904,7 +903,11 @@ function syncCtTextarea() {
 
 // ─── WEBHOOK NASTAVENÍ ───────────────────────────────────────────
 function initWebhook() {
-  getWebhookUrl(); // tiše přednastaví do localStorage pokud tam ještě není
+  // Vždy přepiš na novou výchozí URL pokud je tam pořád stará
+  const stored = localStorage.getItem(LS_WEBHOOK);
+  if (!stored || stored.includes('nl6o3lymb6hkurmk0vvgpuj3m1ncar2m')) {
+    saveWebhookUrl(DEFAULT_WEBHOOK);
+  }
 
   const toggle  = document.getElementById('wh-toggle');
   const editor  = document.getElementById('wh-editor');
@@ -978,46 +981,32 @@ async function submitEvent() {
   btn.disabled = true;
   btn.textContent = 'Odesílám…';
 
-  console.log('[AGENT KALENDÁŘ] payload:', JSON.stringify(payload, null, 2));
+  const body = JSON.stringify(payload);
+  console.log('[AGENT KALENDÁŘ] odesílám na:', webhookUrl);
+  console.log('[AGENT KALENDÁŘ] payload:', JSON.parse(body));
 
   try {
-    // Pokus 1: standardní fetch s application/json (Make.com podporuje CORS)
+    // text/plain = "simple request" → žádný CORS preflight, Make.com JSON naparsuje stejně
     const res = await fetch(webhookUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      headers: { 'Content-Type': 'text/plain' },
+      body,
     });
+
+    console.log('[AGENT KALENDÁŘ] odpověď:', res.status, res.statusText);
 
     if (res.ok) {
       showToast(`✓ Událost "${title}" vytvořena v Google Calendar!`, 'success');
       resetForm();
     } else {
       const txt = await res.text().catch(() => '');
-      throw new Error(`Make.com vrátil ${res.status}${txt ? ': ' + txt.slice(0, 120) : ''}`);
+      console.error('[AGENT KALENDÁŘ] chyba odpovědi:', txt);
+      showToast(`Chyba ${res.status}: ${txt.slice(0, 100) || res.statusText}`, 'error');
     }
 
   } catch (err) {
-
-    // Pokus 2: pokud selhal kvůli CORS, zkus no-cors jako zálohu
-    if (err instanceof TypeError || err.message.toLowerCase().includes('fetch')) {
-      console.warn('[AGENT KALENDÁŘ] CORS error, zkouším no-cors zálohu:', err.message);
-      try {
-        await fetch(webhookUrl, {
-          method: 'POST',
-          mode: 'no-cors',
-          body: JSON.stringify(payload),
-        });
-        showToast(`✓ Událost "${title}" odeslána (no-cors mode)`, 'success');
-        resetForm();
-      } catch (e2) {
-        showToast(`Síťová chyba: ${e2.message}`, 'error');
-        console.error('[AGENT KALENDÁŘ] no-cors chyba:', e2);
-      }
-    } else {
-      showToast(`Chyba: ${err.message}`, 'error');
-      console.error('[AGENT KALENDÁŘ] chyba:', err);
-    }
-
+    console.error('[AGENT KALENDÁŘ] fetch selhal:', err);
+    showToast(`Síťová chyba: ${err.message}`, 'error');
   } finally {
     btn.disabled = false;
     btn.textContent = 'VYTVOŘIT UDÁLOST →';

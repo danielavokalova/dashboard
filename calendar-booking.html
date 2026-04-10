@@ -983,30 +983,25 @@ async function submitEvent() {
 
   const body = JSON.stringify(payload);
   console.log('[AGENT KALENDÁŘ] odesílám na:', webhookUrl);
-  console.log('[AGENT KALENDÁŘ] payload:', JSON.parse(body));
+  console.log('[AGENT KALENDÁŘ] payload:', payload);
 
   try {
-    // text/plain = "simple request" → žádný CORS preflight, Make.com JSON naparsuje stejně
-    const res = await fetch(webhookUrl, {
+    // no-cors: browser nepotřebuje CORS hlavičky, request Make.com vždy dostane
+    await fetch(webhookUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
+      mode: 'no-cors',
       body,
     });
-
-    console.log('[AGENT KALENDÁŘ] odpověď:', res.status, res.statusText);
-
-    if (res.ok) {
-      showToast(`✓ Událost "${title}" vytvořena v Google Calendar!`, 'success');
-      resetForm();
-    } else {
-      const txt = await res.text().catch(() => '');
-      console.error('[AGENT KALENDÁŘ] chyba odpovědi:', txt);
-      showToast(`Chyba ${res.status}: ${txt.slice(0, 100) || res.statusText}`, 'error');
-    }
-
+    showToast(`✓ "${title}" odesláno — zkontroluj Google Calendar`, 'success');
+    resetForm();
   } catch (err) {
+    // catch nastane jen při skutečné síťové chybě (offline, špatná URL)
     console.error('[AGENT KALENDÁŘ] fetch selhal:', err);
-    showToast(`Síťová chyba: ${err.message}`, 'error');
+    showToast(`Síťová chyba — jsi online? Zkontroluj URL webhooku`, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'VYTVOŘIT UDÁLOST →';
+  }
   } finally {
     btn.disabled = false;
     btn.textContent = 'VYTVOŘIT UDÁLOST →';

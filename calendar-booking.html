@@ -437,46 +437,6 @@ textarea#notes {
 .toast.success { background: #1fa81f; color: white; }
 .toast.error   { background: #c0392b; color: white; }
 
-/* ── WEBHOOK SETUP BANNER ── */
-.setup-banner {
-  background: #fff8e1;
-  border: 2px solid #f0be6a;
-  border-radius: 14px;
-  padding: 16px 20px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin: 18px 32px 0;
-}
-.setup-banner p {
-  font-size: 13px;
-  font-weight: 600;
-  color: #7a5800;
-  flex: 1;
-}
-.setup-banner input[type="text"] {
-  flex: 2;
-  border: 2px solid #f0be6a;
-  border-radius: 9px;
-  padding: 8px 12px;
-  font-size: 13px;
-  font-family: monospace;
-}
-.setup-banner input[type="text"]:focus { border-color: var(--teal); }
-.setup-save {
-  border: none;
-  border-radius: 9px;
-  background: var(--teal);
-  color: white;
-  padding: 8px 16px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  white-space: nowrap;
-}
-.setup-save:hover { background: var(--teal-dark); }
-
 /* ── WEBHOOK SETTINGS (v patičce) ── */
 .wh-settings {
   max-width: 980px;
@@ -541,13 +501,6 @@ textarea#notes {
 </header>
 
 <div class="templates-bar" id="templates-bar"></div>
-
-<!-- Setup banner – zobrazí se jen pokud není uložená URL -->
-<div class="setup-banner" id="setup-banner" style="display:none">
-  <p>Zadej URL Make.com webhooku (uloží se jen do tvého prohlížeče):</p>
-  <input type="text" id="setup-url" placeholder="https://hook.eu1.make.com/…">
-  <button class="setup-save" id="setup-save">Uložit</button>
-</div>
 
 <main>
 
@@ -639,9 +592,13 @@ textarea#notes {
 
 <script>
 // ─── KONFIGURACE ─────────────────────────────────────────────────
-// Webhook URL je uložena v localStorage, není v kódu
-const LS_WEBHOOK = 'calWebhookUrl';
-function getWebhookUrl() { return localStorage.getItem(LS_WEBHOOK) || ''; }
+const LS_WEBHOOK     = 'calWebhookUrl';
+const DEFAULT_WEBHOOK = 'https://hook.eu1.make.com/nl6o3lymb6hkurmk0vvgpuj3m1ncar2m';
+function getWebhookUrl() {
+  // Pokud URL ještě není v localStorage, přednastaví se výchozí
+  if (!localStorage.getItem(LS_WEBHOOK)) saveWebhookUrl(DEFAULT_WEBHOOK);
+  return localStorage.getItem(LS_WEBHOOK);
+}
 function saveWebhookUrl(url) { localStorage.setItem(LS_WEBHOOK, url.trim()); }
 
 const ROOMS = [
@@ -947,32 +904,14 @@ function syncCtTextarea() {
 
 // ─── WEBHOOK NASTAVENÍ ───────────────────────────────────────────
 function initWebhook() {
-  // Setup banner – pokud URL ještě není uložena
-  const banner   = document.getElementById('setup-banner');
-  const setupUrl = document.getElementById('setup-url');
-  const setupSave = document.getElementById('setup-save');
+  getWebhookUrl(); // tiše přednastaví do localStorage pokud tam ještě není
 
-  if (!getWebhookUrl()) {
-    banner.style.display = 'flex';
-  }
-
-  setupSave.addEventListener('click', () => {
-    const url = setupUrl.value.trim();
-    if (!url.startsWith('http')) { showToast('Zadej platnou URL', 'error'); return; }
-    saveWebhookUrl(url);
-    banner.style.display = 'none';
-    showToast('Webhook URL uložena ✓', 'success');
-    syncWhInput();
-  });
-
-  // Nastavení v patičce
   const toggle  = document.getElementById('wh-toggle');
   const editor  = document.getElementById('wh-editor');
   const whInput = document.getElementById('wh-url-input');
   const whSave  = document.getElementById('wh-save');
 
-  syncWhInput();
-
+  whInput.value = getWebhookUrl();
   toggle.addEventListener('click', () => editor.classList.toggle('open'));
 
   whSave.addEventListener('click', () => {
@@ -980,13 +919,8 @@ function initWebhook() {
     if (!url.startsWith('http')) { showToast('Zadej platnou URL', 'error'); return; }
     saveWebhookUrl(url);
     editor.classList.remove('open');
-    banner.style.display = 'none';
     showToast('Webhook URL uložena ✓', 'success');
   });
-
-  function syncWhInput() {
-    if (whInput) whInput.value = getWebhookUrl();
-  }
 }
 
 // ─── ODESLÁNÍ ─────────────────────────────────────────────────────
@@ -1000,9 +934,8 @@ function initSubmit() {
 async function submitEvent() {
   const webhookUrl = getWebhookUrl();
   if (!webhookUrl) {
-    document.getElementById('setup-banner').style.display = 'flex';
     document.getElementById('wh-editor').classList.add('open');
-    showToast('Nejprve ulož URL webhooku (viz nastavení níže)', 'error');
+    showToast('Nejprve ulož URL webhooku (⚙ Nastavení níže)', 'error');
     return;
   }
 

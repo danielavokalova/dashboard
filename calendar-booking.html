@@ -665,7 +665,7 @@ const TEMPLATES = [
     description: `<b>Dear {{NAME}},</b>\n\nI am so happy that we have agreed on term for our GOL IBE meeting.\nWe would like to discuss approximately about the following:\n- to get to know what you are missing or what you would like to change / how you like the system.\n- to offer you extra guidance in GOL IBE admin console.\n- to tell you about some news in our system.\n- to show you and tell what other tools we develop could help you in your business and your daily work.\n\nWe may surely discuss payment gateway integration together.\nPlace to meet: link included in this invitation.\n\nPlease note that this session is planned for 30 - 40 minutes.\n\nThis invitation shows full hour but it is just to make sure that we keep the meeting room fully at our disposal.\n\nBest Regards,\n\nDaniela Vokalova\nProduct Deployment Specialist` },
   { name: 'IBE Meeting S', title: 'GOL IBE Meeting', duration: 30, room: 'online', isGol: true,
     description: `<b>Dear {{NAME}},</b>\n\nas per our email discussion, let me invite you for a brief meeting over your GOL IBE.\n\nLooking forward to e-meet you.\n\nBest Regards,\nDaniela Vokalova\nProduct Deployment Specialist` },
-  { name: 'IBE Webinar',   title: 'GOL IBE Webinar', duration: 60, room: 'online', isGol: true,
+  { name: 'IBE Webinar',   title: 'GOL IBE Webinar', duration: 90, room: 'online', isGol: true,
     description: `<b>Dear {{NAME}},</b>\n\nlet me invite you for GOL IBE webinar session.\n\nDay: \nTime: \nPlace to meet: link included in this invitation.\n\nFeel free to share meeting link with whoever you need to.\nPrepare all your questions.\n\nIt will be my pleasure to guide you and enrich you!\n\nBest Regards,\nDaniela Vokalova\nProduct Deployment Specialist` },
 ];
 
@@ -957,6 +957,15 @@ function initAttendees() {
       contacts.push(email);
       localStorage.setItem('calContacts', JSON.stringify(contacts));
       syncCtTextarea();
+    }
+    // Pokud je aktivní GOL šablona a jde o prvního účastníka → auto-vyplň jméno
+    if (activeGolDesc && attendees.length === 1) {
+      const clientInput = document.getElementById('client-name');
+      if (!clientInput.value.trim()) {
+        const autoName = extractNameFromEmail(email);
+        clientInput.value = autoName;
+        document.getElementById('notes').value = applyClientName(activeGolDesc, autoName);
+      }
     }
     renderChips();
     input.value = '';

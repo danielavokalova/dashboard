@@ -618,7 +618,10 @@ textarea#notes {
     <div class="wh-row">
       <input type="text" id="wh-url-input" placeholder="https://hook.eu1.make.com/…">
       <button class="wh-save" id="wh-save">Uložit</button>
+      <button class="wh-save" id="wh-test">Ping</button>
+      <button class="wh-save" id="wh-reset" style="border-color:#c0392b;color:#c0392b">Reset</button>
     </div>
+    <p id="wh-status" style="margin-top:8px;font-size:11px;color:var(--muted)"></p>
   </div>
 </div>
 
@@ -1033,14 +1036,42 @@ function initWebhook() {
   const whSave  = document.getElementById('wh-save');
 
   whInput.value = getWebhookUrl();
+  const whStatus = document.getElementById('wh-status');
+  whStatus.textContent = 'Aktivní: ' + getWebhookUrl().slice(-24);
+
   toggle.addEventListener('click', () => editor.classList.toggle('open'));
 
   whSave.addEventListener('click', () => {
     const url = whInput.value.trim();
     if (!url.startsWith('http')) { showToast('Zadej platnou URL', 'error'); return; }
     saveWebhookUrl(url);
+    whStatus.textContent = 'Aktivní: ' + url.slice(-24);
     editor.classList.remove('open');
     showToast('Webhook URL uložena ✓', 'success');
+  });
+
+  document.getElementById('wh-reset').addEventListener('click', () => {
+    saveWebhookUrl(DEFAULT_WEBHOOK);
+    whInput.value = DEFAULT_WEBHOOK;
+    whStatus.textContent = 'Aktivní: ' + DEFAULT_WEBHOOK.slice(-24);
+    showToast('URL resetována na výchozí ✓', 'success');
+  });
+
+  document.getElementById('wh-test').addEventListener('click', async () => {
+    const url = getWebhookUrl();
+    whStatus.textContent = 'Testuji…';
+    try {
+      await fetch(url, {
+        method: 'POST', mode: 'no-cors',
+        body: 'test=ping&title=TEST+PING',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      });
+      whStatus.textContent = '✓ Webhook dosažitelný — zkontroluj historii v Make.com';
+      showToast('✓ Ping odeslán — ověř Make.com historii', 'success');
+    } catch(e) {
+      whStatus.textContent = '✗ Webhook nedosažitelný — špatná URL nebo blokovaná síť';
+      showToast('✗ Webhook nedosažitelný', 'error');
+    }
   });
 }
 
@@ -1093,7 +1124,8 @@ function submitEvent() {
   btn.disabled = true;
   btn.textContent = 'Odesílám…';
 
-  console.log('[AGENT KALENDÁŘ] odesílám na:', webhookUrl, payload);
+  console.log('[AGENT KALENDÁŘ] odesílám na:', webhookUrl);
+  console.log('[AGENT KALENDÁŘ] payload:', JSON.stringify(payload, null, 2));
 
   // Hidden form + iframe — 100% obchází CORS i firemní firewall
   submitViaForm(webhookUrl, payload);

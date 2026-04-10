@@ -131,6 +131,12 @@ main {
   gap: 22px;
 }
 
+.side-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
 /* NOTES */
 .notes {
   flex: 1;
@@ -226,6 +232,7 @@ footer {
         <a class="tile" href="https://www.notion.so/cee-travel-systems/209a7099a10f807d956cd34b5a96ade4?v=209a7099a10f80449ccc000ca457ae7e" target="_blank">MANUÁLY<br>NOTION</a>
         <a class="tile" href="https://docs.google.com/spreadsheets/d/1PwXopixBNOhwgZTDGmHUTCzz9dZPqtHiGZIkAVO4aw0/edit" target="_blank">VDV</a>
         <a class="tile" href="https://docs.google.com/spreadsheets/d/1F1HjyKIFm5dDzMzM1-GAIKnH13lbHRYgYWgArbI00yg/edit" target="_blank">ZALETSI</a>
+        <a class="tile" href="https://docs.google.com/spreadsheets/d/1vV6rIQCL9OCMG9xSV1OrXYyZldABPSe8CwF7_wPCLiQ/edit?gid=0#gid=0" target="_blank">PÁTEK<br>REPORT</a>
       </div>
     </div>
 
@@ -250,7 +257,10 @@ footer {
   </div>
 
   <aside class="side">
-    <a class="tile" href="mailto:">EMAIL</a>
+    <div class="side-tiles">
+      <a class="tile" href="mailto:">EMAIL</a>
+      <a class="tile" href="https://calendar.google.com/calendar/u/0/r" target="_blank">KALENDÁŘ</a>
+    </div>
     <div class="notes">
       <h2>POZNÁMKY</h2>
       <textarea id="notes" placeholder="Klidné poznámky…"></textarea>

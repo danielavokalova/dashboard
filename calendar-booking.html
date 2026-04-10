@@ -49,10 +49,18 @@ header {
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
-  opacity: 0.7;
-  transition: opacity 0.2s;
+  border: 2px solid var(--border);
+  border-radius: 9px;
+  padding: 6px 14px;
+  background: white;
+  transition: all 0.15s;
+  white-space: nowrap;
 }
-.logo-back:hover { opacity: 1; }
+.logo-back:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+  background: var(--teal-light);
+}
 
 h1 {
   font-size: 17px;

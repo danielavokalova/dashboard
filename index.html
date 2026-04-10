@@ -43,10 +43,11 @@ header {
 }
 
 h1 {
-  font-size: 26px;
+  font-size: 28px;
   letter-spacing: 0.28em;
-  font-weight: 500;
-  color: var(--blue-muted);
+  font-weight: 800;
+  color: var(--ink);
+  text-shadow: 0 1px 4px rgba(90,115,115,0.18);
 }
 
 .divider {
@@ -85,14 +86,14 @@ main {
 /* TILES */
 .tiles {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 22px;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 14px;
 }
 
 .tile {
-  height: 100px;
+  height: 80px;
   background: var(--tile-bg);
-  border-radius: 18px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;

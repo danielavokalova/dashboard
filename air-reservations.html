@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Air Reservations</title>
+<style>
+:root {
+  --ink:       #1f2a2a;
+  --muted:     #4f6a6c;
+  --line:      #425c5e;
+  --paper:     rgba(245,246,244,0.95);
+  --shadow:    rgba(90,115,115,0.26);
+  --border:    rgba(66,92,94,0.17);
+  --row-hover: rgba(79,106,108,0.07);
+  --row-alt:   rgba(245,246,244,0.55);
+  --bar-fill:  #4f6a6c;
+  --bar-bg:    rgba(79,106,108,0.12);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: url("botanicus.png") repeat;
+  color: var(--ink);
+}
+
+/* ── TOPBAR ─────────────────────────────────────────────── */
+.topbar {
+  background: var(--paper);
+  border-bottom: 2px solid var(--line);
+  padding: 12px 40px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(6px);
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font: 700 11px/1 inherit;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.18s, color 0.18s;
+}
+.btn-back:hover { background: var(--muted); color: #fff; }
+
+.topbar-title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+}
+
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+
+.topbar-meta {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: right;
+  line-height: 1.55;
+}
+
+.btn-sm {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 9px;
+  font: 700 11px/1 inherit;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.btn-sm:hover    { opacity: 0.82; transform: translateY(-1px); }
+.btn-sm:disabled { opacity: 0.38; cursor: wait; transform: none; }
+.btn-primary { background: var(--muted); color: #fff; }
+.btn-outline  {
+  background: transparent;
+  color: var(--muted);
+  border: 1.5px solid var(--border);
+}
+.btn-outline:hover { background: rgba(79,106,108,0.1); }
+
+/* ── MAIN ───────────────────────────────────────────────── */
+.main {
+  padding: 28px 40px 52px;
+  max-width: 1920px;
+  margin: 0 auto;
+}
+
+.error-box {
+  display: none;
+  background: rgba(160,30,30,0.07);
+  border: 1.5px solid rgba(160,30,30,0.22);
+  border-radius: 12px;
+  padding: 13px 18px;
+  color: #7a1a1a;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+.error-box.show { display: block; }
+
+/* ── KPI CARDS ──────────────────────────────────────────── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.kpi {
+  background: var(--paper);
+  border-radius: 16px;
+  padding: 19px 22px;
+  box-shadow: 0 5px 20px var(--shadow);
+}
+
+.kpi-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.kpi-value { font-size: 28px; font-weight: 800; line-height: 1; }
+.kpi-sub   { font-size: 11px; color: var(--muted); margin-top: 5px; }
+
+/* ── CHART SECTION ──────────────────────────────────────── */
+.chart-section {
+  background: var(--paper);
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 5px 20px var(--shadow);
+  margin-bottom: 18px;
+  display: none;
+}
+
+.chart-section.visible { display: block; }
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.chart-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.chart-toggle {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 2px 8px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+.chart-toggle:hover { background: rgba(79,106,108,0.1); }
+
+.chart-body { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 32px; }
+@media (max-width: 900px) { .chart-body { grid-template-columns: 1fr; } }
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 56px;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  border-radius: 7px;
+  padding: 3px 6px;
+  transition: background 0.12s;
+}
+.bar-row:hover { background: rgba(79,106,108,0.08); }
+.bar-row.active { background: rgba(79,106,108,0.15); }
+
+.bar-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bar-track {
+  height: 8px;
+  background: var(--bar-bg);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: var(--bar-fill);
+  border-radius: 4px;
+  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+.bar-count {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* ── FILTER BAR ─────────────────────────────────────────── */
+.filter-bar {
+  background: var(--paper);
+  border-radius: 16px;
+  padding: 14px 20px;
+  box-shadow: 0 5px 20px var(--shadow);
+  margin-bottom: 18px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.fg { display: flex; flex-direction: column; gap: 4px; }
+
+.fg-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.fg-input {
+  padding: 7px 11px;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  background: rgba(245,246,244,0.85);
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  outline: none;
+  height: 34px;
+  transition: border-color 0.15s;
+}
+.fg-input:focus { border-color: var(--muted); }
+.fg-input.wide   { min-width: 220px; }
+.fg-input.narrow { min-width: 136px; }
+
+.filter-right { margin-left: auto; display: flex; align-items: flex-end; gap: 8px; }
+
+.filter-count { font-size: 11px; color: var(--muted); padding-bottom: 7px; white-space: nowrap; }
+
+/* ── TABLE ──────────────────────────────────────────────── */
+.table-card {
+  background: var(--paper);
+  border-radius: 16px;
+  box-shadow: 0 5px 20px var(--shadow);
+  overflow: hidden;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 380px);
+  min-height: 160px;
+}
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+thead { position: sticky; top: 0; z-index: 10; }
+
+thead th {
+  background: rgba(50,76,78,0.93);
+  color: #fff;
+  padding: 10px 13px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.13s;
+}
+thead th:hover { background: var(--ink); }
+
+.sort-icon { display: inline-block; margin-left: 4px; opacity: 0.4; font-size: 9px; }
+th.sort-asc  .sort-icon::after { content: "▲"; opacity: 1; color: #aee6e0; }
+th.sort-desc .sort-icon::after { content: "▼"; opacity: 1; color: #aee6e0; }
+th:not(.sort-asc):not(.sort-desc) .sort-icon::after { content: "⇅"; }
+
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.09s; }
+tbody tr:nth-child(even) { background: var(--row-alt); }
+tbody tr:hover { background: var(--row-hover); }
+
+tbody td { padding: 8px 13px; white-space: nowrap; max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
+td.cell-date  { font-variant-numeric: tabular-nums; font-weight: 600; }
+td.cell-num   { font-variant-numeric: tabular-nums; text-align: right; }
+td.cell-empty { color: var(--muted); }
+
+.table-footer {
+  padding: 10px 18px;
+  font-size: 11px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* ── STATE PLACEHOLDERS ─────────────────────────────────── */
+.state { padding: 54px 20px; text-align: center; color: var(--muted); }
+.state-icon  { font-size: 34px; margin-bottom: 11px; }
+.state-title { font-size: 15px; font-weight: 700; margin-bottom: 5px; color: var(--ink); }
+.state-sub   { font-size: 12px; line-height: 1.7; }
+.state-sub code {
+  background: rgba(0,0,0,0.06);
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  width: 26px; height: 26px;
+  border: 3px solid rgba(79,106,108,0.18);
+  border-top-color: var(--muted);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  margin: 0 auto 11px;
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a class="btn-back" href="index.html">← Dashboard</a>
+  <div class="topbar-title">AIR RESERVATIONS</div>
+  <div class="topbar-right">
+    <button class="btn-sm btn-primary" id="btn-refresh" onclick="loadData()">Obnovit</button>
+    <div class="topbar-meta" id="topbar-meta">Načítám…</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="error-box" id="error-box"></div>
+
+  <!-- KPI -->
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-label">Celkem záznamů</div>
+      <div class="kpi-value" id="kpi-total">—</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Poslední rezervace</div>
+      <div class="kpi-value" id="kpi-last">—</div>
+      <div class="kpi-sub" id="kpi-last-sub"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label" id="kpi-agency-label">Agentury</div>
+      <div class="kpi-value" id="kpi-agencies">—</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Data od</div>
+      <div class="kpi-value" id="kpi-from">—</div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="chart-section" id="chart-section">
+    <div class="chart-header">
+      <div class="chart-title" id="chart-title">Agentury</div>
+      <button class="chart-toggle" id="chart-toggle" onclick="toggleChart()">Skrýt ▲</button>
+    </div>
+    <div class="chart-body" id="chart-body"></div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filter-bar">
+    <div class="fg">
+      <label class="fg-label">Hledat</label>
+      <input class="fg-input wide" type="text" id="f-search"
+             placeholder="Hledat ve všech sloupcích…" oninput="applyFilters()">
+    </div>
+    <div class="fg" id="fg-date-from" style="display:none">
+      <label class="fg-label">Datum od</label>
+      <input class="fg-input narrow" type="date" id="f-date-from" onchange="applyFilters()">
+    </div>
+    <div class="fg" id="fg-date-to" style="display:none">
+      <label class="fg-label">Datum do</label>
+      <input class="fg-input narrow" type="date" id="f-date-to" onchange="applyFilters()">
+    </div>
+    <div class="fg" id="fg-agency" style="display:none">
+      <label class="fg-label" id="fg-agency-label">Agentura</label>
+      <select class="fg-input narrow" id="f-agency" onchange="applyFilters()">
+        <option value="">Všechny</option>
+      </select>
+    </div>
+    <div class="filter-right">
+      <span class="filter-count" id="filter-count"></span>
+      <button class="btn-sm btn-outline" onclick="clearFilters()">Vymazat filtry</button>
+      <button class="btn-sm btn-outline" id="btn-export" onclick="exportCSV()">Export CSV</button>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-card">
+    <div class="table-scroll" id="table-container">
+      <div class="state">
+        <div class="spinner"></div>
+        <div class="state-title">Načítám data…</div>
+        <div class="state-sub">Připojuji se k databázi</div>
+      </div>
+    </div>
+    <div class="table-footer" id="table-footer"></div>
+  </div>
+
+</div>
+
+<script>
+const API = "http://localhost:8080";
+
+let allRows     = [];
+let allColumns  = [];
+let filteredRows = [];
+let specialCols = { date: null, agency: null };
+let sortState   = { col: null, dir: "asc" };
+let chartCollapsed = false;
+let activeBarAgency = null;
+
+// ── Column detection ────────────────────────────────────────────
+
+function detectCols(cols) {
+  const lc = s => s.toLowerCase();
+  return {
+    date: cols.find(c =>
+      lc(c).includes("date") || lc(c) === "datum" || lc(c).includes("datum")
+    ) || null,
+    agency: cols.find(c =>
+      lc(c).includes("agency") || lc(c).includes("agentur") ||
+      lc(c).includes("agent")  || lc(c).includes("iata")    ||
+      lc(c).includes("client") || lc(c).includes("customer")
+    ) || null,
+  };
+}
+
+// ── Date helpers ────────────────────────────────────────────────
+
+function parseDate(v) {
+  if (!v) return null;
+  const s = String(v);
+  if (/^\d{2}\.\d{2}\.\d{4}$/.test(s)) {
+    const [d,m,y] = s.split(".");
+    return new Date(+y, +m-1, +d);
+  }
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return new Date(s.slice(0,10));
+  return null;
+}
+
+function fmtDate(v) {
+  const d = parseDate(v);
+  return d ? d.toLocaleDateString("cs-CZ",{day:"2-digit",month:"2-digit",year:"numeric"}) : String(v??"");
+}
+
+function toISO(d) { return d.toISOString().slice(0,10); }
+
+// ── Load data ───────────────────────────────────────────────────
+
+async function loadData() {
+  const btn = document.getElementById("btn-refresh");
+  btn.disabled = true; btn.textContent = "…";
+  showLoadingState();
+  hideError();
+
+  try {
+    const res  = await fetch(`${API}/api/reservations`);
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || "Neznámá chyba");
+
+    allRows    = data.rows;
+    allColumns = data.columns;
+    specialCols = detectCols(allColumns);
+
+    buildControls();
+    computeKPIs();
+    applyFilters();
+
+    const t = new Date().toLocaleTimeString("cs-CZ",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+    document.getElementById("topbar-meta").innerHTML =
+      `Aktualizováno: ${t}<br>${data.count.toLocaleString("cs-CZ")} záznamů`;
+
+  } catch(e) {
+    showError(e.message);
+    showErrorState();
+  } finally {
+    btn.disabled = false; btn.textContent = "Obnovit";
+  }
+}
+
+// ── Build controls ──────────────────────────────────────────────
+
+function buildControls() {
+  const {date, agency} = specialCols;
+
+  // date filters
+  document.getElementById("fg-date-from").style.display = date ? "" : "none";
+  document.getElementById("fg-date-to").style.display   = date ? "" : "none";
+  if (date) {
+    const dates = allRows.map(r => parseDate(r[date])).filter(Boolean).sort((a,b)=>a-b);
+    if (dates.length) {
+      const last  = dates[dates.length-1];
+      const from3 = new Date(last); from3.setMonth(from3.getMonth()-3);
+      document.getElementById("f-date-from").value = toISO(from3);
+      document.getElementById("f-date-to").value   = toISO(last);
+    }
+  }
+
+  // agency dropdown
+  const agFg = document.getElementById("fg-agency");
+  if (agency) {
+    const lbl = agency.replace(/_/g," ");
+    document.getElementById("fg-agency-label").textContent   = lbl;
+    document.getElementById("kpi-agency-label").textContent  = lbl;
+    document.getElementById("chart-title").textContent       = lbl.charAt(0).toUpperCase()+lbl.slice(1)+" – počty rezervací";
+
+    const vals = [...new Set(allRows.map(r=>r[agency]).filter(v=>v!=null))].map(String).sort();
+    const sel  = document.getElementById("f-agency");
+    sel.innerHTML = `<option value="">Všechny (${vals.length})</option>` +
+      vals.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");
+    agFg.style.display = "";
+  } else {
+    agFg.style.display = "none";
+  }
+}
+
+// ── KPI ─────────────────────────────────────────────────────────
+
+function computeKPIs() {
+  document.getElementById("kpi-total").textContent = allRows.length.toLocaleString("cs-CZ");
+  const {date, agency} = specialCols;
+
+  if (date) {
+    const sorted = allRows
+      .map(r => ({raw: r[date], d: parseDate(r[date])}))
+      .filter(x => x.d)
+      .sort((a,b) => a.d - b.d);
+    if (sorted.length) {
+      const first = sorted[0], last = sorted[sorted.length-1];
+      document.getElementById("kpi-from").textContent = fmtDate(first.raw);
+      document.getElementById("kpi-last").textContent = fmtDate(last.raw);
+      const diff = Math.round((new Date() - last.d) / 86400000);
+      document.getElementById("kpi-last-sub").textContent =
+        diff === 0 ? "dnes" : diff === 1 ? "včera" : `před ${diff} dny`;
+    }
+  }
+
+  if (agency) {
+    const n = new Set(allRows.map(r=>r[agency]).filter(v=>v!=null)).size;
+    document.getElementById("kpi-agencies").textContent = n;
+  }
+}
+
+// ── Chart ────────────────────────────────────────────────────────
+
+function buildChart(rows) {
+  const {agency} = specialCols;
+  const section  = document.getElementById("chart-section");
+  if (!agency) { section.classList.remove("visible"); return; }
+
+  section.classList.add("visible");
+  if (chartCollapsed) return;
+
+  // count per agency from ALL data (not filtered)
+  const counts = {};
+  allRows.forEach(r => {
+    const v = String(r[agency] ?? "");
+    if (v) counts[v] = (counts[v] || 0) + 1;
+  });
+  const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
+  const top    = sorted.slice(0, 20);
+  const max    = top[0]?.[1] || 1;
+
+  const body = document.getElementById("chart-body");
+  body.innerHTML = top.map(([name, cnt]) => {
+    const pct  = Math.round(cnt / allRows.length * 100);
+    const w    = Math.round(cnt / max * 100);
+    const act  = activeBarAgency === name ? "active" : "";
+    return `
+      <div class="bar-row ${act}" onclick="clickBar('${esc(name)}')" title="${esc(name)}: ${cnt} rezervací (${pct}%)">
+        <div class="bar-label">${esc(name)}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${w}%"></div></div>
+        <div class="bar-count">${cnt.toLocaleString("cs-CZ")}</div>
+      </div>`;
+  }).join("");
+}
+
+function clickBar(name) {
+  const sel = document.getElementById("f-agency");
+  if (activeBarAgency === name) {
+    activeBarAgency = null;
+    sel.value = "";
+  } else {
+    activeBarAgency = name;
+    sel.value = name;
+  }
+  applyFilters();
+}
+
+function toggleChart() {
+  chartCollapsed = !chartCollapsed;
+  const body = document.getElementById("chart-body");
+  const btn  = document.getElementById("chart-toggle");
+  body.style.display = chartCollapsed ? "none" : "";
+  btn.textContent    = chartCollapsed ? "Zobrazit ▼" : "Skrýt ▲";
+}
+
+// ── Filters ──────────────────────────────────────────────────────
+
+function applyFilters() {
+  const search   = document.getElementById("f-search").value.toLowerCase().trim();
+  const dateFrom = document.getElementById("f-date-from").value;
+  const dateTo   = document.getElementById("f-date-to").value;
+  const agency   = document.getElementById("f-agency").value;
+
+  if (activeBarAgency && agency !== activeBarAgency) activeBarAgency = null;
+
+  const {date: dc, agency: ac} = specialCols;
+
+  filteredRows = allRows.filter(row => {
+    if (search) {
+      if (!Object.values(row).map(v=>String(v??""")).join(" ").toLowerCase().includes(search))
+        return false;
+    }
+    if (dc && (dateFrom || dateTo)) {
+      const d = parseDate(row[dc]);
+      if (d) {
+        if (dateFrom && d < new Date(dateFrom)) return false;
+        if (dateTo   && d > new Date(dateTo+"T23:59:59")) return false;
+      }
+    }
+    if (ac && agency && String(row[ac]) !== agency) return false;
+    return true;
+  });
+
+  if (sortState.col !== null) filteredRows = doSort(filteredRows);
+
+  renderTable(filteredRows);
+  buildChart(filteredRows);
+
+  const n   = filteredRows.length;
+  const tot = allRows.length;
+  const txt = n < tot
+    ? `Zobrazeno ${n.toLocaleString("cs-CZ")} z ${tot.toLocaleString("cs-CZ")}`
+    : `${tot.toLocaleString("cs-CZ")} záznamů`;
+  document.getElementById("filter-count").textContent  = txt;
+  document.getElementById("table-footer").textContent  = txt;
+}
+
+function clearFilters() {
+  document.getElementById("f-search").value    = "";
+  document.getElementById("f-date-from").value = "";
+  document.getElementById("f-date-to").value   = "";
+  document.getElementById("f-agency").value    = "";
+  activeBarAgency = null;
+  applyFilters();
+}
+
+// ── Sort ─────────────────────────────────────────────────────────
+
+function toggleSort(col) {
+  sortState.dir = sortState.col === col && sortState.dir === "asc" ? "desc" : "asc";
+  sortState.col = col;
+  applyFilters();
+}
+
+function doSort(rows) {
+  const col = sortState.col, dir = sortState.dir === "asc" ? 1 : -1;
+  return [...rows].sort((a,b) => {
+    let va = a[col], vb = b[col];
+    const da = parseDate(va), db = parseDate(vb);
+    if (da && db) return dir * (da - db);
+    const na = parseFloat(va), nb = parseFloat(vb);
+    if (!isNaN(na) && !isNaN(nb)) return dir * (na - nb);
+    va = String(va??"").toLowerCase(); vb = String(vb??"").toLowerCase();
+    return dir * (va < vb ? -1 : va > vb ? 1 : 0);
+  });
+}
+
+// ── Render table ─────────────────────────────────────────────────
+
+function renderTable(rows) {
+  const el = document.getElementById("table-container");
+  if (!rows.length) {
+    el.innerHTML = `<div class="state">
+      <div class="state-icon">🔍</div>
+      <div class="state-title">Žádné záznamy</div>
+      <div class="state-sub">Zkus upravit nebo vymazat filtry.</div>
+    </div>`;
+    return;
+  }
+  const dc = specialCols.date;
+  const heads = allColumns.map(col => {
+    const cls = sortState.col === col ? (sortState.dir==="asc"?"sort-asc":"sort-desc") : "";
+    return `<th class="${cls}" onclick="toggleSort('${esc(col)}')">${esc(col.replace(/_/g," ").toUpperCase())}<i class="sort-icon"></i></th>`;
+  }).join("");
+
+  const body = rows.map(row => {
+    const cells = allColumns.map(col => {
+      let v = row[col], cls = "";
+      if (col === dc) { v = fmtDate(v); cls = "cell-date"; }
+      else if (v === null || v === undefined || v === "") { v = ""; cls = "cell-empty"; }
+      else if (!isNaN(parseFloat(v)) && isFinite(v)) { v = String(v); cls = "cell-num"; }
+      else v = String(v);
+      return `<td class="${cls}" title="${esc(v)}">${esc(v)}</td>`;
+    }).join("");
+    return `<tr>${cells}</tr>`;
+  }).join("");
+
+  el.innerHTML = `<table><thead><tr>${heads}</tr></thead><tbody>${body}</tbody></table>`;
+}
+
+// ── CSV Export ────────────────────────────────────────────────────
+
+function exportCSV() {
+  if (!filteredRows.length) return;
+  const dc = specialCols.date;
+  const header = allColumns.join(",");
+  const body = filteredRows.map(row =>
+    allColumns.map(col => {
+      let v = row[col];
+      if (col === dc) v = fmtDate(v);
+      v = String(v ?? "").replace(/"/g, '""');
+      return `"${v}"`;
+    }).join(",")
+  ).join("\n");
+
+  const blob = new Blob(["\uFEFF" + header + "\n" + body], { type: "text/csv;charset=utf-8" });
+  const url  = URL.createObjectURL(blob);
+  const a    = Object.assign(document.createElement("a"), {
+    href: url,
+    download: `air-reservations-${new Date().toISOString().slice(0,10)}.csv`
+  });
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── States ────────────────────────────────────────────────────────
+
+function showLoadingState() {
+  document.getElementById("table-container").innerHTML = `
+    <div class="state">
+      <div class="spinner"></div>
+      <div class="state-title">Načítám data…</div>
+      <div class="state-sub">Připojuji se k databázi</div>
+    </div>`;
+  document.getElementById("topbar-meta").textContent = "Načítám…";
+}
+
+function showErrorState() {
+  document.getElementById("table-container").innerHTML = `
+    <div class="state">
+      <div class="state-icon">⚠️</div>
+      <div class="state-title">Nelze načíst data</div>
+      <div class="state-sub">
+        Spusť server dvojklikem na <code>start-server.bat</code><br>
+        nebo ručně: <code>python server.py</code><br><br>
+        Zkontroluj také, zda je vyplněný soubor <code>.env</code><br>
+        se správnými přihlašovacími údaji k PostgreSQL.
+      </div>
+    </div>`;
+  document.getElementById("topbar-meta").textContent = "Chyba připojení";
+}
+
+function showError(msg) {
+  const b = document.getElementById("error-box");
+  b.textContent = `Chyba: ${msg}`;
+  b.classList.add("show");
+}
+
+function hideError() { document.getElementById("error-box").classList.remove("show"); }
+
+function esc(s) {
+  return String(s??"")
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// ── Init ──────────────────────────────────────────────────────────
+
+loadData();
+</script>
+</body>
+</html>

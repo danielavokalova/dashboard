@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<title>Agent kalendář</title>
+<style>
+
+:root {
+  --ink:        #1f2a2a;
+  --muted:      #4f6a6c;
+  --teal:       #00736a;
+  --teal-dark:  #005950;
+  --teal-light: #d6f0ee;
+  --teal-mid:   #b0e0dc;
+  --paper:      rgba(245,246,244,0.96);
+  --bg:         #e2d5c8;
+  --border:     #ccd2cc;
+  --shadow:     rgba(0,0,0,0.12);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: url("botanicus.png") repeat;
+  color: var(--ink);
+  font-size: 14px;
+}
+
+/* ── HEADER ── */
+header {
+  background: rgba(245,246,244,0.95);
+  border-bottom: 2px solid var(--teal);
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  backdrop-filter: blur(4px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo-back {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  border: 2px solid var(--border);
+  border-radius: 9px;
+  padding: 6px 14px;
+  background: white;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.logo-back:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+  background: var(--teal-light);
+}
+
+h1 {
+  font-size: 17px;
+  letter-spacing: 0.28em;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.header-date {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+/* ── TEMPLATES BAR ── */
+.templates-bar {
+  background: rgba(245,246,244,0.88);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 32px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.templates-bar::-webkit-scrollbar { display: none; }
+
+.template-btn {
+  flex-shrink: 0;
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  background: white;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+  white-space: nowrap;
+  font-family: inherit;
+}
+.template-btn:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+  background: var(--teal-light);
+}
+.template-btn.active {
+  border-color: var(--teal);
+  background: var(--teal);
+  color: white;
+}
+.tmpl-dur {
+  font-size: 10px;
+  opacity: 0.7;
+  font-weight: 600;
+}
+
+.tmpl-sep {
+  width: 2px;
+  height: 28px;
+  background: var(--border);
+  align-self: center;
+  flex-shrink: 0;
+  border-radius: 2px;
+  margin: 0 2px;
+}
+
+.template-btn.gol {
+  border-color: #9b4d57;
+  color: #7a3340;
+  background: rgba(155,77,87,0.07);
+}
+.template-btn.gol:hover {
+  border-color: #7a3340;
+  background: rgba(155,77,87,0.14);
+  color: #7a3340;
+}
+.template-btn.gol.active {
+  border-color: #7a3340;
+  background: #7a3340;
+  color: white;
+}
+
+/* ── MAIN GRID ── */
+main {
+  padding: 24px 32px 32px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.card {
+  background: rgba(245,246,244,0.95);
+  border-radius: 20px;
+  padding: 22px 24px;
+  box-shadow: 0 4px 22px var(--shadow);
+}
+.card-full { grid-column: 1 / -1; }
+
+/* ── FIELD ── */
+.field { margin-bottom: 16px; }
+.field:last-child { margin-bottom: 0; }
+
+.field-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+/* ── INPUTS ── */
+input[type="text"],
+input[type="date"],
+input[type="time"],
+textarea {
+  width: 100%;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--ink);
+  background: white;
+  outline: none;
+  transition: border-color 0.2s;
+}
+input[type="text"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+textarea:focus {
+  border-color: var(--teal);
+}
+
+.datetime-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* ── DURATION ── */
+.dur-options {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.dur-btn {
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 13px;
+  background: white;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.dur-btn:hover { border-color: var(--teal); color: var(--teal); }
+.dur-btn.active { border-color: var(--teal); background: var(--teal); color: white; }
+
+.end-preview {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 7px;
+  font-weight: 600;
+  min-height: 18px;
+}
+
+/* ── ROOMS ── */
+.rooms-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+.room-btn {
+  border: 2px solid var(--border);
+  border-radius: 11px;
+  padding: 9px 12px;
+  background: white;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-family: inherit;
+}
+.room-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.room-meta {
+  font-size: 11px;
+  color: var(--muted);
+}
+.room-btn:hover { border-color: var(--teal); }
+.room-btn.active { border-color: var(--teal); background: var(--teal-light); }
+
+/* ── ATTENDEES ── */
+.attendees-wrap {
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 5px 8px;
+  background: white;
+  min-height: 44px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+  cursor: text;
+  transition: border-color 0.2s;
+}
+.attendees-wrap:focus-within { border-color: var(--teal); }
+
+.chip {
+  background: var(--teal-light);
+  border: 1px solid var(--teal-mid);
+  border-radius: 14px;
+  padding: 3px 8px 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--teal-dark);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.chip-x {
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: var(--teal-dark);
+  font-size: 15px;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.6;
+  font-family: inherit;
+}
+.chip-x:hover { opacity: 1; }
+
+#att-input {
+  border: none;
+  outline: none;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--ink);
+  flex: 1;
+  min-width: 150px;
+  padding: 4px 4px;
+  background: transparent;
+}
+
+.ac-wrap { position: relative; }
+.ac-drop {
+  position: absolute;
+  top: calc(100% + 3px);
+  left: 0; right: 0;
+  background: white;
+  border: 2px solid var(--teal);
+  border-radius: 10px;
+  z-index: 300;
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+  box-shadow: 0 6px 20px var(--shadow);
+}
+.ac-drop.open { display: block; }
+.ac-item {
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--ink);
+  transition: background 0.1s;
+}
+.ac-item:hover, .ac-item.hi { background: var(--teal-light); }
+
+/* ── CONTACTS EDITOR ── */
+.ct-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  margin-top: 7px;
+  text-decoration: underline dotted;
+  font-family: inherit;
+  padding: 0;
+}
+.ct-editor {
+  margin-top: 10px;
+  display: none;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  background: rgba(245,246,244,0.6);
+}
+.ct-editor.open { display: block; }
+.ct-editor p {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.ct-editor textarea {
+  font-size: 12px;
+  min-height: 64px;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.ct-save {
+  margin-top: 8px;
+  border: 2px solid var(--teal);
+  border-radius: 8px;
+  padding: 5px 14px;
+  background: white;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--teal);
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.ct-save:hover { background: var(--teal); color: white; }
+
+/* ── NOTES ── */
+textarea#notes {
+  min-height: 68px;
+  max-height: 320px;
+  resize: vertical;
+  font-size: 14px;
+}
+
+/* ── SUBMIT ── */
+.submit-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.submit-btn {
+  flex: 1;
+  background: var(--teal);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 28px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  cursor: pointer;
+  font-family: inherit;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+.submit-btn:hover {
+  background: var(--teal-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,115,106,0.35);
+}
+.submit-btn:active { transform: translateY(0); }
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.shortcut-hint {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  padding: 14px 22px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  z-index: 999;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events: none;
+  max-width: 340px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { background: #1fa81f; color: white; }
+.toast.error   { background: #c0392b; color: white; }
+
+/* ── WEBHOOK SETTINGS (v patičce) ── */
+.wh-settings {
+  max-width: 980px;
+  margin: 12px auto 24px;
+  padding: 0 32px;
+}
+.wh-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-decoration: underline dotted;
+  font-family: inherit;
+  padding: 0;
+}
+.wh-editor {
+  display: none;
+  margin-top: 10px;
+  background: rgba(245,246,244,0.9);
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: none;
+}
+.wh-editor.open { display: block; }
+.wh-editor p { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+.wh-row { display: flex; gap: 8px; align-items: center; }
+.wh-row input[type="text"] {
+  flex: 1;
+  font-size: 12px;
+  font-family: monospace;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+}
+.wh-row input:focus { border-color: var(--teal); }
+.wh-save {
+  border: 2px solid var(--teal);
+  border-radius: 8px;
+  padding: 7px 14px;
+  background: white;
+  color: var(--teal);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.wh-save:hover { background: var(--teal); color: white; }
+
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo-back" href="index.html">← DASHBOARD</a>
+  <h1>RYCHLÁ REZERVACE</h1>
+  <div class="header-date" id="header-date"></div>
+</header>
+
+<div class="templates-bar" id="templates-bar"></div>
+
+<main>
+
+  <!-- LEVÝ SLOUPEC -->
+  <div class="card">
+
+    <div class="field">
+      <label class="field-label" for="ev-title">Název události</label>
+      <input type="text" id="ev-title" placeholder="Název schůzky…" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <label class="field-label">Datum a začátek</label>
+      <div class="datetime-row">
+        <input type="date" id="ev-date">
+        <input type="time" id="ev-start" step="900">
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Délka</label>
+      <div class="dur-options" id="dur-options">
+        <button class="dur-btn" data-min="15">15 min</button>
+        <button class="dur-btn active" data-min="30">30 min</button>
+        <button class="dur-btn" data-min="60">1 hod</button>
+        <button class="dur-btn" data-min="90">1,5 hod</button>
+        <button class="dur-btn" data-min="120">2 hod</button>
+        <button class="dur-btn" data-min="180">3 hod</button>
+      </div>
+      <div class="end-preview" id="end-preview">Konec: —</div>
+    </div>
+
+  </div>
+
+  <!-- PRAVÝ SLOUPEC -->
+  <div class="card">
+
+    <div class="field">
+      <label class="field-label">Zasedačka / místo</label>
+      <div class="rooms-grid" id="rooms-grid"></div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Účastníci</label>
+      <div class="ac-wrap">
+        <div class="attendees-wrap" id="att-wrap">
+          <input type="text" id="att-input" placeholder="Přidat e-mail…" autocomplete="off">
+        </div>
+        <div class="ac-drop" id="ac-drop"></div>
+      </div>
+      <button class="ct-toggle" id="ct-toggle">+ Spravovat kontakty</button>
+      <div class="ct-editor" id="ct-editor">
+        <p>Jeden e-mail na řádek (automaticky se přidávají ze zadaných akcí):</p>
+        <textarea id="ct-textarea" placeholder="kolega@firma.cz&#10;klient@example.com"></textarea>
+        <button class="ct-save" id="ct-save">Uložit</button>
+      </div>
+    </div>
+
+    <div class="field" id="client-name-field" style="display:none">
+      <label class="field-label" for="client-name">Jméno klienta</label>
+      <input type="text" id="client-name" placeholder="Jméno nebo firma — nahradí {{NAME}} v textu…" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="notes">Poznámky / text pozvánky</label>
+      <textarea id="notes" placeholder="Agenda, odkaz na meet, poznámky…"></textarea>
+    </div>
+
+  </div>
+
+  <!-- ODESLAT -->
+  <div class="card card-full">
+    <div class="submit-row">
+      <button class="submit-btn" id="submit-btn">VYTVOŘIT UDÁLOST →</button>
+      <span class="shortcut-hint">nebo Ctrl+Enter</span>
+    </div>
+  </div>
+
+</main>
+
+<!-- Nastavení webhooku -->
+<div class="wh-settings">
+  <button class="wh-toggle" id="wh-toggle">⚙ Nastavení webhooku</button>
+  <div class="wh-editor" id="wh-editor">
+    <p>URL Make.com webhooku (uloženo jen v tomto prohlížeči, není v kódu):</p>
+    <div class="wh-row">
+      <input type="text" id="wh-url-input" placeholder="https://hook.eu1.make.com/…">
+      <button class="wh-save" id="wh-save">Uložit</button>
+      <button class="wh-save" id="wh-test">Ping</button>
+      <button class="wh-save" id="wh-reset" style="border-color:#c0392b;color:#c0392b">Reset</button>
+    </div>
+    <p id="wh-status" style="margin-top:8px;font-size:11px;color:var(--muted)"></p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── KONFIGURACE ─────────────────────────────────────────────────
+const LS_WEBHOOK     = 'calWebhookUrl';
+const DEFAULT_WEBHOOK = 'https://hook.eu1.make.com/k1dqspccrcitj3rh3by9csukhomf84do';
+function getWebhookUrl() {
+  const stored = localStorage.getItem(LS_WEBHOOK);
+  if (!stored || !stored.startsWith('http')) {
+    saveWebhookUrl(DEFAULT_WEBHOOK);
+    return DEFAULT_WEBHOOK;
+  }
+  return stored;
+}
+function saveWebhookUrl(url) { localStorage.setItem(LS_WEBHOOK, url.trim()); }
+
+const ROOMS = [
+  { id: 'zasedaci',    name: 'Zasedací místnost', capacity: 15,   floor: '1. p.' },
+  { id: 'hovorna',     name: 'Hovorna',            capacity: 4,    floor: '1. p.' },
+  { id: 'klubovna',    name: 'Klubovna',           capacity: 20,   floor: '1. p.' },
+  { id: 'skolicimist', name: 'Školící místnost',   capacity: null, floor: '1. p.' },
+  { id: 'online',      name: 'Online / Teams',     capacity: null, floor: null    },
+  { id: 'bez',         name: 'Bez místnosti',      capacity: null, floor: null    },
+];
+
+const TEMPLATES = [
+  { name: '1:1',        title: '1:1',         duration: 30  },
+  { name: 'Team',       title: 'Team meeting', duration: 60  },
+  { name: 'Client call',title: 'Call – ',     duration: 60  },
+  { name: 'Demo',       title: 'Demo – ',     duration: 60  },
+  { name: 'Školení',    title: 'Školení – ',  duration: 120 },
+  { name: 'Standup',    title: 'Standup',     duration: 15  },
+  { name: 'Kick-off',   title: 'Kick-off – ', duration: 120 },
+  { name: 'Schůzka',    title: 'Schůzka – ',  duration: 60  },
+  { name: 'Review',     title: 'Review – ',   duration: 60  },
+  { name: 'Onboarding', title: 'Onboarding',  duration: 60  },
+  // GOL IBE templates — vyplní i popis a místnost
+  { name: 'IBE Demo',      title: 'GOL IBE Demo',    duration: 60, room: 'online', isGol: true,
+    description: `<b>Dear {{NAME}},</b>\n\nlet me invite you for a demo of our online booking tool: GOL IBE.\nFurther products may be surely discussed as well.\n\nDay: \nTime: (slot is blocked for whole hour)\nPlace to meet: link included in this invitation.\n\nPrepare all your questions.\n\nLooking forward to e-meet you.\n\nBest Regards,\nDaniela Vokalova\nProduct Deployment Specialist` },
+  { name: 'IBE Meeting L', title: 'GOL IBE Meeting', duration: 60, room: 'online', isGol: true,
+    description: `<b>Dear {{NAME}},</b>\n\nI am so happy that we have agreed on term for our GOL IBE meeting.\nWe would like to discuss approximately about the following:\n- to get to know what you are missing or what you would like to change / how you like the system.\n- to offer you extra guidance in GOL IBE admin console.\n- to tell you about some news in our system.\n- to show you and tell what other tools we develop could help you in your business and your daily work.\n\nWe may surely discuss payment gateway integration together.\nPlace to meet: link included in this invitation.\n\nPlease note that this session is planned for 30 - 40 minutes.\n\nThis invitation shows full hour but it is just to make sure that we keep the meeting room fully at our disposal.\n\nBest Regards,\n\nDaniela Vokalova\nProduct Deployment Specialist` },
+  { name: 'IBE Meeting S', title: 'GOL IBE Meeting', duration: 30, room: 'online', isGol: true,
+    description: `<b>Dear {{NAME}},</b>\n\nas per our email discussion, let me invite you for a brief meeting over your GOL IBE.\n\nLooking forward to e-meet you.\n\nBest Regards,\nDaniela Vokalova\nProduct Deployment Specialist` },
+  { name: 'IBE Webinar',   title: 'GOL IBE Webinar', duration: 90, room: 'online', isGol: true,
+    description: `<b>Dear {{NAME}},</b>\n\nlet me invite you for GOL IBE webinar session.\n\nDay: \nTime: \nPlace to meet: link included in this invitation.\n\nFeel free to share meeting link with whoever you need to.\nPrepare all your questions.\n\nIt will be my pleasure to guide you and enrich you!\n\nBest Regards,\nDaniela Vokalova\nProduct Deployment Specialist` },
+];
+
+// ─── STAV ────────────────────────────────────────────────────────
+let selectedRoom       = null;
+let selectedDuration   = 30;
+let attendees          = [];
+let contacts           = JSON.parse(localStorage.getItem('calContacts') || '[]');
+let activeTemplIdx     = null;
+let activeGolDesc      = null;   // raw description template (with {{NAME}}) for active GOL template
+
+// ─── START ───────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  initHeader();
+  initTemplates();
+  initRooms();
+  initDateTime();
+  initDuration();
+  initAttendees();
+  initContacts();
+  initClientName();
+  initWebhook();
+  initSubmit();
+});
+
+// ─── HEADER ──────────────────────────────────────────────────────
+function initHeader() {
+  const opts = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+  document.getElementById('header-date').textContent =
+    new Date().toLocaleDateString('cs-CZ', opts);
+}
+
+// ─── ŠABLONY ─────────────────────────────────────────────────────
+function initTemplates() {
+  const bar = document.getElementById('templates-bar');
+  let separatorAdded = false;
+  TEMPLATES.forEach((t, i) => {
+    if (t.isGol && !separatorAdded) {
+      const sep = document.createElement('div');
+      sep.className = 'tmpl-sep';
+      bar.appendChild(sep);
+      separatorAdded = true;
+    }
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'template-btn' + (t.isGol ? ' gol' : '');
+    btn.innerHTML = `${t.name} <span class="tmpl-dur">${fmtDur(t.duration)}</span>`;
+    btn.addEventListener('click', () => applyTemplate(i, btn));
+    bar.appendChild(btn);
+  });
+}
+
+function applyTemplate(idx, btn) {
+  try {
+    document.querySelectorAll('.template-btn').forEach(b => b.classList.remove('active'));
+    if (activeTemplIdx === idx) {
+      activeTemplIdx = null;
+      activeGolDesc  = null;
+      const cnf = document.getElementById('client-name-field');
+      if (cnf) { cnf.style.display = 'none'; document.getElementById('notes').style.minHeight = ''; }
+      return;
+    }
+    btn.classList.add('active');
+    activeTemplIdx = idx;
+
+    const t = TEMPLATES[idx];
+    const titleEl = document.getElementById('ev-title');
+    titleEl.value = t.title;
+    setDuration(t.duration);
+
+    const cnField = document.getElementById('client-name-field');
+
+    if (t.isGol) {
+      // Vyber místnost "online"
+      document.querySelectorAll('.room-btn').forEach(b => b.classList.remove('active'));
+      selectedRoom = 'online';
+      document.querySelector('.room-btn[data-id="online"]')?.classList.add('active');
+
+      // Ukaž pole pro jméno klienta
+      if (cnField) cnField.style.display = 'block';
+      const clientInput = document.getElementById('client-name');
+
+      // Zkus extrahovat jméno z prvního attendee
+      const autoName = attendees.length ? extractNameFromEmail(attendees[0]) : '';
+      if (clientInput) clientInput.value = autoName;
+
+      // Ulož raw template a aplikuj jméno do notes
+      activeGolDesc = t.description;
+      const notesEl = document.getElementById('notes');
+      notesEl.value = applyClientName(t.description, autoName);
+      notesEl.style.minHeight = '180px';
+    } else {
+      activeGolDesc = null;
+      if (cnField) { cnField.style.display = 'none'; document.getElementById('notes').style.minHeight = ''; }
+      titleEl.focus();
+      titleEl.setSelectionRange(t.title.length, t.title.length);
+    }
+  } catch(err) {
+    console.error('[ŠABLONA] Chyba:', err);
+    showToast('Chyba šablony – zkontroluj konzoli (F12)', 'error');
+  }
+}
+
+// ─── JMÉNO KLIENTA ────────────────────────────────────────────────
+function extractNameFromEmail(email) {
+  const local = email.split('@')[0];
+  return local
+    .split(/[._\-+]/)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(' ');
+}
+
+function applyClientName(template, name) {
+  const displayName = name.trim() || '{{NAME}}';
+  return template.replace(/\{\{NAME\}\}/g, displayName);
+}
+
+function initClientName() {
+  document.getElementById('client-name').addEventListener('input', e => {
+    if (!activeGolDesc) return;
+    const notesEl = document.getElementById('notes');
+    notesEl.value = applyClientName(activeGolDesc, e.target.value);
+  });
+}
+
+// ─── MÍSTNOSTI ───────────────────────────────────────────────────
+function initRooms() {
+  const grid = document.getElementById('rooms-grid');
+  ROOMS.forEach(room => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'room-btn';
+    btn.dataset.id = room.id;
+    let meta = [];
+    if (room.capacity) meta.push(`👤 ${room.capacity}`);
+    if (room.floor)    meta.push(room.floor);
+    btn.innerHTML =
+      `<span class="room-name">${room.name}</span>` +
+      (meta.length ? `<span class="room-meta">${meta.join('  ')}</span>` : '');
+    btn.addEventListener('click', () => {
+      if (selectedRoom === room.id) {
+        selectedRoom = null;
+        btn.classList.remove('active');
+      } else {
+        document.querySelectorAll('.room-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedRoom = room.id;
+      }
+    });
+    grid.appendChild(btn);
+  });
+}
+
+// ─── DATUM A ČAS ─────────────────────────────────────────────────
+function initDateTime() {
+  const now   = new Date();
+  const dateEl = document.getElementById('ev-date');
+  const timeEl = document.getElementById('ev-start');
+
+  // dnes
+  dateEl.value = toDateStr(now);
+
+  // zaokrouhlení na nejbližší 30-min slot
+  const m = now.getMinutes();
+  let rH = now.getHours();
+  let rM = 0;
+  if (m < 30) { rM = 30; }
+  else { rH += 1; rM = 0; }
+  if (rH > 23) rH = 23;
+  timeEl.value = `${pad(rH)}:${pad(rM)}`;
+
+  timeEl.addEventListener('change', updateEndPreview);
+  dateEl.addEventListener('change', updateEndPreview);
+  updateEndPreview();
+}
+
+function updateEndPreview() {
+  const timeEl = document.getElementById('ev-start');
+  const prev   = document.getElementById('end-preview');
+  if (!timeEl.value) { prev.textContent = 'Konec: —'; return; }
+  const [h, m] = timeEl.value.split(':').map(Number);
+  const total  = h * 60 + m + selectedDuration;
+  prev.textContent = `Konec: ${pad(Math.floor(total / 60) % 24)}:${pad(total % 60)}`;
+}
+
+// ─── DÉLKA ───────────────────────────────────────────────────────
+function initDuration() {
+  document.querySelectorAll('.dur-btn').forEach(btn => {
+    btn.addEventListener('click', () => setDuration(parseInt(btn.dataset.min)));
+  });
+}
+
+function setDuration(mins) {
+  selectedDuration = mins;
+  document.querySelectorAll('.dur-btn').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.dataset.min) === mins);
+  });
+  updateEndPreview();
+}
+
+// ─── ÚČASTNÍCI ────────────────────────────────────────────────────
+function initAttendees() {
+  const wrap   = document.getElementById('att-wrap');
+  const input  = document.getElementById('att-input');
+  const drop   = document.getElementById('ac-drop');
+  let hiIdx    = -1;
+
+  wrap.addEventListener('click', () => input.focus());
+
+  input.addEventListener('input', () => {
+    hiIdx = -1;
+    showSugg(input.value.trim());
+  });
+
+  input.addEventListener('keydown', e => {
+    const items = drop.querySelectorAll('.ac-item');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      hiIdx = Math.min(hiIdx + 1, items.length - 1);
+      highlightItem(items);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      hiIdx = Math.max(hiIdx - 1, -1);
+      highlightItem(items);
+    } else if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const email = hiIdx >= 0 && items[hiIdx]
+        ? items[hiIdx].dataset.email
+        : input.value.trim().replace(/,/g, '');
+      if (email) addAttendee(email);
+    } else if (e.key === 'Backspace' && !input.value && attendees.length) {
+      removeAttendee(attendees[attendees.length - 1]);
+    } else if (e.key === 'Escape') {
+      closeDrop();
+    }
+  });
+
+  input.addEventListener('blur', () => {
+    // krátká prodleva aby klik na položku fungoval
+    setTimeout(() => {
+      const email = input.value.trim().replace(/,/g, '');
+      if (email && email.includes('@')) addAttendee(email);
+      closeDrop();
+    }, 150);
+  });
+
+  document.addEventListener('click', e => {
+    if (!wrap.contains(e.target) && !drop.contains(e.target)) closeDrop();
+  });
+
+  function showSugg(query) {
+    if (!query) { closeDrop(); return; }
+    const matches = contacts
+      .filter(c => c.toLowerCase().includes(query.toLowerCase()) && !attendees.includes(c))
+      .slice(0, 10);
+    if (!matches.length) { closeDrop(); return; }
+    drop.innerHTML = '';
+    matches.forEach(email => {
+      const item = document.createElement('div');
+      item.className = 'ac-item';
+      item.dataset.email = email;
+      // highlight matching part
+      const lo = email.toLowerCase();
+      const qi = lo.indexOf(query.toLowerCase());
+      item.innerHTML = email.slice(0, qi)
+        + `<strong>${email.slice(qi, qi + query.length)}</strong>`
+        + email.slice(qi + query.length);
+      item.addEventListener('mousedown', e => { e.preventDefault(); addAttendee(email); });
+      drop.appendChild(item);
+    });
+    drop.classList.add('open');
+  }
+
+  function highlightItem(items) {
+    items.forEach((it, i) => it.classList.toggle('hi', i === hiIdx));
+  }
+
+  function closeDrop() {
+    drop.classList.remove('open');
+    drop.innerHTML = '';
+    hiIdx = -1;
+  }
+
+  function addAttendee(email) {
+    email = email.trim().replace(/,/g, '');
+    if (!email || !email.includes('@') || attendees.includes(email)) {
+      input.value = '';
+      closeDrop();
+      input.focus();
+      return;
+    }
+    attendees.push(email);
+    // auto-uložit nový kontakt
+    if (!contacts.includes(email)) {
+      contacts.push(email);
+      localStorage.setItem('calContacts', JSON.stringify(contacts));
+      syncCtTextarea();
+    }
+    // Pokud je aktivní GOL šablona a jde o prvního účastníka → auto-vyplň jméno
+    if (activeGolDesc && attendees.length === 1) {
+      const clientInput = document.getElementById('client-name');
+      if (!clientInput.value.trim()) {
+        const autoName = extractNameFromEmail(email);
+        clientInput.value = autoName;
+        document.getElementById('notes').value = applyClientName(activeGolDesc, autoName);
+      }
+    }
+    renderChips();
+    input.value = '';
+    closeDrop();
+    input.focus();
+  }
+
+  function removeAttendee(email) {
+    attendees = attendees.filter(a => a !== email);
+    renderChips();
+  }
+
+  function renderChips() {
+    wrap.querySelectorAll('.chip').forEach(c => c.remove());
+    attendees.forEach(email => {
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.innerHTML = `${email}<button class="chip-x" title="Odebrat" type="button">×</button>`;
+      chip.querySelector('.chip-x').addEventListener('click', () => removeAttendee(email));
+      wrap.insertBefore(chip, input);
+    });
+  }
+
+  // exportovat pro submit
+  window._getAttendees = () => [...attendees];
+}
+
+// ─── KONTAKTY ─────────────────────────────────────────────────────
+function initContacts() {
+  const toggle = document.getElementById('ct-toggle');
+  const editor = document.getElementById('ct-editor');
+  const save   = document.getElementById('ct-save');
+
+  syncCtTextarea();
+
+  toggle.addEventListener('click', () => editor.classList.toggle('open'));
+
+  save.addEventListener('click', () => {
+    contacts = document.getElementById('ct-textarea').value
+      .split('\n')
+      .map(e => e.trim())
+      .filter(e => e.includes('@'));
+    localStorage.setItem('calContacts', JSON.stringify(contacts));
+    editor.classList.remove('open');
+    showToast('Kontakty uloženy ✓', 'success');
+  });
+}
+
+function syncCtTextarea() {
+  const ta = document.getElementById('ct-textarea');
+  if (ta) ta.value = contacts.join('\n');
+}
+
+// ─── WEBHOOK NASTAVENÍ ───────────────────────────────────────────
+function initWebhook() {
+  // Vždy přepiš na novou výchozí URL pokud je tam pořád stará
+  const stored = localStorage.getItem(LS_WEBHOOK);
+  if (!stored || stored.includes('nl6o3lymb6hkurmk0vvgpuj3m1ncar2m')) {
+    saveWebhookUrl(DEFAULT_WEBHOOK);
+  }
+
+  const toggle  = document.getElementById('wh-toggle');
+  const editor  = document.getElementById('wh-editor');
+  const whInput = document.getElementById('wh-url-input');
+  const whSave  = document.getElementById('wh-save');
+
+  whInput.value = getWebhookUrl();
+  const whStatus = document.getElementById('wh-status');
+  whStatus.textContent = 'Aktivní: ' + getWebhookUrl().slice(-24);
+
+  toggle.addEventListener('click', () => editor.classList.toggle('open'));
+
+  whSave.addEventListener('click', () => {
+    const url = whInput.value.trim();
+    if (!url.startsWith('http')) { showToast('Zadej platnou URL', 'error'); return; }
+    saveWebhookUrl(url);
+    whStatus.textContent = 'Aktivní: ' + url.slice(-24);
+    editor.classList.remove('open');
+    showToast('Webhook URL uložena ✓', 'success');
+  });
+
+  document.getElementById('wh-reset').addEventListener('click', () => {
+    saveWebhookUrl(DEFAULT_WEBHOOK);
+    whInput.value = DEFAULT_WEBHOOK;
+    whStatus.textContent = 'Aktivní: ' + DEFAULT_WEBHOOK.slice(-24);
+    showToast('URL resetována na výchozí ✓', 'success');
+  });
+
+  document.getElementById('wh-test').addEventListener('click', async () => {
+    const url = getWebhookUrl();
+    whStatus.textContent = 'Testuji…';
+    try {
+      await fetch(url, {
+        method: 'POST', mode: 'no-cors',
+        body: 'test=ping&title=TEST+PING',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      });
+      whStatus.textContent = '✓ Webhook dosažitelný — zkontroluj historii v Make.com';
+      showToast('✓ Ping odeslán — ověř Make.com historii', 'success');
+    } catch(e) {
+      whStatus.textContent = '✗ Webhook nedosažitelný — špatná URL nebo blokovaná síť';
+      showToast('✗ Webhook nedosažitelný', 'error');
+    }
+  });
+}
+
+// ─── ODESLÁNÍ ─────────────────────────────────────────────────────
+function initSubmit() {
+  document.getElementById('submit-btn').addEventListener('click', submitEvent);
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') submitEvent();
+  });
+}
+
+function submitEvent() {
+  const webhookUrl = getWebhookUrl() || DEFAULT_WEBHOOK;
+
+  const title     = document.getElementById('ev-title').value.trim();
+  const date      = document.getElementById('ev-date').value;
+  const startTime = document.getElementById('ev-start').value;
+  const notes     = document.getElementById('notes').value.trim();
+
+  if (!title)     { showToast('Vyplň název události', 'error'); document.getElementById('ev-title').focus(); return; }
+  if (!date)      { showToast('Vyber datum', 'error'); return; }
+  if (!startTime) { showToast('Vyber čas začátku', 'error'); return; }
+
+  // výpočet konce
+  const [h, m]  = startTime.split(':').map(Number);
+  const endTot  = h * 60 + m + selectedDuration;
+  const endTime = `${pad(Math.floor(endTot / 60) % 24)}:${pad(endTot % 60)}`;
+
+  // Make.com Google Calendar modul má TZ: Europe/Prague → posílej BEZ offset suffixu
+  const startISO = `${date}T${startTime}:00`;
+  const endISO   = `${date}T${endTime}:00`;
+
+  const roomName = selectedRoom ? (ROOMS.find(r => r.id === selectedRoom)?.name || '') : '';
+
+  const payload = {
+    title,
+    date,
+    startTime,
+    endTime,
+    startDateTime: startISO,
+    endDateTime:   endISO,
+    location:      roomName,
+    attendees:     window._getAttendees().join(', '),
+    attendeesList: window._getAttendees(),
+    notes,
+    duration:      selectedDuration,
+  };
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Odesílám…';
+
+  console.log('[AGENT KALENDÁŘ] odesílám na:', webhookUrl);
+  console.log('[AGENT KALENDÁŘ] payload:', JSON.stringify(payload, null, 2));
+
+  // Hidden form + iframe — 100% obchází CORS i firemní firewall
+  submitViaForm(webhookUrl, payload);
+
+  showToast(`✓ "${title}" odesláno — zkontroluj Google Calendar`, 'success');
+  resetForm();
+  btn.disabled = false;
+  btn.textContent = 'VYTVOŘIT UDÁLOST →';
+}
+
+function submitViaForm(url, data) {
+  // Vytvoří skrytý iframe a form, submitne bez CORS omezení
+  const iframeName = 'wh-iframe-' + Date.now();
+  const iframe = document.createElement('iframe');
+  iframe.name = iframeName;
+  iframe.style.cssText = 'display:none;width:0;height:0;border:none;';
+  document.body.appendChild(iframe);
+
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = url;
+  form.target = iframeName;
+  form.style.display = 'none';
+
+  // Přidej flat string pole (pole/objekty jako JSON string)
+  Object.entries(data).forEach(([key, value]) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = key;
+    input.value = Array.isArray(value) ? value.join(', ') : String(value);
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
+  form.submit();
+
+  // Uklid po 3 sekundách
+  setTimeout(() => {
+    document.body.removeChild(form);
+    document.body.removeChild(iframe);
+  }, 3000);
+}
+
+function resetForm() {
+  document.getElementById('ev-title').value = '';
+  document.getElementById('notes').value = '';
+  attendees = [];
+  document.getElementById('att-wrap').querySelectorAll('.chip').forEach(c => c.remove());
+  selectedRoom = null;
+  document.querySelectorAll('.room-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.template-btn').forEach(b => b.classList.remove('active'));
+  activeTemplIdx = null;
+  activeGolDesc  = null;
+  document.getElementById('client-name').value = '';
+  document.getElementById('client-name-field').style.display = 'none';
+  document.getElementById('notes').style.minHeight = '';
+  initDateTime();
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function toDateStr(d) { return d.toISOString().split('T')[0]; }
+
+function fmtDur(mins) {
+  if (mins < 60) return `${mins}m`;
+  if (mins % 60 === 0) return `${mins / 60}h`;
+  return `${Math.floor(mins / 60)}h${mins % 60}m`;
+}
+
+function getTzOffset(dateStr) {
+  // CET = +01:00, CEST = +02:00
+  const d = new Date(dateStr);
+  const jan = new Date(d.getFullYear(), 0, 1).getTimezoneOffset();
+  const jul = new Date(d.getFullYear(), 6, 1).getTimezoneOffset();
+  const isDST = d.getTimezoneOffset() < Math.max(jan, jul);
+  return isDST ? '+02:00' : '+01:00';
+}
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type}`;
+  requestAnimationFrame(() => {
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 4000);
+  });
+}
+</script>
+
+</body>
+</html>

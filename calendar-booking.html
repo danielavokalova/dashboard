@@ -713,6 +713,7 @@ function initTemplates() {
       separatorAdded = true;
     }
     const btn = document.createElement('button');
+    btn.type = 'button';
     btn.className = 'template-btn' + (t.isGol ? ' gol' : '');
     btn.innerHTML = `${t.name} <span class="tmpl-dur">${fmtDur(t.duration)}</span>`;
     btn.addEventListener('click', () => applyTemplate(i, btn));
@@ -721,49 +722,53 @@ function initTemplates() {
 }
 
 function applyTemplate(idx, btn) {
-  document.querySelectorAll('.template-btn').forEach(b => b.classList.remove('active'));
-  if (activeTemplIdx === idx) {
-    activeTemplIdx = null;
-    activeGolDesc  = null;
-    document.getElementById('client-name-field').style.display = 'none';
-    document.getElementById('notes').style.minHeight = '';
-    return;
-  }
-  btn.classList.add('active');
-  activeTemplIdx = idx;
+  try {
+    document.querySelectorAll('.template-btn').forEach(b => b.classList.remove('active'));
+    if (activeTemplIdx === idx) {
+      activeTemplIdx = null;
+      activeGolDesc  = null;
+      const cnf = document.getElementById('client-name-field');
+      if (cnf) { cnf.style.display = 'none'; document.getElementById('notes').style.minHeight = ''; }
+      return;
+    }
+    btn.classList.add('active');
+    activeTemplIdx = idx;
 
-  const t = TEMPLATES[idx];
-  const titleEl = document.getElementById('ev-title');
-  titleEl.value = t.title;
-  setDuration(t.duration);
+    const t = TEMPLATES[idx];
+    const titleEl = document.getElementById('ev-title');
+    titleEl.value = t.title;
+    setDuration(t.duration);
 
-  if (t.isGol) {
-    // Vyber místnost "online"
-    document.querySelectorAll('.room-btn').forEach(b => b.classList.remove('active'));
-    selectedRoom = 'online';
-    document.querySelector('.room-btn[data-id="online"]')?.classList.add('active');
+    const cnField = document.getElementById('client-name-field');
 
-    // Ukaž pole pro jméno klienta
-    const clientField = document.getElementById('client-name-field');
-    clientField.style.display = 'block';
-    const clientInput = document.getElementById('client-name');
+    if (t.isGol) {
+      // Vyber místnost "online"
+      document.querySelectorAll('.room-btn').forEach(b => b.classList.remove('active'));
+      selectedRoom = 'online';
+      document.querySelector('.room-btn[data-id="online"]')?.classList.add('active');
 
-    // Zkus extrahovat jméno z prvního attendee
-    const autoName = attendees.length ? extractNameFromEmail(attendees[0]) : '';
-    clientInput.value = autoName;
+      // Ukaž pole pro jméno klienta
+      if (cnField) cnField.style.display = 'block';
+      const clientInput = document.getElementById('client-name');
 
-    // Ulož raw template a aplikuj jméno do notes
-    activeGolDesc = t.description;
-    const notesEl = document.getElementById('notes');
-    notesEl.value = applyClientName(t.description, autoName);
-    notesEl.style.minHeight = '180px';
-  } else {
-    activeGolDesc = null;
-    document.getElementById('client-name-field').style.display = 'none';
-    document.getElementById('notes').style.minHeight = '';
-    // focus na konec titulku pokud je to šablona s "–"
-    titleEl.focus();
-    titleEl.setSelectionRange(t.title.length, t.title.length);
+      // Zkus extrahovat jméno z prvního attendee
+      const autoName = attendees.length ? extractNameFromEmail(attendees[0]) : '';
+      if (clientInput) clientInput.value = autoName;
+
+      // Ulož raw template a aplikuj jméno do notes
+      activeGolDesc = t.description;
+      const notesEl = document.getElementById('notes');
+      notesEl.value = applyClientName(t.description, autoName);
+      notesEl.style.minHeight = '180px';
+    } else {
+      activeGolDesc = null;
+      if (cnField) { cnField.style.display = 'none'; document.getElementById('notes').style.minHeight = ''; }
+      titleEl.focus();
+      titleEl.setSelectionRange(t.title.length, t.title.length);
+    }
+  } catch(err) {
+    console.error('[ŠABLONA] Chyba:', err);
+    showToast('Chyba šablony – zkontroluj konzoli (F12)', 'error');
   }
 }
 
@@ -794,6 +799,7 @@ function initRooms() {
   const grid = document.getElementById('rooms-grid');
   ROOMS.forEach(room => {
     const btn = document.createElement('button');
+    btn.type = 'button';
     btn.className = 'room-btn';
     btn.dataset.id = room.id;
     let meta = [];

@@ -650,7 +650,7 @@ function applyFilters() {
 
   filteredRows = allRows.filter(row => {
     if (search) {
-      if (!Object.values(row).map(v=>String(v??""")).join(" ").toLowerCase().includes(search))
+      if (!Object.values(row).map(v=>String(v??"")).join(" ").toLowerCase().includes(search))
         return false;
     }
     if (dc && (dateFrom || dateTo)) {

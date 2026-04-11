@@ -1,0 +1,7 @@
+# DB credentials – nikdy necommitovat!
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo

@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Air Reservations</title>
+<style>
+:root {
+  --ink:        #1f2a2a;
+  --muted:      #4f6a6c;
+  --line:       #425c5e;
+  --paper:      rgba(245,246,244,0.94);
+  --shadow:     rgba(90,115,115,0.28);
+  --border:     rgba(66,92,94,0.18);
+  --row-hover:  rgba(79,106,108,0.07);
+  --row-alt:    rgba(245,246,244,0.55);
+  --error-bg:   rgba(180,40,40,0.07);
+  --error-bd:   rgba(180,40,40,0.22);
+  --error-text: #7a1a1a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: url("botanicus.png") repeat;
+  color: var(--ink);
+}
+
+/* ── TOPBAR ─────────────────────────────────────────────────── */
+.topbar {
+  background: var(--paper);
+  border-bottom: 2px solid var(--line);
+  padding: 13px 40px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(6px);
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font: 700 11px/1 "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+.btn-back:hover { background: var(--muted); color: #fff; }
+
+.topbar-title {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  color: var(--ink);
+}
+
+.topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.topbar-meta {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: right;
+  line-height: 1.55;
+}
+
+.btn-refresh {
+  padding: 7px 16px;
+  background: var(--muted);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font: 700 11px/1 "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.18s;
+}
+.btn-refresh:hover    { opacity: 0.82; }
+.btn-refresh:disabled { opacity: 0.38; cursor: wait; }
+
+/* ── MAIN ───────────────────────────────────────────────────── */
+.main {
+  padding: 30px 40px 48px;
+  max-width: 1920px;
+  margin: 0 auto;
+}
+
+/* ── ERROR BOX ──────────────────────────────────────────────── */
+.error-box {
+  display: none;
+  background: var(--error-bg);
+  border: 1.5px solid var(--error-bd);
+  border-radius: 12px;
+  padding: 14px 20px;
+  color: var(--error-text);
+  font-size: 13px;
+  margin-bottom: 22px;
+}
+.error-box.show { display: block; }
+
+/* ── KPI CARDS ──────────────────────────────────────────────── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.kpi {
+  background: var(--paper);
+  border-radius: 16px;
+  padding: 20px 22px;
+  box-shadow: 0 6px 22px var(--shadow);
+}
+
+.kpi-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 9px;
+}
+
+.kpi-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.kpi-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+
+/* ── FILTER BAR ─────────────────────────────────────────────── */
+.filter-bar {
+  background: var(--paper);
+  border-radius: 16px;
+  padding: 16px 22px;
+  box-shadow: 0 6px 22px var(--shadow);
+  margin-bottom: 20px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.fg { display: flex; flex-direction: column; gap: 5px; }
+
+.fg-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.fg-input {
+  padding: 7px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  background: rgba(245,246,244,0.85);
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.18s;
+  height: 34px;
+}
+.fg-input:focus { border-color: var(--muted); }
+.fg-input.wide  { min-width: 240px; }
+.fg-input.narrow { min-width: 140px; }
+
+.btn-clear {
+  padding: 0 16px;
+  height: 34px;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  font: 600 12px/1 "Segoe UI", system-ui, sans-serif;
+  color: var(--muted);
+  cursor: pointer;
+  align-self: flex-end;
+  transition: background 0.18s;
+  white-space: nowrap;
+}
+.btn-clear:hover { background: rgba(79,106,108,0.1); }
+
+#filter-count {
+  margin-left: auto;
+  align-self: flex-end;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  padding-bottom: 7px;
+}
+
+/* ── TABLE WRAP ─────────────────────────────────────────────── */
+.table-card {
+  background: var(--paper);
+  border-radius: 16px;
+  box-shadow: 0 6px 22px var(--shadow);
+  overflow: hidden;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 370px);
+  min-height: 160px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+thead { position: sticky; top: 0; z-index: 10; }
+
+thead th {
+  background: rgba(52,78,80,0.93);
+  color: #fff;
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.14s;
+}
+thead th:hover { background: var(--ink); }
+
+.sort-icon {
+  display: inline-block;
+  margin-left: 4px;
+  opacity: 0.45;
+  font-size: 9px;
+  font-style: normal;
+}
+th.sort-asc  .sort-icon::after { content: "▲"; opacity: 1; color: #aee6e0; }
+th.sort-desc .sort-icon::after { content: "▼"; opacity: 1; color: #aee6e0; }
+th:not(.sort-asc):not(.sort-desc) .sort-icon::after { content: "⇅"; }
+
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+tbody tr:nth-child(even)  { background: var(--row-alt); }
+tbody tr:hover            { background: var(--row-hover); }
+
+tbody td {
+  padding: 8px 14px;
+  color: var(--ink);
+  white-space: nowrap;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+td.cell-date  { font-variant-numeric: tabular-nums; font-weight: 600; }
+td.cell-num   { font-variant-numeric: tabular-nums; text-align: right; }
+td.cell-empty { color: var(--muted); font-style: italic; }
+
+.table-footer {
+  padding: 11px 18px;
+  font-size: 11px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+}
+
+/* ── STATE PLACEHOLDERS ─────────────────────────────────────── */
+.state {
+  padding: 56px 20px;
+  text-align: center;
+  color: var(--muted);
+}
+.state-icon { font-size: 34px; margin-bottom: 11px; }
+.state-title { font-size: 15px; font-weight: 700; margin-bottom: 5px; color: var(--ink); }
+.state-sub   { font-size: 12px; line-height: 1.6; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  width: 28px; height: 28px;
+  border: 3px solid rgba(79,106,108,0.2);
+  border-top-color: var(--muted);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  margin: 0 auto 12px;
+}
+</style>
+</head>
+<body>
+
+<!-- ── TOPBAR ───────────────────────────────────────────────── -->
+<div class="topbar">
+  <a class="btn-back" href="index.html">← Dashboard</a>
+  <div class="topbar-title">AIR RESERVATIONS</div>
+  <div class="topbar-right">
+    <button class="btn-refresh" id="btn-refresh" onclick="loadData()">Obnovit</button>
+    <div class="topbar-meta" id="topbar-meta">Načítám…</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ERROR -->
+  <div class="error-box" id="error-box"></div>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-label">Celkem záznamů</div>
+      <div class="kpi-value" id="kpi-total">—</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Poslední rezervace</div>
+      <div class="kpi-value" id="kpi-last">—</div>
+      <div class="kpi-sub" id="kpi-last-sub"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label" id="kpi-agency-label">Agentury</div>
+      <div class="kpi-value" id="kpi-agencies">—</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Data od</div>
+      <div class="kpi-value" id="kpi-from">—</div>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filter-bar">
+    <div class="fg">
+      <label class="fg-label">Hledat</label>
+      <input class="fg-input wide" type="text" id="f-search"
+             placeholder="Hledat ve všech sloupcích…" oninput="applyFilters()">
+    </div>
+    <div class="fg" id="fg-date-from" style="display:none">
+      <label class="fg-label">Datum od</label>
+      <input class="fg-input narrow" type="date" id="f-date-from" onchange="applyFilters()">
+    </div>
+    <div class="fg" id="fg-date-to" style="display:none">
+      <label class="fg-label">Datum do</label>
+      <input class="fg-input narrow" type="date" id="f-date-to" onchange="applyFilters()">
+    </div>
+    <div class="fg" id="fg-agency" style="display:none">
+      <label class="fg-label" id="fg-agency-label">Agentura</label>
+      <select class="fg-input narrow" id="f-agency" onchange="applyFilters()">
+        <option value="">Všechny</option>
+      </select>
+    </div>
+    <button class="btn-clear" onclick="clearFilters()">Vymazat filtry</button>
+    <span id="filter-count"></span>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-card">
+    <div class="table-scroll" id="table-container">
+      <div class="state">
+        <div class="spinner"></div>
+        <div class="state-title">Načítám data…</div>
+        <div class="state-sub">Připojuji se k databázi</div>
+      </div>
+    </div>
+    <div class="table-footer" id="table-footer"></div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+const API_BASE = "http://localhost:8080";
+
+let allRows    = [];
+let allColumns = [];
+let specialCols = { date: null, agency: null };
+let sortState   = { col: null, dir: "asc" };
+
+// ── Column auto-detection ───────────────────────────────────────────────────
+
+function detectSpecialCols(columns) {
+  const lc = s => s.toLowerCase();
+  return {
+    date: columns.find(c =>
+      lc(c).includes("date") || lc(c) === "datum" || lc(c).includes("datum")
+    ) || null,
+    agency: columns.find(c =>
+      lc(c).includes("agency") || lc(c).includes("agentur") ||
+      lc(c).includes("agent")  || lc(c).includes("iata")    ||
+      lc(c).includes("client") || lc(c).includes("customer")
+    ) || null,
+  };
+}
+
+// ── Date helpers ────────────────────────────────────────────────────────────
+
+function parseDate(val) {
+  if (!val) return null;
+  const s = String(val);
+  if (/^\d{2}\.\d{2}\.\d{4}$/.test(s)) {
+    const [d, m, y] = s.split(".");
+    return new Date(+y, +m - 1, +d);
+  }
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+    return new Date(s.slice(0, 10));
+  }
+  return null;
+}
+
+function fmtDate(val) {
+  const d = parseDate(val);
+  return d ? d.toLocaleDateString("cs-CZ", { day: "2-digit", month: "2-digit", year: "numeric" }) : (val ?? "");
+}
+
+function toISO(d) { return d.toISOString().slice(0, 10); }
+
+// ── Load data ───────────────────────────────────────────────────────────────
+
+async function loadData() {
+  const btn = document.getElementById("btn-refresh");
+  btn.disabled = true;
+  btn.textContent = "…";
+  showLoadingState();
+  hideError();
+
+  try {
+    const res  = await fetch(`${API_BASE}/api/reservations`);
+    const data = await res.json();
+
+    if (!data.ok) throw new Error(data.error || "Neznámá chyba serveru");
+
+    allRows    = data.rows;
+    allColumns = data.columns;
+    specialCols = detectSpecialCols(allColumns);
+
+    buildFilterControls();
+    computeKPIs();
+    applyFilters();
+
+    const t = new Date().toLocaleTimeString("cs-CZ",
+      { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    document.getElementById("topbar-meta").innerHTML =
+      `Aktualizováno: ${t}<br>${data.count.toLocaleString("cs-CZ")} záznamů`;
+
+  } catch (err) {
+    showError(err.message);
+    showErrorState();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Obnovit";
+  }
+}
+
+// ── Build filter controls ───────────────────────────────────────────────────
+
+function buildFilterControls() {
+  const { date, agency } = specialCols;
+
+  // Date filters
+  document.getElementById("fg-date-from").style.display = date ? "" : "none";
+  document.getElementById("fg-date-to").style.display   = date ? "" : "none";
+
+  if (date) {
+    const dates = allRows.map(r => parseDate(r[date])).filter(Boolean).sort((a,b) => a-b);
+    if (dates.length) {
+      // Default: last 3 months
+      const last  = dates[dates.length - 1];
+      const from3 = new Date(last); from3.setMonth(from3.getMonth() - 3);
+      document.getElementById("f-date-from").value = toISO(from3);
+      document.getElementById("f-date-to").value   = toISO(last);
+    }
+  }
+
+  // Agency dropdown
+  const agencyFg = document.getElementById("fg-agency");
+  if (agency) {
+    const label = agency.replace(/_/g, " ");
+    document.getElementById("fg-agency-label").textContent = label;
+    document.getElementById("kpi-agency-label").textContent = label;
+
+    const values = [...new Set(allRows.map(r => r[agency]).filter(v => v != null))]
+      .map(String).sort();
+    const sel = document.getElementById("f-agency");
+    sel.innerHTML = `<option value="">Všechny (${values.length})</option>` +
+      values.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("");
+    agencyFg.style.display = "";
+  } else {
+    agencyFg.style.display = "none";
+  }
+}
+
+// ── KPI computation ─────────────────────────────────────────────────────────
+
+function computeKPIs() {
+  document.getElementById("kpi-total").textContent =
+    allRows.length.toLocaleString("cs-CZ");
+
+  const { date, agency } = specialCols;
+
+  if (date) {
+    const dates = allRows.map(r => parseDate(r[date])).filter(Boolean).sort((a,b) => a-b);
+    if (dates.length) {
+      document.getElementById("kpi-last").textContent = fmtDate(allRows
+        .map(r => ({ raw: r[date], d: parseDate(r[date]) }))
+        .filter(x => x.d)
+        .sort((a, b) => b.d - a.d)[0].raw);
+      document.getElementById("kpi-from").textContent = fmtDate(dates[0]);
+
+      const now = new Date();
+      const diffDays = Math.round((now - dates[dates.length-1]) / 86400000);
+      document.getElementById("kpi-last-sub").textContent =
+        diffDays === 0 ? "dnes" : `před ${diffDays} dny`;
+    }
+  }
+
+  if (agency) {
+    const n = new Set(allRows.map(r => r[agency]).filter(v => v != null)).size;
+    document.getElementById("kpi-agencies").textContent = n;
+  }
+}
+
+// ── Apply filters ───────────────────────────────────────────────────────────
+
+function applyFilters() {
+  const search   = document.getElementById("f-search").value.toLowerCase().trim();
+  const dateFrom = document.getElementById("f-date-from").value;
+  const dateTo   = document.getElementById("f-date-to").value;
+  const agency   = document.getElementById("f-agency").value;
+
+  const { date: dateCol, agency: agencyCol } = specialCols;
+
+  let filtered = allRows.filter(row => {
+    // text search
+    if (search) {
+      const hay = Object.values(row).map(v => String(v ?? "")).join(" ").toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    // date range
+    if (dateCol && (dateFrom || dateTo)) {
+      const d = parseDate(row[dateCol]);
+      if (d) {
+        if (dateFrom && d < new Date(dateFrom))                return false;
+        if (dateTo   && d > new Date(dateTo + "T23:59:59"))   return false;
+      }
+    }
+    // agency
+    if (agencyCol && agency && String(row[agencyCol]) !== agency) return false;
+
+    return true;
+  });
+
+  // sort
+  if (sortState.col !== null) filtered = sortRows(filtered);
+
+  renderTable(filtered);
+
+  const fc = document.getElementById("filter-count");
+  fc.textContent = filtered.length < allRows.length
+    ? `Zobrazeno ${filtered.length.toLocaleString("cs-CZ")} z ${allRows.length.toLocaleString("cs-CZ")}`
+    : `${allRows.length.toLocaleString("cs-CZ")} záznamů`;
+  document.getElementById("table-footer").textContent = fc.textContent;
+}
+
+function clearFilters() {
+  document.getElementById("f-search").value   = "";
+  document.getElementById("f-date-from").value = "";
+  document.getElementById("f-date-to").value   = "";
+  document.getElementById("f-agency").value    = "";
+  applyFilters();
+}
+
+// ── Sorting ─────────────────────────────────────────────────────────────────
+
+function toggleSort(col) {
+  sortState.dir = sortState.col === col && sortState.dir === "asc" ? "desc" : "asc";
+  sortState.col = col;
+  applyFilters();
+}
+
+function sortRows(rows) {
+  const col = sortState.col;
+  const dir = sortState.dir === "asc" ? 1 : -1;
+  return [...rows].sort((a, b) => {
+    let va = a[col], vb = b[col];
+    const da = parseDate(va), db = parseDate(vb);
+    if (da && db) return dir * (da - db);
+    const na = parseFloat(va), nb = parseFloat(vb);
+    if (!isNaN(na) && !isNaN(nb)) return dir * (na - nb);
+    va = String(va ?? "").toLowerCase();
+    vb = String(vb ?? "").toLowerCase();
+    return dir * (va < vb ? -1 : va > vb ? 1 : 0);
+  });
+}
+
+// ── Render table ────────────────────────────────────────────────────────────
+
+function renderTable(rows) {
+  const container = document.getElementById("table-container");
+
+  if (!rows.length) {
+    container.innerHTML = `
+      <div class="state">
+        <div class="state-icon">🔍</div>
+        <div class="state-title">Žádné záznamy</div>
+        <div class="state-sub">Zkus upravit nebo vymazat filtry.</div>
+      </div>`;
+    return;
+  }
+
+  const dateCol = specialCols.date;
+
+  const heads = allColumns.map(col => {
+    const cls = sortState.col === col
+      ? (sortState.dir === "asc" ? "sort-asc" : "sort-desc") : "";
+    const label = col.replace(/_/g, " ").toUpperCase();
+    return `<th class="${cls}" data-col="${esc(col)}"
+              onclick="toggleSort('${esc(col)}')">
+              ${esc(label)}<i class="sort-icon"></i>
+            </th>`;
+  }).join("");
+
+  const body = rows.map(row => {
+    const cells = allColumns.map(col => {
+      let val = row[col];
+      let cls = "";
+
+      if (col === dateCol) {
+        val = fmtDate(val); cls = "cell-date";
+      } else if (val === null || val === undefined || val === "") {
+        val = ""; cls = "cell-empty";
+      } else if (!isNaN(parseFloat(val)) && isFinite(val)) {
+        val = String(val); cls = "cell-num";
+      } else {
+        val = String(val);
+      }
+
+      return `<td class="${cls}" title="${esc(val)}">${esc(val)}</td>`;
+    }).join("");
+    return `<tr>${cells}</tr>`;
+  }).join("");
+
+  container.innerHTML = `
+    <table>
+      <thead><tr>${heads}</tr></thead>
+      <tbody>${body}</tbody>
+    </table>`;
+}
+
+// ── State helpers ────────────────────────────────────────────────────────────
+
+function showLoadingState() {
+  document.getElementById("table-container").innerHTML = `
+    <div class="state">
+      <div class="spinner"></div>
+      <div class="state-title">Načítám data…</div>
+      <div class="state-sub">Připojuji se k databázi</div>
+    </div>`;
+  document.getElementById("topbar-meta").textContent = "Načítám…";
+}
+
+function showErrorState() {
+  document.getElementById("table-container").innerHTML = `
+    <div class="state">
+      <div class="state-icon">⚠️</div>
+      <div class="state-title">Nelze načíst data</div>
+      <div class="state-sub">
+        Ujisti se, že server běží:<br>
+        <code style="font-size:12px; background:rgba(0,0,0,0.06); padding:2px 7px; border-radius:5px;">python server.py</code><br><br>
+        A že je PostgreSQL dostupné a <code style="font-size:12px; background:rgba(0,0,0,0.06); padding:2px 7px; border-radius:5px;">.env</code> správně vyplněný.
+      </div>
+    </div>`;
+  document.getElementById("topbar-meta").textContent = "Chyba připojení";
+}
+
+function showError(msg) {
+  const box = document.getElementById("error-box");
+  box.textContent = `Chyba: ${msg}`;
+  box.classList.add("show");
+}
+
+function hideError() {
+  document.getElementById("error-box").classList.remove("show");
+}
+
+// ── Escape HTML ──────────────────────────────────────────────────────────────
+
+function esc(s) {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+
+loadData();
+</script>
+</body>
+</html>

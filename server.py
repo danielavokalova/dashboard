@@ -13,7 +13,7 @@ import json
 import datetime
 from decimal import Decimal
 
-from flask import Flask, Response, send_from_directory
+from flask import Flask, Response, send_from_directory, request
 from flask_cors import CORS
 import psycopg2
 import psycopg2.extras
@@ -63,16 +63,29 @@ def jresp(data, status=200):
 
 @app.route("/api/reservations")
 def reservations():
-    """Vrátí všechny řádky z tabulky rezervací jako JSON."""
+    """Vrátí řádky z tabulky. Parametr limit=N (default 500), limit=0 = vše."""
     try:
+        limit = request.args.get("limit", "500")
+        limit = int(limit) if limit.isdigit() else 500
+
         conn = get_db()
         cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        cur.execute(f'SELECT * FROM "{TABLE}"')
+
+        # Celkový počet řádků
+        cur.execute(f'SELECT COUNT(*) FROM "{TABLE}"')
+        total = cur.fetchone()["count"]
+
+        # Data – seřazená od nejnovějšího, s volitelným limitem
+        if limit > 0:
+            cur.execute(f'SELECT * FROM "{TABLE}" ORDER BY 1 DESC LIMIT {limit}')
+        else:
+            cur.execute(f'SELECT * FROM "{TABLE}" ORDER BY 1 DESC')
+
         rows = [dict(r) for r in cur.fetchall()]
         cols = list(rows[0].keys()) if rows else []
         cur.close()
         conn.close()
-        return jresp({"ok": True, "columns": cols, "rows": rows, "count": len(rows)})
+        return jresp({"ok": True, "columns": cols, "rows": rows, "count": len(rows), "total": total, "limited": limit > 0 and len(rows) < total})
     except Exception as e:
         return jresp({"ok": False, "error": str(e), "columns": [], "rows": [], "count": 0}, 500)
 

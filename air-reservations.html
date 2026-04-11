@@ -366,6 +366,8 @@ td.cell-empty { color: var(--muted); }
 <div class="main">
 
   <div class="error-box" id="error-box"></div>
+  <div id="limit-banner" style="display:none; background:rgba(79,106,108,0.1); border:1.5px solid rgba(79,106,108,0.25); border-radius:12px; padding:11px 18px; font-size:13px; color:var(--muted); margin-bottom:18px;">
+  </div>
 
   <!-- KPI -->
   <div class="kpi-row">
@@ -495,8 +497,9 @@ async function loadData() {
   hideError();
 
   try {
-    const res  = await fetch(`${API}/api/reservations`);
-    const data = await res.json();
+    const limit = window._loadAll ? 0 : 500;
+    const res   = await fetch(`${API}/api/reservations?limit=${limit}`);
+    const data  = await res.json();
     if (!data.ok) throw new Error(data.error || "Neznámá chyba");
 
     allRows    = data.rows;
@@ -508,6 +511,13 @@ async function loadData() {
     applyFilters();
 
     const t = new Date().toLocaleTimeString("cs-CZ",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+    const limitBanner = document.getElementById("limit-banner");
+    if (data.limited) {
+      limitBanner.style.display = "";
+      limitBanner.innerHTML = `Zobrazeno <strong>${data.count.toLocaleString("cs-CZ")}</strong> nejnovějších záznamů z celkových <strong>${data.total.toLocaleString("cs-CZ")}</strong>. <a href="#" onclick="loadAll(event)">Načíst vše</a> (může trvat déle)`;
+    } else {
+      limitBanner.style.display = "none";
+    }
     document.getElementById("topbar-meta").innerHTML =
       `Aktualizováno: ${t}<br>${data.count.toLocaleString("cs-CZ")} záznamů`;
 
@@ -808,6 +818,12 @@ function esc(s) {
 }
 
 // ── Init ──────────────────────────────────────────────────────────
+
+function loadAll(e) {
+  e.preventDefault();
+  window._loadAll = true;
+  loadData();
+}
 
 loadData();
 </script>

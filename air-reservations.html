@@ -540,6 +540,62 @@ td.cell-empty { color: var(--muted); }
   animation: spin 0.75s linear infinite;
   margin: 0 auto 11px;
 }
+
+/* ── BUDGET CARD ─────────────────────────────────────────── */
+.budget-card {
+  background: var(--paper);
+  border-radius: 16px;
+  padding: 16px 24px;
+  box-shadow: 0 5px 20px var(--shadow);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+.budget-section-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.budget-amount { font-size: 24px; font-weight: 800; line-height: 1; }
+.budget-bar-wrap { flex: 1; min-width: 200px; }
+.budget-bar-track {
+  height: 10px;
+  background: var(--bar-bg);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.budget-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  background: var(--bar-fill);
+  transition: width 0.5s cubic-bezier(0.4,0,0.2,1), background 0.3s;
+}
+.budget-bar-fill.warn { background: #c47a5a; }
+.budget-bar-fill.over { background: #8f3e4a; }
+.budget-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+.budget-status-ok   { color: #4a7a5a; font-weight: 700; font-size: 11px; }
+.budget-status-warn { color: #c47a5a; font-weight: 700; font-size: 11px; }
+.budget-status-over { color: #8f3e4a; font-weight: 700; font-size: 11px; }
+.budget-limit-row   { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+.budget-input {
+  width: 148px;
+  padding: 6px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  background: rgba(245,246,244,0.85);
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.budget-input:focus { border-color: var(--muted); }
 </style>
 </head>
 <body>
@@ -587,6 +643,34 @@ td.cell-empty { color: var(--muted); }
     <div class="kpi">
       <div class="kpi-label">Data od</div>
       <div class="kpi-value" id="kpi-from">—</div>
+    </div>
+  </div>
+
+  <!-- BUDGET TRACKER -->
+  <div class="budget-card" id="budget-card">
+    <div>
+      <div class="budget-section-label">Celkové výdaje</div>
+      <div class="budget-amount" id="budget-spent">—</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px" id="budget-currency-note"></div>
+    </div>
+    <div class="budget-bar-wrap">
+      <div class="budget-bar-track">
+        <div class="budget-bar-fill" id="budget-bar" style="width:0%"></div>
+      </div>
+      <div class="budget-meta">
+        <span id="budget-pct">Nastav limit pro sledování rozpočtu</span>
+        <span id="budget-remaining"></span>
+      </div>
+    </div>
+    <div>
+      <div class="budget-section-label">Budget limit</div>
+      <div class="budget-limit-row">
+        <input class="budget-input" type="number" id="budget-limit-input"
+               placeholder="Zadej limit…" min="0" step="1000"
+               onkeydown="if(event.key==='Enter') saveBudgetLimit()">
+        <button class="btn-sm btn-outline" onclick="saveBudgetLimit()">OK</button>
+      </div>
+      <div style="margin-top:6px" id="budget-status"></div>
     </div>
   </div>
 
@@ -748,6 +832,7 @@ let chartCollapsed  = false;
 let activeBarAgency = null;
 let _statsLoaded    = false; // true once /api/stats populated KPIs
 let _lastStats      = null;  // cached stats for chart rebuilds
+let _totalRevenue   = 0;     // total spending across all currencies
 
 // ── Column detection ────────────────────────────────────────────
 
@@ -811,6 +896,14 @@ function applyStats(stats) {
   buildMonthlyChart(stats.monthly || []);
   buildChartFromStats(stats.by_agency || []);
   buildBreakdownCharts(stats);
+
+  // Update budget tracker
+  _totalRevenue = (stats.by_currency || []).reduce((s, x) => s + Number(x.revenue || 0), 0);
+  const currencyNames = (stats.by_currency || []).map(x => x.label).filter(Boolean);
+  document.getElementById("budget-currency-note").textContent =
+    currencyNames.length > 1 ? "(" + currencyNames.join(" + ") + ")" :
+    currencyNames.length === 1 ? currencyNames[0] : "";
+  updateBudgetDisplay();
 }
 
 function fmt(n)      { return Number(n).toLocaleString("cs-CZ"); }
@@ -1441,6 +1534,76 @@ function esc(s) {
     .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
+// ── Budget tracker ───────────────────────────────────────────────
+
+function getBudgetLimit() {
+  const v = localStorage.getItem("budgetLimit");
+  return v ? parseFloat(v) : null;
+}
+
+function loadBudgetLimit() {
+  const v = localStorage.getItem("budgetLimit");
+  if (v) document.getElementById("budget-limit-input").value = v;
+}
+
+function saveBudgetLimit() {
+  const raw = document.getElementById("budget-limit-input").value.trim();
+  const v   = parseFloat(raw);
+  if (raw === "" || isNaN(v) || v <= 0) {
+    localStorage.removeItem("budgetLimit");
+  } else {
+    localStorage.setItem("budgetLimit", String(v));
+  }
+  updateBudgetDisplay();
+}
+
+function updateBudgetDisplay() {
+  const spent = _totalRevenue;
+  const limit = getBudgetLimit();
+
+  document.getElementById("budget-spent").textContent =
+    spent > 0 ? fmt(Math.round(spent)) : "—";
+
+  const bar    = document.getElementById("budget-bar");
+  const pctEl  = document.getElementById("budget-pct");
+  const remEl  = document.getElementById("budget-remaining");
+  const statEl = document.getElementById("budget-status");
+
+  if (!limit) {
+    bar.style.width    = "0%";
+    bar.className      = "budget-bar-fill";
+    pctEl.textContent  = "Nastav limit pro sledování rozpočtu";
+    remEl.textContent  = "";
+    statEl.textContent = "";
+    statEl.className   = "";
+    return;
+  }
+
+  const realPct = spent / limit * 100;
+  const barPct  = Math.min(realPct, 100);
+  bar.style.width = barPct.toFixed(1) + "%";
+
+  if (realPct < 80) {
+    bar.className      = "budget-bar-fill";
+    statEl.className   = "budget-status-ok";
+    statEl.textContent = "V pořádku";
+  } else if (realPct < 100) {
+    bar.className      = "budget-bar-fill warn";
+    statEl.className   = "budget-status-warn";
+    statEl.textContent = "Blížíš se limitu!";
+  } else {
+    bar.className      = "budget-bar-fill over";
+    statEl.className   = "budget-status-over";
+    statEl.textContent = "Limit překročen!";
+  }
+
+  pctEl.textContent = Math.round(realPct) + " % z limitu";
+  const remaining = limit - spent;
+  remEl.textContent = remaining >= 0
+    ? "Zbývá: " + fmt(Math.round(remaining))
+    : "Přečerpáno: " + fmt(Math.round(-remaining));
+}
+
 // ── Init ──────────────────────────────────────────────────────────
 
 function loadAll(e) {
@@ -1449,6 +1612,7 @@ function loadAll(e) {
   loadData();
 }
 
+loadBudgetLimit();
 loadData();
 </script>
 </body>

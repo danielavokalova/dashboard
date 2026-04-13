@@ -190,37 +190,40 @@ body {
 .monthly-bars {
   display: flex;
   align-items: flex-end;
-  gap: 5px;
-  height: 110px;
+  gap: 4px;
+  height: 130px;
   min-width: max-content;
+  padding-bottom: 22px; /* space for labels */
+  box-sizing: content-box;
 }
 .month-col {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  min-width: 38px;
+  gap: 0;
+  min-width: 34px;
 }
 .month-bar {
   width: 26px;
   background: var(--bar-fill);
   border-radius: 3px 3px 0 0;
   transition: height 0.5s cubic-bezier(0.4,0,0.2,1), background 0.15s;
-  cursor: default;
   position: relative;
+  cursor: default;
+  flex-shrink: 0;
 }
 .month-bar:hover { background: var(--ink); }
 .month-bar:hover::after {
   content: attr(data-tip);
   position: absolute;
-  bottom: calc(100% + 5px);
+  bottom: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
   background: var(--ink);
   color: #fff;
-  font-size: 10px;
-  padding: 3px 7px;
-  border-radius: 5px;
+  font-size: 11px;
+  padding: 4px 9px;
+  border-radius: 6px;
   white-space: nowrap;
   pointer-events: none;
   z-index: 20;
@@ -229,16 +232,16 @@ body {
   font-size: 9px;
   color: var(--muted);
   white-space: nowrap;
-  transform: rotate(-45deg);
-  transform-origin: center;
-  margin-top: 4px;
+  text-align: center;
+  margin-top: 5px;
+  line-height: 1;
 }
 
 /* ── BREAKDOWN ──────────────────────────────────────────── */
 .breakdown-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0 40px;
+  gap: 24px 40px;
 }
 @media (max-width: 900px) { .breakdown-grid { grid-template-columns: 1fr; } }
 .breakdown-col-title {
@@ -477,10 +480,10 @@ td.cell-empty { color: var(--muted); }
     <div class="chart-body" id="chart-body"></div>
   </div>
 
-  <!-- STATUS + COUNTRY BREAKDOWN -->
+  <!-- BREAKDOWN: STATUS / ZEMĚ / CONNECTOR / TYP -->
   <div class="chart-section" id="breakdown-section">
     <div class="chart-header">
-      <div class="chart-title">Přehled – Status &amp; Země</div>
+      <div class="chart-title">Přehled</div>
       <button class="chart-toggle" id="breakdown-toggle" onclick="toggleSection('breakdown')">Skrýt ▲</button>
     </div>
     <div class="breakdown-grid">
@@ -491,6 +494,14 @@ td.cell-empty { color: var(--muted); }
       <div>
         <div class="breakdown-col-title">Země</div>
         <div class="chart-body" style="grid-template-columns:1fr" id="country-body"></div>
+      </div>
+      <div>
+        <div class="breakdown-col-title">Connector</div>
+        <div class="chart-body" style="grid-template-columns:1fr" id="connector-body"></div>
+      </div>
+      <div>
+        <div class="breakdown-col-title">Typ letu</div>
+        <div class="chart-body" style="grid-template-columns:1fr" id="type-body"></div>
       </div>
     </div>
   </div>
@@ -548,6 +559,7 @@ let sortState    = { col: null, dir: "asc" };
 let chartCollapsed  = false;
 let activeBarAgency = null;
 let _statsLoaded    = false; // true once /api/stats populated KPIs
+let _lastStats      = null;  // cached stats for chart rebuilds
 
 // ── Column detection ────────────────────────────────────────────
 
@@ -589,6 +601,7 @@ function toISO(d) { return d.toISOString().slice(0,10); }
 
 function applyStats(stats) {
   _statsLoaded = true;
+  _lastStats   = stats;
   const t = stats.totals || {};
 
   // Celkový počet ze DB (skutečný, ne limitovaný)
@@ -607,7 +620,7 @@ function applyStats(stats) {
 
   buildChartFromStats(stats.by_agency || []);
   buildMonthlyChart(stats.monthly || []);
-  buildBreakdownCharts(stats.by_status || [], stats.by_country || []);
+  buildBreakdownCharts(stats);
 }
 
 function fmtMonth(ym) {
@@ -657,30 +670,30 @@ function buildMonthlyChart(monthly) {
   }).join("");
 }
 
-function buildBreakdownCharts(byStatus, byCountry) {
+function buildBreakdownCharts(stats) {
   const section = document.getElementById("breakdown-section");
-  const hasStatus  = (byStatus  || []).length > 0;
-  const hasCountry = (byCountry || []).length > 0;
-  if (!hasStatus && !hasCountry) { section.classList.remove("visible"); return; }
+  const sets = [
+    { id: "status-body",    items: stats.by_status    || [] },
+    { id: "country-body",   items: stats.by_country   || [] },
+    { id: "connector-body", items: stats.by_connector || [] },
+    { id: "type-body",      items: stats.by_type      || [] },
+  ];
+  const hasAny = sets.some(s => s.items.length > 0);
+  if (!hasAny) { section.classList.remove("visible"); return; }
   section.classList.add("visible");
 
-  const renderBars = (items, maxCnt) => items.slice(0, 12).map(({label, cnt}) => {
-    const w = Math.round(Number(cnt) / maxCnt * 100);
-    return `<div class="bar-row" style="cursor:default">
-      <div class="bar-label">${esc(label)}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${w}%"></div></div>
-      <div class="bar-count">${Number(cnt).toLocaleString("cs-CZ")}</div>
-    </div>`;
-  }).join("");
-
-  if (hasStatus) {
-    const maxS = Math.max(...byStatus.map(x => Number(x.cnt))) || 1;
-    document.getElementById("status-body").innerHTML = renderBars(byStatus, maxS);
-  }
-  if (hasCountry) {
-    const maxC = Math.max(...byCountry.map(x => Number(x.cnt))) || 1;
-    document.getElementById("country-body").innerHTML = renderBars(byCountry, maxC);
-  }
+  sets.forEach(({id, items}) => {
+    if (!items.length) { document.getElementById(id).innerHTML = ""; return; }
+    const maxCnt = Math.max(...items.map(x => Number(x.cnt))) || 1;
+    document.getElementById(id).innerHTML = items.slice(0, 12).map(({label, cnt}) => {
+      const w = Math.round(Number(cnt) / maxCnt * 100);
+      return `<div class="bar-row" style="cursor:default">
+        <div class="bar-label">${esc(label)}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${w}%"></div></div>
+        <div class="bar-count">${Number(cnt).toLocaleString("cs-CZ")}</div>
+      </div>`;
+    }).join("");
+  });
 }
 
 // ── Načtení dat ─────────────────────────────────────────────────
@@ -806,11 +819,16 @@ function computeKPIs() {
 // ── Chart ────────────────────────────────────────────────────────
 
 function buildChart(rows) {
-  // Pokud stats poskytlo graf, neřeší se znovu ze surových dat
-  // (graf ze stats je globální přehled, filtrování mění jen tabulku)
   const section = document.getElementById("chart-section");
   if (!specialCols.agency) { section.classList.remove("visible"); return; }
-  if (_statsLoaded) return; // stats graf je přesnější, nenahrazovat
+  if (_statsLoaded) {
+    // Pouze aktualizuj aktivní bar, bez přestavby celého grafu
+    document.querySelectorAll("#chart-body .bar-row").forEach(row => {
+      const lbl = row.querySelector(".bar-label")?.textContent ?? "";
+      row.classList.toggle("active", lbl === activeBarAgency);
+    });
+    return;
+  }
 
   section.classList.add("visible");
   if (chartCollapsed) return;

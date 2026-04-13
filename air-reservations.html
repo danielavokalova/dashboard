@@ -318,7 +318,60 @@ body {
   color: var(--muted);
   margin-bottom: 10px;
   padding-left: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+.btn-chart-type {
+  font-size: 10px;
+  font-family: inherit;
+  padding: 2px 7px;
+  border: 1.5px solid var(--border);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.12s;
+  margin-left: auto;
+  line-height: 1.4;
+}
+.btn-chart-type:hover { background: rgba(79,106,108,0.1); }
+
+/* ── PIE CHART ───────────────────────────────────────────── */
+.pie-wrap {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 120px;
+}
+.pie-leg {
+  display: grid;
+  grid-template-columns: 10px 1fr auto auto;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+.pie-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.pie-leg-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink);
+}
+.pie-leg-pct  { color: var(--muted); font-weight: 700; min-width: 32px; text-align: right; }
+.pie-leg-cnt  { color: var(--muted); font-size: 10px; min-width: 44px; text-align: right; }
 
 .bar-row {
   display: grid;
@@ -581,28 +634,38 @@ td.cell-empty { color: var(--muted); }
     </div>
     <div class="breakdown-grid" style="grid-template-columns:1fr 1fr 1fr">
       <div>
-        <div class="breakdown-col-title">Status</div>
-        <div class="chart-body" style="grid-template-columns:1fr" id="status-body"></div>
+        <div class="breakdown-col-title">Status
+          <button class="btn-chart-type" onclick="togglePanelType('status')">⬤ Koláč</button>
+        </div>
+        <div id="status-body"></div>
       </div>
       <div>
-        <div class="breakdown-col-title">Poslední status</div>
-        <div class="chart-body" style="grid-template-columns:1fr" id="last-status-body"></div>
+        <div class="breakdown-col-title">Poslední status
+          <button class="btn-chart-type" onclick="togglePanelType('last-status')">⬤ Koláč</button>
+        </div>
+        <div id="last-status-body"></div>
       </div>
       <div>
-        <div class="breakdown-col-title">Země</div>
-        <div class="chart-body" style="grid-template-columns:1fr" id="country-body"></div>
+        <div class="breakdown-col-title">Země
+          <button class="btn-chart-type" onclick="togglePanelType('country')">⬤ Koláč</button>
+        </div>
+        <div id="country-body"></div>
       </div>
       <div>
         <div class="breakdown-col-title">Měna &amp; Tržby</div>
         <div id="currency-body"></div>
       </div>
       <div>
-        <div class="breakdown-col-title">Connector</div>
-        <div class="chart-body" style="grid-template-columns:1fr" id="connector-body"></div>
+        <div class="breakdown-col-title">Connector
+          <button class="btn-chart-type" onclick="togglePanelType('connector')">⬤ Koláč</button>
+        </div>
+        <div id="connector-body"></div>
       </div>
       <div>
-        <div class="breakdown-col-title">Typ letu</div>
-        <div class="chart-body" style="grid-template-columns:1fr" id="type-body"></div>
+        <div class="breakdown-col-title">Typ letu
+          <button class="btn-chart-type" onclick="togglePanelType('type')">⬤ Koláč</button>
+        </div>
+        <div id="type-body"></div>
       </div>
     </div>
   </div>
@@ -787,6 +850,65 @@ function buildChartFromStats(byAgency) {
   }).join("");
 }
 
+// ── Koláčové grafy ───────────────────────────────────────────────
+
+const CHART_COLORS = [
+  "#4f6a6c","#c47a5a","#6b95b0","#8a7050",
+  "#5a8a6a","#9a6088","#b8a040","#708090"
+];
+
+// Stav přepínačů — výchozí: pruhy (bar)
+const _panelType = {
+  "status": "bar", "last-status": "bar",
+  "country": "bar", "connector": "bar", "type": "bar"
+};
+
+function togglePanelType(key) {
+  _panelType[key] = _panelType[key] === "bar" ? "pie" : "bar";
+  // Aktualizuj popisek tlačítka
+  const btn = document.querySelector(`[onclick="togglePanelType('${key}')"]`);
+  if (btn) btn.textContent = _panelType[key] === "pie" ? "▬ Pruhy" : "⬤ Koláč";
+  // Překresli, pokud máme data
+  if (_lastStats) buildBreakdownCharts(_lastStats);
+}
+
+function svgPie(items, colors) {
+  const top   = items.filter(x => x.label && x.label !== "(prázdné)").slice(0, 8);
+  const total = top.reduce((s, x) => s + Number(x.cnt), 0);
+  if (!total) return "";
+
+  const R  = 46, cx = 56, cy = 56;
+  const C  = 2 * Math.PI * R;
+  let cumAngle = 0;
+
+  const circles = top.map((item, i) => {
+    const pct  = Number(item.cnt) / total;
+    const arc  = pct * C;
+    const rot  = cumAngle;
+    cumAngle  += pct * 360;
+    return `<circle r="${R}" cx="${cx}" cy="${cy}" fill="none"
+      stroke="${colors[i]}" stroke-width="${R * 2 - 2}"
+      stroke-dasharray="${arc.toFixed(3)} ${C.toFixed(3)}"
+      stroke-dashoffset="${(C / 4).toFixed(3)}"
+      transform="rotate(${rot.toFixed(3)} ${cx} ${cy})"/>`;
+  }).join("");
+
+  const legend = top.map((item, i) => {
+    const pct = Math.round(Number(item.cnt) / total * 100);
+    return `<div class="pie-leg">
+      <div class="pie-dot" style="background:${colors[i]}"></div>
+      <div class="pie-leg-label" title="${esc(item.label)}">${esc(item.label)}</div>
+      <div class="pie-leg-pct">${pct}%</div>
+      <div class="pie-leg-cnt">${fmt(item.cnt)}</div>
+    </div>`;
+  }).join("");
+
+  return `<div class="pie-wrap">
+    <svg width="112" height="112" viewBox="0 0 112 112" style="flex-shrink:0">${circles}</svg>
+    <div class="pie-legend">${legend}</div>
+  </div>`;
+}
+
 // Breakdown — 6 panelů
 function buildBreakdownCharts(stats) {
   const section = document.getElementById("breakdown-section");
@@ -812,11 +934,32 @@ function buildBreakdownCharts(stats) {
     }).join("");
   };
 
-  document.getElementById("status-body").innerHTML      = renderBars(stats.by_status, 10);
-  document.getElementById("last-status-body").innerHTML = renderBars(stats.by_last_status, 10);
-  document.getElementById("country-body").innerHTML     = renderBars(stats.by_country, 12);
-  document.getElementById("connector-body").innerHTML   = renderBars(stats.by_connector, 10);
-  document.getElementById("type-body").innerHTML        = renderBars(stats.by_type, 10);
+  const renderPanel = (id, items, key, n) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!items?.length) { el.innerHTML = ""; return; }
+    if (_panelType[key] === "pie") {
+      el.innerHTML = svgPie(items, CHART_COLORS);
+    } else {
+      el.className = "chart-body";
+      el.style.gridTemplateColumns = "1fr";
+      el.innerHTML = renderBars(items, n);
+    }
+    // Pokud přepínáme z pie na bar, je třeba obnovit třídu
+    if (_panelType[key] !== "pie") {
+      el.className = "chart-body";
+      el.style.gridTemplateColumns = "1fr";
+    } else {
+      el.className = "";
+      el.style.gridTemplateColumns = "";
+    }
+  };
+
+  renderPanel("status-body",      stats.by_status,      "status",      10);
+  renderPanel("last-status-body", stats.by_last_status, "last-status", 10);
+  renderPanel("country-body",     stats.by_country,     "country",     12);
+  renderPanel("connector-body",   stats.by_connector,   "connector",   10);
+  renderPanel("type-body",        stats.by_type,        "type",        10);
 
   // Měna + tržby (speciální layout s revenue)
   const currencies = stats.by_currency || [];

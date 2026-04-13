@@ -673,23 +673,47 @@ td.cell-empty { color: var(--muted); }
   <!-- FILTERS -->
   <div class="filter-bar">
     <div class="fg">
-      <label class="fg-label">Hledat</label>
-      <input class="fg-input wide" type="text" id="f-search"
-             placeholder="Hledat ve všech sloupcích…" oninput="applyFilters()">
+      <label class="fg-label" id="fg-agency-label">Agentura</label>
+      <select class="fg-input narrow" id="f-agency" onchange="applyFilters();reloadStats()">
+        <option value="">Vše</option>
+      </select>
     </div>
-    <div class="fg" id="fg-date-from" style="display:none">
+    <div class="fg">
+      <label class="fg-label">Země</label>
+      <select class="fg-input narrow" id="f-country" onchange="applyFilters();reloadStats()">
+        <option value="">Vše</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fg-label">Status</label>
+      <select class="fg-input narrow" id="f-status" onchange="applyFilters();reloadStats()">
+        <option value="">Vše</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fg-label">Connector</label>
+      <select class="fg-input narrow" id="f-connector" onchange="applyFilters();reloadStats()">
+        <option value="">Vše</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fg-label">Měna</label>
+      <select class="fg-input narrow" id="f-currency" onchange="applyFilters();reloadStats()">
+        <option value="">Vše</option>
+      </select>
+    </div>
+    <div class="fg">
       <label class="fg-label">Datum od</label>
       <input class="fg-input narrow" type="date" id="f-date-from" onchange="applyFilters();reloadStats()">
     </div>
-    <div class="fg" id="fg-date-to" style="display:none">
+    <div class="fg">
       <label class="fg-label">Datum do</label>
       <input class="fg-input narrow" type="date" id="f-date-to" onchange="applyFilters();reloadStats()">
     </div>
-    <div class="fg" id="fg-agency" style="display:none">
-      <label class="fg-label" id="fg-agency-label">Agentura</label>
-      <select class="fg-input narrow" id="f-agency" onchange="applyFilters();reloadStats()">
-        <option value="">Všechny</option>
-      </select>
+    <div class="fg" style="flex:1;min-width:180px">
+      <label class="fg-label">Hledat</label>
+      <input class="fg-input wide" type="text" id="f-search"
+             placeholder="Hledat ve všech sloupcích…" oninput="applyFilters()">
     </div>
     <div class="filter-right">
       <span class="filter-count" id="filter-count"></span>
@@ -989,6 +1013,9 @@ async function loadData() {
   showLoadingState();
   hideError();
 
+  // Naplní dropdowny filtrů (paralelně, tiše)
+  loadFilterOptions();
+
   // /api/stats – spustit ihned, výsledek aplikovat hned jak přijde
   fetch(`${API}/api/stats`)
     .then(r => r.json())
@@ -1037,33 +1064,50 @@ async function loadData() {
 function buildControls() {
   const {date, agency} = specialCols;
 
-  document.getElementById("fg-date-from").style.display = date ? "" : "none";
-  document.getElementById("fg-date-to").style.display   = date ? "" : "none";
+  // Nastav výchozí časový rozsah podle dat v tabulce
   if (date) {
     const dates = allRows.map(r => parseDate(r[date])).filter(Boolean).sort((a,b)=>a-b);
     if (dates.length) {
       const last  = dates[dates.length-1];
       const from3 = new Date(last); from3.setMonth(from3.getMonth()-3);
-      document.getElementById("f-date-from").value = toISO(from3);
-      document.getElementById("f-date-to").value   = toISO(last);
+      if (!document.getElementById("f-date-from").value)
+        document.getElementById("f-date-from").value = toISO(from3);
+      if (!document.getElementById("f-date-to").value)
+        document.getElementById("f-date-to").value   = toISO(last);
     }
   }
 
-  const agFg = document.getElementById("fg-agency");
+  // Aktualizuj popisky podle detekovaného sloupce agentury
   if (agency) {
     const lbl = agency.replace(/_/g," ");
     document.getElementById("fg-agency-label").textContent  = lbl;
     document.getElementById("kpi-agency-label").textContent = lbl;
     document.getElementById("chart-title").textContent      = lbl.charAt(0).toUpperCase()+lbl.slice(1)+" – počty rezervací";
-
-    const vals = [...new Set(allRows.map(r=>r[agency]).filter(v=>v!=null))].map(String).sort();
-    const sel  = document.getElementById("f-agency");
-    sel.innerHTML = `<option value="">Všechny (${vals.length})</option>` +
-      vals.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");
-    agFg.style.display = "";
-  } else {
-    agFg.style.display = "none";
   }
+}
+
+// ── Načte možnosti filtrů ze serveru ────────────────────────────
+
+async function loadFilterOptions() {
+  try {
+    const res  = await fetch(`${API}/api/filter-options`);
+    const data = await res.json();
+    if (!data.ok) return;
+
+    const populate = (id, vals) => {
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      const cur = sel.value;
+      sel.innerHTML = `<option value="">Vše</option>` +
+        vals.map(v => `<option value="${esc(v)}"${v === cur ? " selected" : ""}>${esc(v)}</option>`).join("");
+    };
+
+    populate("f-agency",    data.agency          || []);
+    populate("f-country",   data.agency_country  || []);
+    populate("f-status",    data.status          || []);
+    populate("f-connector", data.connector       || []);
+    populate("f-currency",  data.currency        || []);
+  } catch(e) { /* tiché selhání */ }
 }
 
 // ── KPI ─────────────────────────────────────────────────────────
@@ -1164,14 +1208,22 @@ function toggleSection(id) {
 // ── Filters ──────────────────────────────────────────────────────
 
 function applyFilters() {
-  const search   = document.getElementById("f-search").value.toLowerCase().trim();
-  const dateFrom = document.getElementById("f-date-from").value;
-  const dateTo   = document.getElementById("f-date-to").value;
-  const agency   = document.getElementById("f-agency").value;
+  const search    = document.getElementById("f-search").value.toLowerCase().trim();
+  const dateFrom  = document.getElementById("f-date-from").value;
+  const dateTo    = document.getElementById("f-date-to").value;
+  const agency    = document.getElementById("f-agency").value;
+  const country   = document.getElementById("f-country").value;
+  const status    = document.getElementById("f-status").value;
+  const connector = document.getElementById("f-connector").value;
+  const currency  = document.getElementById("f-currency").value;
 
   if (activeBarAgency && agency !== activeBarAgency) activeBarAgency = null;
 
   const {date: dc, agency: ac} = specialCols;
+  const countryCol   = allColumns.find(c => c.toLowerCase() === "agency_country") || null;
+  const statusCol    = allColumns.find(c => c.toLowerCase() === "status")         || null;
+  const connectorCol = allColumns.find(c => c.toLowerCase() === "connector")      || null;
+  const currencyCol  = allColumns.find(c => c.toLowerCase() === "currency")       || null;
 
   filteredRows = allRows.filter(row => {
     if (search) {
@@ -1185,7 +1237,11 @@ function applyFilters() {
         if (dateTo   && d > new Date(dateTo+"T23:59:59")) return false;
       }
     }
-    if (ac && agency && String(row[ac]) !== agency) return false;
+    if (ac          && agency    && String(row[ac])           !== agency)    return false;
+    if (countryCol  && country   && String(row[countryCol])   !== country)   return false;
+    if (statusCol   && status    && String(row[statusCol])    !== status)    return false;
+    if (connectorCol && connector && String(row[connectorCol]) !== connector) return false;
+    if (currencyCol && currency  && String(row[currencyCol])  !== currency)  return false;
     return true;
   });
 
@@ -1208,9 +1264,15 @@ function clearFilters() {
   document.getElementById("f-date-from").value = "";
   document.getElementById("f-date-to").value   = "";
   document.getElementById("f-agency").value    = "";
+  document.getElementById("f-country").value   = "";
+  document.getElementById("f-status").value    = "";
+  document.getElementById("f-connector").value = "";
+  document.getElementById("f-currency").value  = "";
   activeBarAgency = null;
   document.querySelectorAll(".btn-range").forEach(b => b.classList.remove("active"));
-  document.querySelector(".btn-range[onclick='setRange(3)']")?.classList.add("active");
+  document.querySelectorAll(".btn-range").forEach(b => {
+    if (b.textContent.trim() === "3M") b.classList.add("active");
+  });
   applyFilters();
   reloadStats();
 }
@@ -1241,8 +1303,16 @@ function reloadStats() {
   const dt = document.getElementById("f-date-to").value;
   if (df) params.set("date_from", df);
   if (dt) params.set("date_to",   dt);
-  const agency = document.getElementById("f-agency").value;
-  if (agency) params.set("agency", agency);
+  const agency    = document.getElementById("f-agency").value;
+  const country   = document.getElementById("f-country").value;
+  const status    = document.getElementById("f-status").value;
+  const connector = document.getElementById("f-connector").value;
+  const currency  = document.getElementById("f-currency").value;
+  if (agency)    params.set("agency",         agency);
+  if (country)   params.set("agency_country", country);
+  if (status)    params.set("status",         status);
+  if (connector) params.set("connector",      connector);
+  if (currency)  params.set("currency",       currency);
 
   const qs = params.toString();
   fetch(`${API}/api/stats${qs ? "?" + qs : ""}`)

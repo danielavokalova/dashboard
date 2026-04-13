@@ -1,0 +1,25 @@
+# GOL IBE Customer Portal – Python dependencies
+# Install: pip install -r requirements.txt
+
+# Core framework
+streamlit>=1.35.0
+
+# AI / LLM
+anthropic>=0.28.0          # Claude API – AI Assistant + Omnisearch
+
+# Data & analytics
+pandas>=2.1.0
+plotly>=5.20.0             # Agency Health Check charts
+
+# Document handling
+python-dotenv>=1.0.1       # .env loading
+PyYAML>=6.0.1              # scenario configs
+markdown>=3.6              # render .md docs in UI
+
+# Search (local knowledge base)
+# Option A – lightweight keyword search (default, no extra setup)
+rapidfuzz>=3.6.0
+
+# Option B – semantic / embedding search (uncomment when ready for it)
+# sentence-transformers>=2.7.0
+# faiss-cpu>=1.8.0

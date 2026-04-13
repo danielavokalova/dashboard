@@ -1,0 +1,49 @@
+[
+  {
+    "version": "3.8.0",
+    "date": "April 2025",
+    "emoji": "🚀",
+    "title": "NDC Content & Ancillaries",
+    "type": "feature",
+    "description": "Book seats, meals and extra baggage directly in the search results flow — no separate ancillary step needed.",
+    "highlights": [
+      "NDC seat map available for Lufthansa Group and British Airways",
+      "Meal preferences saved per passenger profile",
+      "Baggage upsell shown inline before payment"
+    ]
+  },
+  {
+    "version": "3.7.2",
+    "date": "March 2025",
+    "emoji": "⚡",
+    "title": "Search speed improvement",
+    "type": "improvement",
+    "description": "Search response time reduced by **40%** thanks to parallel GDS query processing. Amadeus and Sabre results now load simultaneously.",
+    "highlights": [
+      "Average search time: 2.1 s → 1.3 s",
+      "Timeout errors reduced by 60%"
+    ]
+  },
+  {
+    "version": "3.7.0",
+    "date": "February 2025",
+    "emoji": "📊",
+    "title": "Statistics dashboard v2",
+    "type": "feature",
+    "description": "Completely redesigned Statistics module with filterable charts, date range picker and CSV export.",
+    "highlights": [
+      "Revenue by carrier chart",
+      "Booking-to-ticket conversion funnel",
+      "Export to Excel in one click"
+    ]
+  },
+  {
+    "version": "3.6.5",
+    "date": "January 2025",
+    "emoji": "🐛",
+    "title": "Fixes: notifications & currency display",
+    "type": "fix",
+    "description": "Fixed two reported issues:\n1. Booking confirmation email sometimes sent in wrong language.\n2. Currency symbol displayed incorrectly for CZK/HUF in invoice PDF.",
+    "highlights": []
+  }
+]

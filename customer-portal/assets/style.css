@@ -1,0 +1,40 @@
+/* GOL IBE Help Center – global styles */
+
+/* Hero block */
+.hero {
+    background: linear-gradient(135deg, #1e40af 0%, #0ea5e9 100%);
+    color: white;
+    padding: 40px 32px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+.hero h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+.hero p  { font-size: 1rem; opacity: 0.88; }
+
+/* Category cards */
+.cat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin-bottom: 4px;
+    transition: transform .2s;
+}
+.cat-card:hover { transform: translateY(-3px); }
+.cat-icon { font-size: 1.8rem; }
+.cat-name { font-weight: 700; font-size: .85rem; letter-spacing: .04em; margin-top: 6px; }
+.cat-desc { font-size: .75rem; color: #64748b; margin-top: 4px; }
+
+/* Inline category badge */
+.badge {
+    background: #eff6ff;
+    color: #1e40af;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-left: 6px;
+    vertical-align: middle;
+}

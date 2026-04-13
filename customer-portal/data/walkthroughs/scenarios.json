@@ -1,0 +1,108 @@
+[
+  {
+    "id": "first-reservation",
+    "title": "Create your first air reservation",
+    "category": "Reservations",
+    "icon": "✈️",
+    "description": "A complete walkthrough from flight search to confirmed booking.",
+    "steps": [
+      {
+        "title": "Open New Booking",
+        "content": "From the top menu, go to **Reservations → New Booking**.\n\nSelect the booking type: **One-way**, **Round-trip**, or **Multi-city**.",
+        "tip": "Make sure the correct agency account is selected in the top-right corner."
+      },
+      {
+        "title": "Search for flights",
+        "content": "Enter:\n- **Origin** and **Destination** (IATA codes or city name)\n- **Travel dates**\n- **Number of passengers** (ADT / CHD / INF)\n\nClick **Search**.",
+        "tip": "Flexible date? Use the ±3 day calendar view to compare prices."
+      },
+      {
+        "title": "Select a fare",
+        "content": "Review the results list. Click any fare to expand **fare rules** (refund policy, change fees, baggage allowance).\n\nChoose your preferred option and click **Select**."
+      },
+      {
+        "title": "Enter passenger details",
+        "content": "Fill in the passenger form:\n1. Title, first name, last name (exactly as on passport)\n2. Date of birth\n3. Passport number + expiry (international routes)\n4. Contact email and phone"
+      },
+      {
+        "title": "Review and confirm",
+        "content": "Check the booking summary:\n- Total price breakdown\n- Fare basis and validity\n- Passenger data\n\nClick **Confirm Booking**. A **PNR** (booking reference) will be issued immediately.",
+        "tip": "The booking is NOT ticketed yet. Proceed to Issue Ticket or set up auto-ticketing."
+      }
+    ]
+  },
+  {
+    "id": "add-user",
+    "title": "Add a new agent to your account",
+    "category": "Users",
+    "icon": "👤",
+    "description": "How to create a new user account for an agent in your agency.",
+    "steps": [
+      {
+        "title": "Go to User Management",
+        "content": "Navigate to **Settings → Users** in the left sidebar."
+      },
+      {
+        "title": "Create new user",
+        "content": "Click **+ Add User** in the top-right corner.\n\nFill in:\n- **Email address** (will be used for login)\n- **First and last name**\n- **Role** (see next step)"
+      },
+      {
+        "title": "Set role and permissions",
+        "content": "Choose the appropriate role:\n\n| Role | Can book | Can manage users | Can see reports |\n|------|----------|-----------------|----------------|\n| Agent | ✅ | ❌ | ❌ |\n| Supervisor | ✅ | ✅ | ✅ |\n| Admin | ✅ | ✅ | ✅ |",
+        "tip": "Start with **Agent** role and upgrade permissions later if needed."
+      },
+      {
+        "title": "Send invitation",
+        "content": "Click **Send Invitation**.\n\nThe new user will receive an email with a link to set their password.\n\nThe invitation link is valid for **48 hours**."
+      }
+    ]
+  },
+  {
+    "id": "reset-password",
+    "title": "Reset an agent's password",
+    "category": "Users",
+    "icon": "🔑",
+    "description": "Quickly reset access for an agent who is locked out.",
+    "steps": [
+      {
+        "title": "Find the user",
+        "content": "Go to **Settings → Users**.\n\nSearch for the agent by name or email address."
+      },
+      {
+        "title": "Trigger password reset",
+        "content": "Click the **⋮** (more options) button next to the user.\n\nSelect **Send Password Reset Email**."
+      },
+      {
+        "title": "Confirm",
+        "content": "Click **Confirm**. The agent will receive a reset link to their registered email within 2 minutes.\n\nThe link expires after **24 hours**.",
+        "tip": "If the agent doesn't receive the email, check their spam folder or verify the email address is correct."
+      }
+    ]
+  },
+  {
+    "id": "setup-markup",
+    "title": "Set up agency markup rules",
+    "category": "Prices & Markup",
+    "icon": "💰",
+    "description": "Configure service fees and markups applied to all bookings.",
+    "steps": [
+      {
+        "title": "Open Pricing settings",
+        "content": "Go to **Settings → Prices** in the left sidebar."
+      },
+      {
+        "title": "Create a markup rule",
+        "content": "Click **+ New Rule**.\n\nChoose the rule type:\n- **Fixed amount** (e.g. +€10 per booking)\n- **Percentage** (e.g. +3% on base fare)\n- **Per segment** (e.g. +€5 per flight leg)"
+      },
+      {
+        "title": "Set conditions",
+        "content": "Optionally restrict the rule by:\n- **Carrier** (apply only to specific airlines)\n- **Route** (origin/destination pair)\n- **Fare class** (Economy / Business)\n- **Booking channel** (online / offline)"
+      },
+      {
+        "title": "Activate the rule",
+        "content": "Click **Save** and toggle the rule to **Active**.\n\nNew bookings will immediately include this markup in the displayed price.",
+        "tip": "Test with a dummy search before going live to verify the markup is applied correctly."
+      }
+    ]
+  }
+]

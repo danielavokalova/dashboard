@@ -115,17 +115,19 @@ body {
 /* ── KPI CARDS ──────────────────────────────────────────── */
 .kpi-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 14px;
   margin-bottom: 18px;
 }
+@media (max-width: 1100px) { .kpi-row { grid-template-columns: repeat(3, 1fr); } }
 
 .kpi {
   background: var(--paper);
   border-radius: 16px;
-  padding: 19px 22px;
+  padding: 16px 18px;
   box-shadow: 0 5px 20px var(--shadow);
 }
+.kpi.kpi-accent { border-left: 3px solid var(--bar-fill); }
 
 .kpi-label {
   font-size: 10px;
@@ -135,8 +137,58 @@ body {
   color: var(--muted);
   margin-bottom: 8px;
 }
-.kpi-value { font-size: 28px; font-weight: 800; line-height: 1; }
+.kpi-value { font-size: 26px; font-weight: 800; line-height: 1; }
 .kpi-sub   { font-size: 11px; color: var(--muted); margin-top: 5px; }
+
+/* ── DATE RANGE QUICK BUTTONS ────────────────────────────── */
+.date-range-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.range-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-right: 4px;
+}
+.btn-range {
+  padding: 5px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font: 700 11px/1 inherit;
+  letter-spacing: 0.07em;
+  cursor: pointer;
+  transition: background 0.14s, border-color 0.14s, color 0.14s;
+}
+.btn-range:hover   { background: rgba(79,106,108,0.08); }
+.btn-range.active  { background: var(--muted); color: #fff; border-color: var(--muted); }
+
+/* ── CHART LEGEND ────────────────────────────────────────── */
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  margin-left: auto;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
 
 /* ── CHART SECTION ──────────────────────────────────────── */
 .chart-section {
@@ -181,6 +233,145 @@ body {
 
 .chart-body { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 32px; }
 @media (max-width: 900px) { .chart-body { grid-template-columns: 1fr; } }
+
+/* ── MONTHLY TREND ──────────────────────────────────────── */
+.monthly-wrap {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.monthly-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 130px;
+  min-width: max-content;
+  padding-bottom: 24px;
+  box-sizing: content-box;
+}
+.month-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  min-width: 38px;
+}
+.month-pair {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+}
+.month-bar {
+  width: 14px;
+  border-radius: 3px 3px 0 0;
+  transition: height 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.15s;
+  position: relative;
+  cursor: default;
+  flex-shrink: 0;
+}
+.month-bar.total  { background: var(--bar-fill); }
+.month-bar.issued { background: #8f3e4a; }
+.month-bar:hover  { opacity: 0.75; }
+.month-bar:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: #fff;
+  font-size: 11px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 20;
+}
+.month-lbl {
+  font-size: 9px;
+  color: var(--muted);
+  white-space: nowrap;
+  text-align: center;
+  margin-top: 5px;
+  line-height: 1;
+}
+
+/* ── REVENUE BAR ─────────────────────────────────────────── */
+.bar-revenue {
+  font-size: 10px;
+  color: var(--muted);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* ── BREAKDOWN ──────────────────────────────────────────── */
+.breakdown-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px 40px;
+}
+@media (max-width: 900px) { .breakdown-grid { grid-template-columns: 1fr; } }
+.breakdown-col-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+  padding-left: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-chart-type {
+  font-size: 10px;
+  font-family: inherit;
+  padding: 2px 7px;
+  border: 1.5px solid var(--border);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.12s;
+  margin-left: auto;
+  line-height: 1.4;
+}
+.btn-chart-type:hover { background: rgba(79,106,108,0.1); }
+
+/* ── PIE CHART ───────────────────────────────────────────── */
+.pie-wrap {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 120px;
+}
+.pie-leg {
+  display: grid;
+  grid-template-columns: 10px 1fr auto auto;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+.pie-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.pie-leg-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink);
+}
+.pie-leg-pct  { color: var(--muted); font-weight: 700; min-width: 32px; text-align: right; }
+.pie-leg-cnt  { color: var(--muted); font-size: 10px; min-width: 44px; text-align: right; }
 
 .bar-row {
   display: grid;
@@ -372,8 +563,21 @@ td.cell-empty { color: var(--muted); }
   <!-- KPI -->
   <div class="kpi-row">
     <div class="kpi">
-      <div class="kpi-label">Celkem záznamů</div>
+      <div class="kpi-label">Celkem rezervací</div>
       <div class="kpi-value" id="kpi-total">—</div>
+    </div>
+    <div class="kpi kpi-accent">
+      <div class="kpi-label">Vydáno</div>
+      <div class="kpi-value" id="kpi-issued">—</div>
+      <div class="kpi-sub" id="kpi-issued-pct"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label" id="kpi-agency-label">Agentury</div>
+      <div class="kpi-value" id="kpi-agencies">—</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Zemí</div>
+      <div class="kpi-value" id="kpi-countries">—</div>
     </div>
     <div class="kpi">
       <div class="kpi-label">Poslední rezervace</div>
@@ -381,44 +585,135 @@ td.cell-empty { color: var(--muted); }
       <div class="kpi-sub" id="kpi-last-sub"></div>
     </div>
     <div class="kpi">
-      <div class="kpi-label" id="kpi-agency-label">Agentury</div>
-      <div class="kpi-value" id="kpi-agencies">—</div>
-    </div>
-    <div class="kpi">
       <div class="kpi-label">Data od</div>
       <div class="kpi-value" id="kpi-from">—</div>
     </div>
   </div>
 
-  <!-- CHART -->
+  <!-- QUICK DATE RANGE -->
+  <div class="date-range-row">
+    <span class="range-label">Pohled:</span>
+    <button class="btn-range" onclick="setRange(1,this)">1M</button>
+    <button class="btn-range active" onclick="setRange(3,this)">3M</button>
+    <button class="btn-range" onclick="setRange(6,this)">6M</button>
+    <button class="btn-range" onclick="setRange(12,this)">1R</button>
+    <button class="btn-range" onclick="setRange(0,this)">Vše</button>
+  </div>
+
+  <!-- MONTHLY TREND -->
+  <div class="chart-section" id="monthly-section">
+    <div class="chart-header">
+      <div class="chart-title">Měsíční trend</div>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--bar-fill)"></div>Rezervace</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#8f3e4a"></div>Vydáno</div>
+      </div>
+      <button class="chart-toggle" id="monthly-toggle" onclick="toggleSection('monthly')">Skrýt ▲</button>
+    </div>
+    <div class="monthly-wrap"><div class="monthly-bars" id="monthly-body"></div></div>
+  </div>
+
+  <!-- AGENCY CHART -->
   <div class="chart-section" id="chart-section">
     <div class="chart-header">
       <div class="chart-title" id="chart-title">Agentury</div>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--bar-fill)"></div>Celkem</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#8f3e4a"></div>Vydáno</div>
+      </div>
       <button class="chart-toggle" id="chart-toggle" onclick="toggleChart()">Skrýt ▲</button>
     </div>
     <div class="chart-body" id="chart-body"></div>
   </div>
 
+  <!-- BREAKDOWN: 6 panelů -->
+  <div class="chart-section" id="breakdown-section">
+    <div class="chart-header">
+      <div class="chart-title">Přehled</div>
+      <button class="chart-toggle" id="breakdown-toggle" onclick="toggleSection('breakdown')">Skrýt ▲</button>
+    </div>
+    <div class="breakdown-grid" style="grid-template-columns:1fr 1fr 1fr">
+      <div>
+        <div class="breakdown-col-title">Status
+          <button class="btn-chart-type" onclick="togglePanelType('status')">⬤ Koláč</button>
+        </div>
+        <div id="status-body"></div>
+      </div>
+      <div>
+        <div class="breakdown-col-title">Poslední status
+          <button class="btn-chart-type" onclick="togglePanelType('last-status')">⬤ Koláč</button>
+        </div>
+        <div id="last-status-body"></div>
+      </div>
+      <div>
+        <div class="breakdown-col-title">Země
+          <button class="btn-chart-type" onclick="togglePanelType('country')">⬤ Koláč</button>
+        </div>
+        <div id="country-body"></div>
+      </div>
+      <div>
+        <div class="breakdown-col-title">Měna &amp; Tržby</div>
+        <div id="currency-body"></div>
+      </div>
+      <div>
+        <div class="breakdown-col-title">Connector
+          <button class="btn-chart-type" onclick="togglePanelType('connector')">⬤ Koláč</button>
+        </div>
+        <div id="connector-body"></div>
+      </div>
+      <div>
+        <div class="breakdown-col-title">Typ letu
+          <button class="btn-chart-type" onclick="togglePanelType('type')">⬤ Koláč</button>
+        </div>
+        <div id="type-body"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- FILTERS -->
   <div class="filter-bar">
     <div class="fg">
+      <label class="fg-label" id="fg-agency-label">Agentura</label>
+      <select class="fg-input narrow" id="f-agency" onchange="applyFilters();reloadStats()">
+        <option value="">Vše</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fg-label">Země</label>
+      <select class="fg-input narrow" id="f-country" onchange="applyFilters();reloadStats()">
+        <option value="">Vše</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fg-label">Status</label>
+      <select class="fg-input narrow" id="f-status" onchange="applyFilters();reloadStats()">
+        <option value="">Vše</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fg-label">Connector</label>
+      <select class="fg-input narrow" id="f-connector" onchange="applyFilters();reloadStats()">
+        <option value="">Vše</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fg-label">Měna</label>
+      <select class="fg-input narrow" id="f-currency" onchange="applyFilters();reloadStats()">
+        <option value="">Vše</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fg-label">Datum od</label>
+      <input class="fg-input narrow" type="date" id="f-date-from" onchange="applyFilters();reloadStats()">
+    </div>
+    <div class="fg">
+      <label class="fg-label">Datum do</label>
+      <input class="fg-input narrow" type="date" id="f-date-to" onchange="applyFilters();reloadStats()">
+    </div>
+    <div class="fg" style="flex:1;min-width:180px">
       <label class="fg-label">Hledat</label>
       <input class="fg-input wide" type="text" id="f-search"
              placeholder="Hledat ve všech sloupcích…" oninput="applyFilters()">
-    </div>
-    <div class="fg" id="fg-date-from" style="display:none">
-      <label class="fg-label">Datum od</label>
-      <input class="fg-input narrow" type="date" id="f-date-from" onchange="applyFilters()">
-    </div>
-    <div class="fg" id="fg-date-to" style="display:none">
-      <label class="fg-label">Datum do</label>
-      <input class="fg-input narrow" type="date" id="f-date-to" onchange="applyFilters()">
-    </div>
-    <div class="fg" id="fg-agency" style="display:none">
-      <label class="fg-label" id="fg-agency-label">Agentura</label>
-      <select class="fg-input narrow" id="f-agency" onchange="applyFilters()">
-        <option value="">Všechny</option>
-      </select>
     </div>
     <div class="filter-right">
       <span class="filter-count" id="filter-count"></span>
@@ -444,13 +739,15 @@ td.cell-empty { color: var(--muted); }
 <script>
 const API = "http://localhost:8080";
 
-let allRows     = [];
-let allColumns  = [];
+let allRows      = [];
+let allColumns   = [];
 let filteredRows = [];
-let specialCols = { date: null, agency: null };
-let sortState   = { col: null, dir: "asc" };
-let chartCollapsed = false;
+let specialCols  = { date: null, agency: null };
+let sortState    = { col: null, dir: "asc" };
+let chartCollapsed  = false;
 let activeBarAgency = null;
+let _statsLoaded    = false; // true once /api/stats populated KPIs
+let _lastStats      = null;  // cached stats for chart rebuilds
 
 // ── Column detection ────────────────────────────────────────────
 
@@ -488,38 +785,271 @@ function fmtDate(v) {
 
 function toISO(d) { return d.toISOString().slice(0,10); }
 
-// ── Load data ───────────────────────────────────────────────────
+// ── Stats: rychlé KPI + grafy hned při načtení ─────────────────
+
+function applyStats(stats) {
+  _statsLoaded = true;
+  _lastStats   = stats;
+  const t = stats.totals || {};
+
+  if (t.total    != null) document.getElementById("kpi-total").textContent     = fmt(t.total);
+  if (t.agencies != null) document.getElementById("kpi-agencies").textContent  = fmt(t.agencies);
+  if (t.countries!= null) document.getElementById("kpi-countries").textContent = fmt(t.countries);
+  if (t.issued   != null) {
+    document.getElementById("kpi-issued").textContent = fmt(t.issued);
+    const pct = t.total > 0 ? Math.round(t.issued / t.total * 100) : 0;
+    document.getElementById("kpi-issued-pct").textContent = `${pct} % z celku`;
+  }
+
+  const monthly = stats.monthly || [];
+  if (monthly.length) {
+    document.getElementById("kpi-from").textContent = fmtMonth(monthly[0].month);
+    document.getElementById("kpi-last").textContent = fmtMonth(monthly[monthly.length - 1].month);
+    document.getElementById("kpi-last-sub").textContent = "";
+  }
+
+  buildMonthlyChart(stats.monthly || []);
+  buildChartFromStats(stats.by_agency || []);
+  buildBreakdownCharts(stats);
+}
+
+function fmt(n)      { return Number(n).toLocaleString("cs-CZ"); }
+function fmtMonth(ym) {
+  if (!ym) return "—";
+  const [y, m] = ym.split("-");
+  return `${m}/${y}`;
+}
+
+// Měsíční trend — dvě série: rezervace vs vydáno
+function buildMonthlyChart(monthly) {
+  const items   = (monthly || []).filter(x => x.month);
+  const section = document.getElementById("monthly-section");
+  if (!items.length) { section.classList.remove("visible"); return; }
+  section.classList.add("visible");
+
+  const maxTotal = Math.max(...items.map(x => Number(x.total))) || 1;
+  const H = 110;
+
+  document.getElementById("monthly-body").innerHTML = items.map(({month, total, issued}) => {
+    const tot = Number(total), iss = Number(issued || 0);
+    const hT  = Math.max(2, Math.round(tot / maxTotal * H));
+    const hI  = Math.max(0, Math.round(iss / maxTotal * H));
+    const lbl = month.slice(2).replace("-", "/");
+    const pct = tot > 0 ? Math.round(iss / tot * 100) : 0;
+    return `<div class="month-col">
+      <div class="month-pair">
+        <div class="month-bar total"  style="height:${hT}px"
+             data-tip="${esc(month)}: ${fmt(tot)} rezervací"></div>
+        <div class="month-bar issued" style="height:${hI}px"
+             data-tip="${esc(month)}: ${fmt(iss)} vydáno (${pct} %)"></div>
+      </div>
+      <div class="month-lbl">${esc(lbl)}</div>
+    </div>`;
+  }).join("");
+}
+
+// Agency — celkem + vydáno %
+function buildChartFromStats(byAgency) {
+  const items   = byAgency.filter(x => x.label && x.label !== "(prázdné)");
+  const section = document.getElementById("chart-section");
+  if (!items.length) { section.classList.remove("visible"); return; }
+  section.classList.add("visible");
+  if (chartCollapsed) return;
+
+  const maxCnt = items[0]?.cnt || 1;
+  document.getElementById("chart-body").innerHTML = items.slice(0, 15).map(({label, cnt, issued}) => {
+    const w   = Math.round(Number(cnt)    / maxCnt * 100);
+    const wi  = Math.round(Number(issued||0) / maxCnt * 100);
+    const pct = cnt > 0 ? Math.round((issued||0) / cnt * 100) : 0;
+    const act = activeBarAgency === label ? "active" : "";
+    return `<div class="bar-row ${act}" onclick="clickBar('${esc(label)}')"
+         title="${esc(label)}: ${fmt(cnt)} rezervací, ${fmt(issued||0)} vydáno (${pct} %)">
+      <div class="bar-label">${esc(label)}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${w}%"></div>
+        <div class="bar-fill" style="width:${wi}%;background:#8f3e4a;margin-top:2px"></div>
+      </div>
+      <div class="bar-count">${fmt(cnt)}<br><small style="color:#8f3e4a">${fmt(issued||0)} (${pct}%)</small></div>
+    </div>`;
+  }).join("");
+}
+
+// ── Koláčové grafy ───────────────────────────────────────────────
+
+const CHART_COLORS = [
+  "#4f6a6c","#c47a5a","#6b95b0","#8a7050",
+  "#5a8a6a","#9a6088","#b8a040","#708090"
+];
+
+// Stav přepínačů — výchozí: pruhy (bar)
+const _panelType = {
+  "status": "bar", "last-status": "bar",
+  "country": "bar", "connector": "bar", "type": "bar"
+};
+
+function togglePanelType(key) {
+  _panelType[key] = _panelType[key] === "bar" ? "pie" : "bar";
+  // Aktualizuj popisek tlačítka
+  const btn = document.querySelector(`[onclick="togglePanelType('${key}')"]`);
+  if (btn) btn.textContent = _panelType[key] === "pie" ? "▬ Pruhy" : "⬤ Koláč";
+  // Překresli, pokud máme data
+  if (_lastStats) buildBreakdownCharts(_lastStats);
+}
+
+function svgPie(items, colors) {
+  const top   = items.filter(x => x.label && x.label !== "(prázdné)").slice(0, 8);
+  const total = top.reduce((s, x) => s + Number(x.cnt), 0);
+  if (!total) return "";
+
+  const R  = 46, cx = 56, cy = 56;
+  const C  = 2 * Math.PI * R;
+  let cumAngle = 0;
+
+  const circles = top.map((item, i) => {
+    const pct  = Number(item.cnt) / total;
+    const arc  = pct * C;
+    const rot  = cumAngle;
+    cumAngle  += pct * 360;
+    return `<circle r="${R}" cx="${cx}" cy="${cy}" fill="none"
+      stroke="${colors[i]}" stroke-width="${R * 2 - 2}"
+      stroke-dasharray="${arc.toFixed(3)} ${C.toFixed(3)}"
+      stroke-dashoffset="${(C / 4).toFixed(3)}"
+      transform="rotate(${rot.toFixed(3)} ${cx} ${cy})"/>`;
+  }).join("");
+
+  const legend = top.map((item, i) => {
+    const pct = Math.round(Number(item.cnt) / total * 100);
+    return `<div class="pie-leg">
+      <div class="pie-dot" style="background:${colors[i]}"></div>
+      <div class="pie-leg-label" title="${esc(item.label)}">${esc(item.label)}</div>
+      <div class="pie-leg-pct">${pct}%</div>
+      <div class="pie-leg-cnt">${fmt(item.cnt)}</div>
+    </div>`;
+  }).join("");
+
+  return `<div class="pie-wrap">
+    <svg width="112" height="112" viewBox="0 0 112 112" style="flex-shrink:0">${circles}</svg>
+    <div class="pie-legend">${legend}</div>
+  </div>`;
+}
+
+// Breakdown — 6 panelů
+function buildBreakdownCharts(stats) {
+  const section = document.getElementById("breakdown-section");
+  const allItems = [
+    stats.by_status, stats.by_last_status, stats.by_country,
+    stats.by_currency, stats.by_connector, stats.by_type
+  ];
+  if (!allItems.some(a => (a||[]).length > 0)) {
+    section.classList.remove("visible"); return;
+  }
+  section.classList.add("visible");
+
+  const renderBars = (items, n) => {
+    if (!items?.length) return "";
+    const maxCnt = Math.max(...items.map(x => Number(x.cnt))) || 1;
+    return items.slice(0, n).map(({label, cnt}) => {
+      const w = Math.round(Number(cnt) / maxCnt * 100);
+      return `<div class="bar-row" style="cursor:default">
+        <div class="bar-label">${esc(label)}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${w}%"></div></div>
+        <div class="bar-count">${fmt(cnt)}</div>
+      </div>`;
+    }).join("");
+  };
+
+  const renderPanel = (id, items, key, n) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!items?.length) { el.innerHTML = ""; return; }
+    if (_panelType[key] === "pie") {
+      el.innerHTML = svgPie(items, CHART_COLORS);
+    } else {
+      el.className = "chart-body";
+      el.style.gridTemplateColumns = "1fr";
+      el.innerHTML = renderBars(items, n);
+    }
+    // Pokud přepínáme z pie na bar, je třeba obnovit třídu
+    if (_panelType[key] !== "pie") {
+      el.className = "chart-body";
+      el.style.gridTemplateColumns = "1fr";
+    } else {
+      el.className = "";
+      el.style.gridTemplateColumns = "";
+    }
+  };
+
+  renderPanel("status-body",      stats.by_status,      "status",      10);
+  renderPanel("last-status-body", stats.by_last_status, "last-status", 10);
+  renderPanel("country-body",     stats.by_country,     "country",     12);
+  renderPanel("connector-body",   stats.by_connector,   "connector",   10);
+  renderPanel("type-body",        stats.by_type,        "type",        10);
+
+  // Měna + tržby (speciální layout s revenue)
+  const currencies = stats.by_currency || [];
+  if (currencies.length) {
+    const maxRev = Math.max(...currencies.map(x => Number(x.revenue||0))) || 1;
+    document.getElementById("currency-body").innerHTML = currencies.slice(0, 8).map(({label, cnt, revenue}) => {
+      const rev = Number(revenue || 0);
+      const w   = Math.round(rev / maxRev * 100);
+      return `<div class="bar-row" style="cursor:default;grid-template-columns:60px 1fr 90px">
+        <div class="bar-label" style="font-weight:800">${esc(label)}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${w}%"></div></div>
+        <div class="bar-count" style="font-size:10px">${rev > 0 ? fmt(Math.round(rev)) : fmt(cnt)+" ks"}</div>
+      </div>`;
+    }).join("");
+  }
+}
+
+// ── Načtení dat ─────────────────────────────────────────────────
+// Stats a záznamy se spouštějí paralelně.
+// Stats (agregované query) obvykle dorazí dřív → KPI + graf se zobrazí okamžitě.
+// Tabulka se zobrazí, jakmile dorazí záznamy.
 
 async function loadData() {
   const btn = document.getElementById("btn-refresh");
   btn.disabled = true; btn.textContent = "…";
+  _statsLoaded = false;
   showLoadingState();
   hideError();
 
+  // Naplní dropdowny filtrů (paralelně, tiše)
+  loadFilterOptions();
+
+  // /api/stats – spustit ihned, výsledek aplikovat hned jak přijde
+  fetch(`${API}/api/stats`)
+    .then(r => r.json())
+    .then(data => { if (data.ok) applyStats(data); })
+    .catch(() => {}); // selhání stats není kritické
+
+  // /api/reservations – čekáme na tabulku
   try {
-    const limit = window._loadAll ? 0 : 500;
+    const limit = window._loadAll ? 0 : 200;
     const res   = await fetch(`${API}/api/reservations?limit=${limit}`);
     const data  = await res.json();
     if (!data.ok) throw new Error(data.error || "Neznámá chyba");
 
-    allRows    = data.rows;
-    allColumns = data.columns;
+    allRows     = data.rows;
+    allColumns  = data.columns;
     specialCols = detectCols(allColumns);
 
     buildControls();
-    computeKPIs();
+    computeKPIs();   // doplní/přepíše jen to, co stats ještě nestihlo
     applyFilters();
 
     const t = new Date().toLocaleTimeString("cs-CZ",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+    const realTotal = data.total;
     const limitBanner = document.getElementById("limit-banner");
     if (data.limited) {
       limitBanner.style.display = "";
-      limitBanner.innerHTML = `Zobrazeno <strong>${data.count.toLocaleString("cs-CZ")}</strong> nejnovějších záznamů z celkových <strong>${data.total.toLocaleString("cs-CZ")}</strong>. <a href="#" onclick="loadAll(event)">Načíst vše</a> (může trvat déle)`;
+      limitBanner.innerHTML = `Zobrazeno <strong>${data.count.toLocaleString("cs-CZ")}</strong> nejnovějších záznamů`
+        + ` z celkových <strong>${Number(realTotal).toLocaleString("cs-CZ")}</strong>.`
+        + ` <a href="#" onclick="loadAll(event)">Načíst vše</a> (může trvat déle)`;
     } else {
       limitBanner.style.display = "none";
     }
     document.getElementById("topbar-meta").innerHTML =
-      `Aktualizováno: ${t}<br>${data.count.toLocaleString("cs-CZ")} záznamů`;
+      `Aktualizováno: ${t}<br>${data.count.toLocaleString("cs-CZ")} z ${Number(realTotal).toLocaleString("cs-CZ")} záznamů`;
 
   } catch(e) {
     showError(e.message);
@@ -534,41 +1064,58 @@ async function loadData() {
 function buildControls() {
   const {date, agency} = specialCols;
 
-  // date filters
-  document.getElementById("fg-date-from").style.display = date ? "" : "none";
-  document.getElementById("fg-date-to").style.display   = date ? "" : "none";
+  // Nastav výchozí časový rozsah podle dat v tabulce
   if (date) {
     const dates = allRows.map(r => parseDate(r[date])).filter(Boolean).sort((a,b)=>a-b);
     if (dates.length) {
       const last  = dates[dates.length-1];
       const from3 = new Date(last); from3.setMonth(from3.getMonth()-3);
-      document.getElementById("f-date-from").value = toISO(from3);
-      document.getElementById("f-date-to").value   = toISO(last);
+      if (!document.getElementById("f-date-from").value)
+        document.getElementById("f-date-from").value = toISO(from3);
+      if (!document.getElementById("f-date-to").value)
+        document.getElementById("f-date-to").value   = toISO(last);
     }
   }
 
-  // agency dropdown
-  const agFg = document.getElementById("fg-agency");
+  // Aktualizuj popisky podle detekovaného sloupce agentury
   if (agency) {
     const lbl = agency.replace(/_/g," ");
-    document.getElementById("fg-agency-label").textContent   = lbl;
-    document.getElementById("kpi-agency-label").textContent  = lbl;
-    document.getElementById("chart-title").textContent       = lbl.charAt(0).toUpperCase()+lbl.slice(1)+" – počty rezervací";
-
-    const vals = [...new Set(allRows.map(r=>r[agency]).filter(v=>v!=null))].map(String).sort();
-    const sel  = document.getElementById("f-agency");
-    sel.innerHTML = `<option value="">Všechny (${vals.length})</option>` +
-      vals.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");
-    agFg.style.display = "";
-  } else {
-    agFg.style.display = "none";
+    document.getElementById("fg-agency-label").textContent  = lbl;
+    document.getElementById("kpi-agency-label").textContent = lbl;
+    document.getElementById("chart-title").textContent      = lbl.charAt(0).toUpperCase()+lbl.slice(1)+" – počty rezervací";
   }
+}
+
+// ── Načte možnosti filtrů ze serveru ────────────────────────────
+
+async function loadFilterOptions() {
+  try {
+    const res  = await fetch(`${API}/api/filter-options`);
+    const data = await res.json();
+    if (!data.ok) return;
+
+    const populate = (id, vals) => {
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      const cur = sel.value;
+      sel.innerHTML = `<option value="">Vše</option>` +
+        vals.map(v => `<option value="${esc(v)}"${v === cur ? " selected" : ""}>${esc(v)}</option>`).join("");
+    };
+
+    populate("f-agency",    data.agency          || []);
+    populate("f-country",   data.agency_country  || []);
+    populate("f-status",    data.status          || []);
+    populate("f-connector", data.connector       || []);
+    populate("f-currency",  data.currency        || []);
+  } catch(e) { /* tiché selhání */ }
 }
 
 // ── KPI ─────────────────────────────────────────────────────────
 
 function computeKPIs() {
-  document.getElementById("kpi-total").textContent = allRows.length.toLocaleString("cs-CZ");
+  if (!_statsLoaded)
+    document.getElementById("kpi-total").textContent = allRows.length.toLocaleString("cs-CZ");
+
   const {date, agency} = specialCols;
 
   if (date) {
@@ -586,7 +1133,7 @@ function computeKPIs() {
     }
   }
 
-  if (agency) {
+  if (agency && !_statsLoaded) {
     const n = new Set(allRows.map(r=>r[agency]).filter(v=>v!=null)).size;
     document.getElementById("kpi-agencies").textContent = n;
   }
@@ -595,34 +1142,37 @@ function computeKPIs() {
 // ── Chart ────────────────────────────────────────────────────────
 
 function buildChart(rows) {
-  const {agency} = specialCols;
-  const section  = document.getElementById("chart-section");
-  if (!agency) { section.classList.remove("visible"); return; }
+  const section = document.getElementById("chart-section");
+  if (!specialCols.agency) { section.classList.remove("visible"); return; }
+  if (_statsLoaded) {
+    // Pouze aktualizuj aktivní bar, bez přestavby celého grafu
+    document.querySelectorAll("#chart-body .bar-row").forEach(row => {
+      const lbl = row.querySelector(".bar-label")?.textContent ?? "";
+      row.classList.toggle("active", lbl === activeBarAgency);
+    });
+    return;
+  }
 
   section.classList.add("visible");
   if (chartCollapsed) return;
 
-  // count per agency from ALL data (not filtered)
+  const {agency} = specialCols;
   const counts = {};
   allRows.forEach(r => {
     const v = String(r[agency] ?? "");
     if (v) counts[v] = (counts[v] || 0) + 1;
   });
-  const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
-  const top    = sorted.slice(0, 20);
-  const max    = top[0]?.[1] || 1;
+  const top = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0, 20);
+  const max = top[0]?.[1] || 1;
 
-  const body = document.getElementById("chart-body");
-  body.innerHTML = top.map(([name, cnt]) => {
-    const pct  = Math.round(cnt / allRows.length * 100);
-    const w    = Math.round(cnt / max * 100);
-    const act  = activeBarAgency === name ? "active" : "";
-    return `
-      <div class="bar-row ${act}" onclick="clickBar('${esc(name)}')" title="${esc(name)}: ${cnt} rezervací (${pct}%)">
-        <div class="bar-label">${esc(name)}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${w}%"></div></div>
-        <div class="bar-count">${cnt.toLocaleString("cs-CZ")}</div>
-      </div>`;
+  document.getElementById("chart-body").innerHTML = top.map(([name, cnt]) => {
+    const w   = Math.round(cnt / max * 100);
+    const act = activeBarAgency === name ? "active" : "";
+    return `<div class="bar-row ${act}" onclick="clickBar('${esc(name)}')" title="${esc(name)}: ${cnt} rezervací">
+      <div class="bar-label">${esc(name)}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${w}%"></div></div>
+      <div class="bar-count">${cnt.toLocaleString("cs-CZ")}</div>
+    </div>`;
   }).join("");
 }
 
@@ -646,17 +1196,34 @@ function toggleChart() {
   btn.textContent    = chartCollapsed ? "Zobrazit ▼" : "Skrýt ▲";
 }
 
+function toggleSection(id) {
+  const section = document.getElementById(id + "-section");
+  const btn     = document.getElementById(id + "-toggle");
+  const content = section.querySelector(":scope > :not(.chart-header)");
+  const hidden  = content.style.display === "none";
+  content.style.display = hidden ? "" : "none";
+  btn.textContent       = hidden ? "Skrýt ▲" : "Zobrazit ▼";
+}
+
 // ── Filters ──────────────────────────────────────────────────────
 
 function applyFilters() {
-  const search   = document.getElementById("f-search").value.toLowerCase().trim();
-  const dateFrom = document.getElementById("f-date-from").value;
-  const dateTo   = document.getElementById("f-date-to").value;
-  const agency   = document.getElementById("f-agency").value;
+  const search    = document.getElementById("f-search").value.toLowerCase().trim();
+  const dateFrom  = document.getElementById("f-date-from").value;
+  const dateTo    = document.getElementById("f-date-to").value;
+  const agency    = document.getElementById("f-agency").value;
+  const country   = document.getElementById("f-country").value;
+  const status    = document.getElementById("f-status").value;
+  const connector = document.getElementById("f-connector").value;
+  const currency  = document.getElementById("f-currency").value;
 
   if (activeBarAgency && agency !== activeBarAgency) activeBarAgency = null;
 
   const {date: dc, agency: ac} = specialCols;
+  const countryCol   = allColumns.find(c => c.toLowerCase() === "agency_country") || null;
+  const statusCol    = allColumns.find(c => c.toLowerCase() === "status")         || null;
+  const connectorCol = allColumns.find(c => c.toLowerCase() === "connector")      || null;
+  const currencyCol  = allColumns.find(c => c.toLowerCase() === "currency")       || null;
 
   filteredRows = allRows.filter(row => {
     if (search) {
@@ -670,7 +1237,11 @@ function applyFilters() {
         if (dateTo   && d > new Date(dateTo+"T23:59:59")) return false;
       }
     }
-    if (ac && agency && String(row[ac]) !== agency) return false;
+    if (ac          && agency    && String(row[ac])           !== agency)    return false;
+    if (countryCol  && country   && String(row[countryCol])   !== country)   return false;
+    if (statusCol   && status    && String(row[statusCol])    !== status)    return false;
+    if (connectorCol && connector && String(row[connectorCol]) !== connector) return false;
+    if (currencyCol && currency  && String(row[currencyCol])  !== currency)  return false;
     return true;
   });
 
@@ -684,8 +1255,8 @@ function applyFilters() {
   const txt = n < tot
     ? `Zobrazeno ${n.toLocaleString("cs-CZ")} z ${tot.toLocaleString("cs-CZ")}`
     : `${tot.toLocaleString("cs-CZ")} záznamů`;
-  document.getElementById("filter-count").textContent  = txt;
-  document.getElementById("table-footer").textContent  = txt;
+  document.getElementById("filter-count").textContent = txt;
+  document.getElementById("table-footer").textContent = txt;
 }
 
 function clearFilters() {
@@ -693,8 +1264,61 @@ function clearFilters() {
   document.getElementById("f-date-from").value = "";
   document.getElementById("f-date-to").value   = "";
   document.getElementById("f-agency").value    = "";
+  document.getElementById("f-country").value   = "";
+  document.getElementById("f-status").value    = "";
+  document.getElementById("f-connector").value = "";
+  document.getElementById("f-currency").value  = "";
   activeBarAgency = null;
+  document.querySelectorAll(".btn-range").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".btn-range").forEach(b => {
+    if (b.textContent.trim() === "3M") b.classList.add("active");
+  });
   applyFilters();
+  reloadStats();
+}
+
+// Rychlé filtry pohledu
+function setRange(months, btn) {
+  document.querySelectorAll(".btn-range").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+
+  if (months === 0) {
+    document.getElementById("f-date-from").value = "";
+    document.getElementById("f-date-to").value   = "";
+  } else {
+    const to   = new Date();
+    const from = new Date(to);
+    from.setMonth(from.getMonth() - months);
+    document.getElementById("f-date-from").value = toISO(from);
+    document.getElementById("f-date-to").value   = toISO(to);
+  }
+  applyFilters();
+  reloadStats();
+}
+
+// Znovu načte stats s aktuálními filtry (pro grafy)
+function reloadStats() {
+  const params = new URLSearchParams();
+  const df = document.getElementById("f-date-from").value;
+  const dt = document.getElementById("f-date-to").value;
+  if (df) params.set("date_from", df);
+  if (dt) params.set("date_to",   dt);
+  const agency    = document.getElementById("f-agency").value;
+  const country   = document.getElementById("f-country").value;
+  const status    = document.getElementById("f-status").value;
+  const connector = document.getElementById("f-connector").value;
+  const currency  = document.getElementById("f-currency").value;
+  if (agency)    params.set("agency",         agency);
+  if (country)   params.set("agency_country", country);
+  if (status)    params.set("status",         status);
+  if (connector) params.set("connector",      connector);
+  if (currency)  params.set("currency",       currency);
+
+  const qs = params.toString();
+  fetch(`${API}/api/stats${qs ? "?" + qs : ""}`)
+    .then(r => r.json())
+    .then(data => { if (data.ok) applyStats(data); })
+    .catch(() => {});
 }
 
 // ── Sort ─────────────────────────────────────────────────────────

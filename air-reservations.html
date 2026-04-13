@@ -444,13 +444,14 @@ td.cell-empty { color: var(--muted); }
 <script>
 const API = "http://localhost:8080";
 
-let allRows     = [];
-let allColumns  = [];
+let allRows      = [];
+let allColumns   = [];
 let filteredRows = [];
-let specialCols = { date: null, agency: null };
-let sortState   = { col: null, dir: "asc" };
-let chartCollapsed = false;
+let specialCols  = { date: null, agency: null };
+let sortState    = { col: null, dir: "asc" };
+let chartCollapsed  = false;
 let activeBarAgency = null;
+let _statsLoaded    = false; // true once /api/stats populated KPIs
 
 // ── Column detection ────────────────────────────────────────────
 
@@ -488,38 +489,102 @@ function fmtDate(v) {
 
 function toISO(d) { return d.toISOString().slice(0,10); }
 
-// ── Load data ───────────────────────────────────────────────────
+// ── Stats: rychlé KPI + graf hned při načtení ───────────────────
+
+function applyStats(stats) {
+  _statsLoaded = true;
+  const t = stats.totals || {};
+
+  // Celkový počet ze DB (skutečný, ne limitovaný)
+  if (t.total != null)
+    document.getElementById("kpi-total").textContent = Number(t.total).toLocaleString("cs-CZ");
+  if (t.agencies != null)
+    document.getElementById("kpi-agencies").textContent = Number(t.agencies).toLocaleString("cs-CZ");
+
+  // Rozsah dat z měsíčního trendu
+  const monthly = stats.monthly || [];
+  if (monthly.length) {
+    document.getElementById("kpi-from").textContent = fmtMonth(monthly[0].month);
+    document.getElementById("kpi-last").textContent = fmtMonth(monthly[monthly.length - 1].month);
+    document.getElementById("kpi-last-sub").textContent = "";
+  }
+
+  buildChartFromStats(stats.by_agency || []);
+}
+
+function fmtMonth(ym) {
+  if (!ym) return "—";
+  const [y, m] = ym.split("-");
+  return `${m}/${y}`;
+}
+
+function buildChartFromStats(byAgency) {
+  const items   = byAgency.filter(x => x.label && x.label !== "(prázdné)");
+  const section = document.getElementById("chart-section");
+  if (!items.length) { section.classList.remove("visible"); return; }
+
+  section.classList.add("visible");
+  if (chartCollapsed) return;
+
+  const max  = items[0]?.cnt || 1;
+  const body = document.getElementById("chart-body");
+  body.innerHTML = items.slice(0, 20).map(({label, cnt}) => {
+    const w   = Math.round(cnt / max * 100);
+    const act = activeBarAgency === label ? "active" : "";
+    return `<div class="bar-row ${act}" onclick="clickBar('${esc(label)}')" title="${esc(label)}: ${Number(cnt).toLocaleString("cs-CZ")} rezervací">
+      <div class="bar-label">${esc(label)}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${w}%"></div></div>
+      <div class="bar-count">${Number(cnt).toLocaleString("cs-CZ")}</div>
+    </div>`;
+  }).join("");
+}
+
+// ── Načtení dat ─────────────────────────────────────────────────
+// Stats a záznamy se spouštějí paralelně.
+// Stats (agregované query) obvykle dorazí dřív → KPI + graf se zobrazí okamžitě.
+// Tabulka se zobrazí, jakmile dorazí záznamy.
 
 async function loadData() {
   const btn = document.getElementById("btn-refresh");
   btn.disabled = true; btn.textContent = "…";
+  _statsLoaded = false;
   showLoadingState();
   hideError();
 
+  // /api/stats – spustit ihned, výsledek aplikovat hned jak přijde
+  fetch(`${API}/api/stats`)
+    .then(r => r.json())
+    .then(data => { if (data.ok) applyStats(data); })
+    .catch(() => {}); // selhání stats není kritické
+
+  // /api/reservations – čekáme na tabulku
   try {
-    const limit = window._loadAll ? 0 : 500;
+    const limit = window._loadAll ? 0 : 200;
     const res   = await fetch(`${API}/api/reservations?limit=${limit}`);
     const data  = await res.json();
     if (!data.ok) throw new Error(data.error || "Neznámá chyba");
 
-    allRows    = data.rows;
-    allColumns = data.columns;
+    allRows     = data.rows;
+    allColumns  = data.columns;
     specialCols = detectCols(allColumns);
 
     buildControls();
-    computeKPIs();
+    computeKPIs();   // doplní/přepíše jen to, co stats ještě nestihlo
     applyFilters();
 
     const t = new Date().toLocaleTimeString("cs-CZ",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+    const realTotal = data.total;
     const limitBanner = document.getElementById("limit-banner");
     if (data.limited) {
       limitBanner.style.display = "";
-      limitBanner.innerHTML = `Zobrazeno <strong>${data.count.toLocaleString("cs-CZ")}</strong> nejnovějších záznamů z celkových <strong>${data.total.toLocaleString("cs-CZ")}</strong>. <a href="#" onclick="loadAll(event)">Načíst vše</a> (může trvat déle)`;
+      limitBanner.innerHTML = `Zobrazeno <strong>${data.count.toLocaleString("cs-CZ")}</strong> nejnovějších záznamů`
+        + ` z celkových <strong>${Number(realTotal).toLocaleString("cs-CZ")}</strong>.`
+        + ` <a href="#" onclick="loadAll(event)">Načíst vše</a> (může trvat déle)`;
     } else {
       limitBanner.style.display = "none";
     }
     document.getElementById("topbar-meta").innerHTML =
-      `Aktualizováno: ${t}<br>${data.count.toLocaleString("cs-CZ")} záznamů`;
+      `Aktualizováno: ${t}<br>${data.count.toLocaleString("cs-CZ")} z ${Number(realTotal).toLocaleString("cs-CZ")} záznamů`;
 
   } catch(e) {
     showError(e.message);
@@ -534,7 +599,6 @@ async function loadData() {
 function buildControls() {
   const {date, agency} = specialCols;
 
-  // date filters
   document.getElementById("fg-date-from").style.display = date ? "" : "none";
   document.getElementById("fg-date-to").style.display   = date ? "" : "none";
   if (date) {
@@ -547,13 +611,12 @@ function buildControls() {
     }
   }
 
-  // agency dropdown
   const agFg = document.getElementById("fg-agency");
   if (agency) {
     const lbl = agency.replace(/_/g," ");
-    document.getElementById("fg-agency-label").textContent   = lbl;
-    document.getElementById("kpi-agency-label").textContent  = lbl;
-    document.getElementById("chart-title").textContent       = lbl.charAt(0).toUpperCase()+lbl.slice(1)+" – počty rezervací";
+    document.getElementById("fg-agency-label").textContent  = lbl;
+    document.getElementById("kpi-agency-label").textContent = lbl;
+    document.getElementById("chart-title").textContent      = lbl.charAt(0).toUpperCase()+lbl.slice(1)+" – počty rezervací";
 
     const vals = [...new Set(allRows.map(r=>r[agency]).filter(v=>v!=null))].map(String).sort();
     const sel  = document.getElementById("f-agency");
@@ -568,7 +631,10 @@ function buildControls() {
 // ── KPI ─────────────────────────────────────────────────────────
 
 function computeKPIs() {
-  document.getElementById("kpi-total").textContent = allRows.length.toLocaleString("cs-CZ");
+  // kpi-total: pokud stats ještě nepřišlo, zobrazíme počet načtených řádků
+  if (!_statsLoaded)
+    document.getElementById("kpi-total").textContent = allRows.length.toLocaleString("cs-CZ");
+
   const {date, agency} = specialCols;
 
   if (date) {
@@ -578,6 +644,7 @@ function computeKPIs() {
       .sort((a,b) => a.d - b.d);
     if (sorted.length) {
       const first = sorted[0], last = sorted[sorted.length-1];
+      // Přesné datum z dat (přepíše měsíční aproximaci ze stats)
       document.getElementById("kpi-from").textContent = fmtDate(first.raw);
       document.getElementById("kpi-last").textContent = fmtDate(last.raw);
       const diff = Math.round((new Date() - last.d) / 86400000);
@@ -586,7 +653,7 @@ function computeKPIs() {
     }
   }
 
-  if (agency) {
+  if (agency && !_statsLoaded) {
     const n = new Set(allRows.map(r=>r[agency]).filter(v=>v!=null)).size;
     document.getElementById("kpi-agencies").textContent = n;
   }
@@ -595,34 +662,32 @@ function computeKPIs() {
 // ── Chart ────────────────────────────────────────────────────────
 
 function buildChart(rows) {
-  const {agency} = specialCols;
-  const section  = document.getElementById("chart-section");
-  if (!agency) { section.classList.remove("visible"); return; }
+  // Pokud stats poskytlo graf, neřeší se znovu ze surových dat
+  // (graf ze stats je globální přehled, filtrování mění jen tabulku)
+  const section = document.getElementById("chart-section");
+  if (!specialCols.agency) { section.classList.remove("visible"); return; }
+  if (_statsLoaded) return; // stats graf je přesnější, nenahrazovat
 
   section.classList.add("visible");
   if (chartCollapsed) return;
 
-  // count per agency from ALL data (not filtered)
+  const {agency} = specialCols;
   const counts = {};
   allRows.forEach(r => {
     const v = String(r[agency] ?? "");
     if (v) counts[v] = (counts[v] || 0) + 1;
   });
-  const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
-  const top    = sorted.slice(0, 20);
-  const max    = top[0]?.[1] || 1;
+  const top = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0, 20);
+  const max = top[0]?.[1] || 1;
 
-  const body = document.getElementById("chart-body");
-  body.innerHTML = top.map(([name, cnt]) => {
-    const pct  = Math.round(cnt / allRows.length * 100);
-    const w    = Math.round(cnt / max * 100);
-    const act  = activeBarAgency === name ? "active" : "";
-    return `
-      <div class="bar-row ${act}" onclick="clickBar('${esc(name)}')" title="${esc(name)}: ${cnt} rezervací (${pct}%)">
-        <div class="bar-label">${esc(name)}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${w}%"></div></div>
-        <div class="bar-count">${cnt.toLocaleString("cs-CZ")}</div>
-      </div>`;
+  document.getElementById("chart-body").innerHTML = top.map(([name, cnt]) => {
+    const w   = Math.round(cnt / max * 100);
+    const act = activeBarAgency === name ? "active" : "";
+    return `<div class="bar-row ${act}" onclick="clickBar('${esc(name)}')" title="${esc(name)}: ${cnt} rezervací">
+      <div class="bar-label">${esc(name)}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${w}%"></div></div>
+      <div class="bar-count">${cnt.toLocaleString("cs-CZ")}</div>
+    </div>`;
   }).join("");
 }
 
@@ -684,8 +749,8 @@ function applyFilters() {
   const txt = n < tot
     ? `Zobrazeno ${n.toLocaleString("cs-CZ")} z ${tot.toLocaleString("cs-CZ")}`
     : `${tot.toLocaleString("cs-CZ")} záznamů`;
-  document.getElementById("filter-count").textContent  = txt;
-  document.getElementById("table-footer").textContent  = txt;
+  document.getElementById("filter-count").textContent = txt;
+  document.getElementById("table-footer").textContent = txt;
 }
 
 function clearFilters() {

@@ -1,0 +1,26 @@
+[
+  {
+    "version": "v2.4.0",
+    "date": "2025-03-01",
+    "summary": "Nové funkce pro správu notifikací a vylepšený markup engine.",
+    "items": [
+      "Nový designer notifikačních šablon (vizuální editor)",
+      "Podpora vícejazyčných notifikací (EN, DE, CZ)",
+      "Vylepšený markup engine s podporou podmíněných pravidel",
+      "Oprava chyby při synchronizaci s Google Calendar"
+    ],
+    "gif": null
+  },
+  {
+    "version": "v2.3.0",
+    "date": "2025-01-15",
+    "summary": "Integrace AI asistenta a nový dashboard přehledu agentury.",
+    "items": [
+      "AI asistent pro dotazy v přirozeném jazyce",
+      "Agency Health Check dashboard",
+      "Nové filtry v přehledu rezervací",
+      "Optimalizace načítání dat (30% rychlejší)"
+    ],
+    "gif": null
+  }
+]

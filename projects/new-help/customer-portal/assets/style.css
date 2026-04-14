@@ -1,0 +1,23 @@
+/* Customer Portal — global overrides for Streamlit */
+
+[data-testid="stAppViewContainer"] {
+    background-color: #f5f7fa;
+}
+
+[data-testid="stSidebar"] {
+    background-color: #ffffff;
+    border-right: 1px solid #e2e8f0;
+}
+
+h1, h2, h3 {
+    font-family: "Segoe UI", system-ui, sans-serif;
+    color: #1a202c;
+}
+
+/* Tile-style metric cards */
+[data-testid="stMetric"] {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}

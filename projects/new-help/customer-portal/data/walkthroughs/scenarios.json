@@ -1,0 +1,43 @@
+[
+  {
+    "title": "Můj první ticket",
+    "description": "Krok po kroku: jak vytvořit svou první rezervaci v systému.",
+    "steps": [
+      {"title": "Přihlášení do systému", "content": "Otevři GOL IBE a přihlas se svými přihlašovacími údaji."},
+      {"title": "Vyhledání letu", "content": "Zadej trasu, datum a počet cestujících do vyhledávacího formuláře."},
+      {"title": "Výběr tarifu", "content": "Z výsledků vyber vhodný tarif a klikni na 'Vybrat'."},
+      {"title": "Vyplnění dat cestujícího", "content": "Zadej jméno, příjmení a kontaktní údaje cestujícího."},
+      {"title": "Potvrzení rezervace", "content": "Zkontroluj shrnutí a potvrď rezervaci. Systém vygeneruje PNR kód."}
+    ]
+  },
+  {
+    "title": "Úprava příloh k rezervaci",
+    "description": "Jak přidat nebo změnit speciální požadavky a přílohy.",
+    "steps": [
+      {"title": "Otevření rezervace", "content": "Vyhledej rezervaci podle PNR kódu nebo jméno cestujícího."},
+      {"title": "Sekce SSR/OSI", "content": "Přejdi do sekce pro speciální požadavky (SSR/OSI)."},
+      {"title": "Přidání požadavku", "content": "Vyber typ požadavku (jídlo, vozíčkář, atd.) a vyplň potřebné údaje."},
+      {"title": "Uložení změn", "content": "Potvrď změny. Systém automaticky odešle požadavky na aerolinky."}
+    ]
+  },
+  {
+    "title": "Nastavení markupu",
+    "description": "Jak nastavit cenový přirážkový mechanismus pro agencie.",
+    "steps": [
+      {"title": "Přístup do nastavení", "content": "V administraci agentury přejdi na sekci 'Ceny a markup'."},
+      {"title": "Vytvoření pravidla", "content": "Klikni na 'Nové pravidlo' a vyber typ (procentuální / fixní částka)."},
+      {"title": "Definice podmínek", "content": "Nastav podmínky: aerolinky, třídy, trasy, na které se pravidlo vztahuje."},
+      {"title": "Aktivace", "content": "Ulož pravidlo a aktivuj ho. Změna se projeví okamžitě."}
+    ]
+  },
+  {
+    "title": "Správa uživatelů agentury",
+    "description": "Jak přidat nového uživatele a nastavit jeho oprávnění.",
+    "steps": [
+      {"title": "Správa uživatelů", "content": "V nastavení agentury přejdi do sekce 'Uživatelé'."},
+      {"title": "Nový uživatel", "content": "Klikni na 'Přidat uživatele' a vyplň e-mail a jméno."},
+      {"title": "Role a oprávnění", "content": "Přiřaď roli (agent, supervisor, admin) a uprav konkrétní oprávnění."},
+      {"title": "Odeslání pozvánky", "content": "Potvrď a systém odešle uživateli pozvánkový e-mail s instrukcemi."}
+    ]
+  }
+]

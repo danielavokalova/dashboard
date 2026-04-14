@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<title>Claude Sessions – Struktura projektů</title>
+<style>
+:root {
+  --ink: #1f2a2a;
+  --blue-muted: #4f6a6c;
+  --blue-line: #425c5e;
+  --paper: rgba(245,246,244,0.92);
+  --tile-bg: rgba(245,246,244,0.9);
+  --tile-shadow: rgba(90,115,115,0.35);
+  --notes-bg: rgba(245,246,244,0.94);
+  --octopus: #8f3e4a;
+  --green: #3a6b4a;
+  --green-light: rgba(58,107,74,0.12);
+  --amber: #7a5c1e;
+  --amber-light: rgba(122,92,30,0.12);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: url("botanicus.png") repeat;
+  color: var(--ink);
+}
+
+header {
+  padding: 36px 56px 24px;
+}
+.header-row {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+.header-row a {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--blue-muted);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.header-row a:hover { text-decoration: underline; }
+h1 {
+  font-size: 28px;
+  letter-spacing: 0.28em;
+  font-weight: 800;
+  color: var(--ink);
+  text-shadow: 0 1px 4px rgba(90,115,115,0.18);
+}
+.divider {
+  height: 2px;
+  background: var(--blue-line);
+  margin-top: 18px;
+}
+
+main {
+  padding: 40px 56px 60px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 44px;
+}
+
+@media (max-width: 900px) {
+  main { grid-template-columns: 1fr; padding: 24px 24px 48px; }
+  header { padding: 24px 24px 16px; }
+}
+
+/* CARDS */
+.card {
+  background: var(--notes-bg);
+  border-radius: 22px;
+  padding: 28px 32px;
+  box-shadow: 0 8px 26px rgba(0,0,0,0.09);
+}
+
+.card-full {
+  grid-column: 1 / -1;
+}
+
+.card h2 {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--blue-muted);
+  margin-bottom: 22px;
+  font-weight: 800;
+}
+
+/* PROJECT BUCKETS */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.project-tile {
+  border-radius: 14px;
+  padding: 18px 16px;
+  background: var(--tile-bg);
+  box-shadow: 0 5px 16px var(--tile-shadow);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+.project-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(90,115,115,0.42);
+}
+.project-tile .badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border-radius: 6px;
+  padding: 3px 8px;
+  margin-bottom: 10px;
+}
+.project-tile .name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.35;
+}
+.project-tile .desc {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--blue-muted);
+  line-height: 1.5;
+}
+
+/* COLOR VARIANTS */
+.p-gol-obsah .badge    { background: rgba(79,106,108,0.15); color: var(--blue-muted); }
+.p-gol-tech  .badge    { background: rgba(79,106,108,0.25); color: var(--blue-line); }
+.p-klienti   .badge    { background: rgba(143,62,74,0.12);  color: var(--octopus); }
+.p-napady    .badge    { background: rgba(122,92,30,0.13);  color: var(--amber); }
+.p-archiv    .badge    { background: rgba(31,42,42,0.08);   color: #6b7a7a; }
+
+/* NAMING TEMPLATE */
+.template-box {
+  background: rgba(79,106,108,0.08);
+  border-left: 3px solid var(--blue-line);
+  border-radius: 0 10px 10px 0;
+  padding: 14px 18px;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  color: var(--ink);
+  margin-bottom: 14px;
+  white-space: pre-wrap;
+}
+.template-box .placeholder { color: var(--blue-muted); font-style: italic; }
+.example {
+  font-size: 12px;
+  color: var(--blue-muted);
+  margin-top: 6px;
+}
+.example strong { color: var(--ink); }
+
+/* MIGRATION TEMPLATE */
+.migration-textarea {
+  width: 100%;
+  min-height: 240px;
+  border: 1.5px solid rgba(79,106,108,0.25);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--ink);
+  background: rgba(245,246,244,0.7);
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.migration-textarea:focus {
+  border-color: var(--blue-line);
+}
+.copy-btn {
+  margin-top: 10px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 8px;
+  background: var(--blue-line);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.copy-btn:hover { background: var(--ink); }
+.copy-btn.ok { background: var(--green); }
+
+/* CHECKLIST */
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  padding: 8px 10px;
+  border-radius: 10px;
+  transition: background 0.15s;
+}
+.check-item:hover { background: rgba(79,106,108,0.06); }
+.check-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  accent-color: var(--blue-line);
+  cursor: pointer;
+}
+.check-item label {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink);
+  cursor: pointer;
+}
+.check-item.done label {
+  text-decoration: line-through;
+  color: var(--blue-muted);
+}
+
+/* WAVES */
+.waves {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.wave {
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.wave-a { background: rgba(58,107,74,0.10); border-left: 3px solid var(--green); }
+.wave-b { background: rgba(79,106,108,0.10); border-left: 3px solid var(--blue-line); }
+.wave-c { background: rgba(31,42,42,0.06);   border-left: 3px solid #8fa8a8; }
+.wave-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding-top: 1px;
+}
+.wave-a .wave-label { color: var(--green); }
+.wave-b .wave-label { color: var(--blue-line); }
+.wave-c .wave-label { color: #6b7a7a; }
+.wave-desc { font-size: 13px; color: var(--ink); line-height: 1.5; }
+.wave-desc span { font-size: 11px; color: var(--blue-muted); display: block; margin-top: 2px; }
+
+/* PROJECT INSTRUCTIONS */
+.instructions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.instr-block {
+  border-radius: 12px;
+  background: rgba(79,106,108,0.06);
+  padding: 16px 18px;
+}
+.instr-block .instr-name {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--blue-muted);
+  margin-bottom: 8px;
+}
+.instr-block p {
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--ink);
+}
+.instr-copy-btn {
+  margin-top: 8px;
+  padding: 5px 14px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(79,106,108,0.18);
+  color: var(--blue-line);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.instr-copy-btn:hover { background: rgba(79,106,108,0.3); }
+.instr-copy-btn.ok { background: var(--green-light); color: var(--green); }
+
+/* LOGO */
+.logo-chobotnice {
+  color: var(--octopus);
+  width: 48px;
+  height: 48px;
+}
+
+footer {
+  background: var(--paper);
+  border-top: 2px solid var(--blue-line);
+  padding: 24px 56px;
+  color: var(--blue-muted);
+  font-size: 12px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-row">
+    <svg class="logo-chobotnice" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="40" r="25" fill="currentColor"/>
+      <g fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round">
+        <path d="M50 65 C45 75 55 85 50 95"/>
+        <path d="M40 63 C30 75 45 85 35 95"/>
+        <path d="M60 63 C70 75 55 85 65 95"/>
+        <path d="M30 58 C15 70 35 85 20 92"/>
+        <path d="M70 58 C85 70 65 85 80 92"/>
+      </g>
+      <g fill="white">
+        <circle cx="42" cy="40" r="3.5"/>
+        <circle cx="58" cy="40" r="3.5"/>
+      </g>
+    </svg>
+    <h1>CLAUDE SESSIONS</h1>
+    <a href="index.html">← Dashboard</a>
+  </div>
+  <div class="divider"></div>
+</header>
+
+<main>
+
+  <!-- PROJEKTY -->
+  <div class="card card-full">
+    <h2>Struktura projektů (max 5–8)</h2>
+    <div class="projects-grid">
+
+      <div class="project-tile p-gol-obsah">
+        <div class="badge">1</div>
+        <div class="name">GOL Help – obsah</div>
+        <div class="desc">Texty, návody, help centrum, dokumentace pro uživatele</div>
+      </div>
+
+      <div class="project-tile p-gol-tech">
+        <div class="badge">2</div>
+        <div class="name">GOL Help – technické</div>
+        <div class="desc">Integrace, configy, bugs, technická řešení, GitLab</div>
+      </div>
+
+      <div class="project-tile p-klienti">
+        <div class="badge">3</div>
+        <div class="name">Klienti – komunikace</div>
+        <div class="desc">E-maily, onboarding, reporty, schůzky s klienty</div>
+      </div>
+
+      <div class="project-tile p-napady">
+        <div class="badge">4</div>
+        <div class="name">Nápady / experimenty</div>
+        <div class="desc">Prototypy, průzkum nástrojů, testování přístupů</div>
+      </div>
+
+      <div class="project-tile p-archiv">
+        <div class="badge">5</div>
+        <div class="name">Archiv</div>
+        <div class="desc">Hotové chaty — při pochybách sem. Neblokuj se.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- POJMENOVÁNÍ -->
+  <div class="card">
+    <h2>Šablona názvů chatů</h2>
+    <div class="template-box">[Téma] – [výstup] – [YYYY-MM-DD]</div>
+    <p class="example">Příklad: <strong>Import docs – checklist – 2026-04-14</strong></p>
+    <p class="example" style="margin-top:8px">Dokončený: <strong>MIGRATED – Import docs – checklist – 2026-04-14</strong></p>
+
+    <div style="margin-top: 24px;">
+      <h2 style="margin-bottom:14px">Prioritizace migrace</h2>
+      <div class="waves">
+        <div class="wave wave-a">
+          <div class="wave-label">A</div>
+          <div class="wave-desc">
+            Aktivní chaty z posledních 14 dnů
+            <span>Migruj teď — jsou to rozdělaná práce</span>
+          </div>
+        </div>
+        <div class="wave wave-b">
+          <div class="wave-label">B</div>
+          <div class="wave-desc">
+            Důležité referenční chaty
+            <span>Rozhodnutí, klíčové výstupy, šablony</span>
+          </div>
+        </div>
+        <div class="wave wave-c">
+          <div class="wave-label">C</div>
+          <div class="wave-desc">
+            Zbytek → Archiv
+            <span>Nepřemýšlej, jen přesuň</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MIGRAČNÍ ŠABLONA -->
+  <div class="card">
+    <h2>Migrační šablona (kopíruj do nového chatu)</h2>
+    <textarea class="migration-textarea" id="migrationTemplate">Cíl:
+<co přesně chci dokončit>
+
+Kontext:
+- <důležitý fakt 1>
+- <důležitý fakt 2>
+- <omezení / deadline>
+- <co už bylo rozhodnuto>
+
+Dosavadní výstupy:
+- <shrnutí výsledků ze starého chatu>
+- <odkazy / texty / drafty>
+
+První úkol pro tebe:
+<jednoznačný next step></textarea>
+    <button class="copy-btn" id="copyMigration" onclick="copyTemplate()">Kopírovat šablonu</button>
+  </div>
+
+  <!-- INSTRUKCE PRO PROJEKTY -->
+  <div class="card">
+    <h2>Instrukce pro každý projekt</h2>
+    <div class="instructions-grid">
+
+      <div class="instr-block">
+        <div class="instr-name">GOL Help – obsah</div>
+        <p id="instr-1">Piš stručně a akčně. Vždy navrhni 1) nejbližší krok, 2) checklist, 3) rizika. Výstupy jsou texty pro uživatele GOL IBE — bez technikálií, srozumitelně. Když chybí kontext, polož max 3 cílené otázky.</p>
+        <button class="instr-copy-btn" onclick="copyInstr('instr-1', this)">Kopírovat</button>
+      </div>
+
+      <div class="instr-block">
+        <div class="instr-name">GOL Help – technické</div>
+        <p id="instr-2">Piš stručně a akčně. Vždy navrhni 1) nejbližší krok, 2) checklist, 3) rizika. Kontext: integrace mezi GOL IBE, backoffice a externími systémy. Preferuj konkrétní příklady a kód. Když chybí kontext, polož max 3 cílené otázky.</p>
+        <button class="instr-copy-btn" onclick="copyInstr('instr-2', this)">Kopírovat</button>
+      </div>
+
+      <div class="instr-block">
+        <div class="instr-name">Klienti – komunikace</div>
+        <p id="instr-3">Piš stručně a akčně. Vždy navrhni 1) nejbližší krok, 2) checklist, 3) rizika. Tón: profesionální, vstřícný, bez zbytečné délky. Výstupy jsou e-maily a zprávy pro cestovní agentury. Když chybí kontext, polož max 3 cílené otázky.</p>
+        <button class="instr-copy-btn" onclick="copyInstr('instr-3', this)">Kopírovat</button>
+      </div>
+
+      <div class="instr-block">
+        <div class="instr-name">Nápady / experimenty</div>
+        <p id="instr-4">Buď kreativní a přímý. Navrhuj varianty, hodnoť proveditelnost, upozorni na past. Cílem je rychlý průzkum — netřeba dotahovat do finálního stavu. Když chybí kontext, polož max 3 cílené otázky.</p>
+        <button class="instr-copy-btn" onclick="copyInstr('instr-4', this)">Kopírovat</button>
+      </div>
+
+      <div class="instr-block">
+        <div class="instr-name">Archiv (všechny projekty – univerzální)</div>
+        <p id="instr-5">Piš stručně a akčně. Vždy navrhni 1) nejbližší krok, 2) checklist, 3) rizika. Když chybí kontext, nejdřív polož max 3 cílené otázky.</p>
+        <button class="instr-copy-btn" onclick="copyInstr('instr-5', this)">Kopírovat</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CHECKLIST -->
+  <div class="card card-full">
+    <h2>Kontrolní checklist „hotovo"</h2>
+    <div class="checklist" id="checklist">
+      <label class="check-item" id="ci-0">
+        <input type="checkbox" onchange="toggleCheck(0)">
+        <span>Mám max 5–8 projektů v Claude</span>
+      </label>
+      <label class="check-item" id="ci-1">
+        <input type="checkbox" onchange="toggleCheck(1)">
+        <span>Aktivní chaty (posledních 14 dní) jsou migrované do projektů</span>
+      </label>
+      <label class="check-item" id="ci-2">
+        <input type="checkbox" onchange="toggleCheck(2)">
+        <span>Staré chaty jsou přejmenované s prefixem <strong>MIGRATED –</strong></span>
+      </label>
+      <label class="check-item" id="ci-3">
+        <input type="checkbox" onchange="toggleCheck(3)">
+        <span>Každý projekt má vyplněné instrukce (viz výše)</span>
+      </label>
+      <label class="check-item" id="ci-4">
+        <input type="checkbox" onchange="toggleCheck(4)">
+        <span>Vím, kde je projekt Archiv a kdy ho použít</span>
+      </label>
+      <label class="check-item" id="ci-5">
+        <input type="checkbox" onchange="toggleCheck(5)">
+        <span>Nové chaty pojmenovávám podle šablony [Téma] – [výstup] – [datum]</span>
+      </label>
+    </div>
+  </div>
+
+</main>
+
+<footer>Claude Sessions – struktura projektů · Dashboard</footer>
+
+<script>
+// Checklist persistence
+const CHECKS_KEY = "claudeSessionsChecks";
+function loadChecks() {
+  const saved = JSON.parse(localStorage.getItem(CHECKS_KEY) || "{}");
+  document.querySelectorAll(".check-item").forEach((label, i) => {
+    const cb = label.querySelector("input[type=checkbox]");
+    if (saved[i]) { cb.checked = true; label.classList.add("done"); }
+  });
+}
+function toggleCheck(i) {
+  const label = document.getElementById("ci-" + i);
+  const cb = label.querySelector("input");
+  label.classList.toggle("done", cb.checked);
+  const saved = JSON.parse(localStorage.getItem(CHECKS_KEY) || "{}");
+  saved[i] = cb.checked;
+  localStorage.setItem(CHECKS_KEY, JSON.stringify(saved));
+}
+loadChecks();
+
+// Copy migration template
+function copyTemplate() {
+  const ta = document.getElementById("migrationTemplate");
+  navigator.clipboard.writeText(ta.value).then(() => {
+    const btn = document.getElementById("copyMigration");
+    btn.textContent = "Zkopírováno ✓";
+    btn.classList.add("ok");
+    setTimeout(() => { btn.textContent = "Kopírovat šablonu"; btn.classList.remove("ok"); }, 2000);
+  });
+}
+
+// Copy individual instructions
+function copyInstr(id, btn) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = "Zkopírováno ✓";
+    btn.classList.add("ok");
+    setTimeout(() => { btn.textContent = "Kopírovat"; btn.classList.remove("ok"); }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

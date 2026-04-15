@@ -1,57 +1,50 @@
 """
 Page 3 – Agency Health Check
-─────────────────────────────
-Visual dashboard showing how effectively the agency uses the GOL IBE system.
-Highlights unused features, configuration gaps, and usage trends.
-
-Data sources (configure in .env):
-  - CSV/Excel export from Metabase (current default – drop file in data/)
-  - Direct Metabase embed (set METABASE_EMBED_TOKEN)
-  - Google Sheets via service account (set GOOGLE_SHEETS_CREDS)
+Visual dashboard showing system usage and feature adoption.
 """
 
+import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
 st.set_page_config(
-    page_title="Agency Health Check · GOL IBE Help",
+    page_title="Agency Health · New Help Portal",
     page_icon="📊",
     layout="wide",
 )
 
 st.title("📊 Agency Health Check")
-st.caption(
-    "See how your agency is using GOL IBE and discover features you haven't tried yet."
-)
+st.caption("See how your agency is using GOL IBE and discover features you haven't tried yet.")
 
-# ── Demo / placeholder data ───────────────────────────────────────────────────
-# TODO: replace with real data pull from Metabase / Google Sheets
-DEMO_METRICS = {
+# ── Demo data (replace with Metabase / Sheets when ready) ────────────────────
+METRICS = {
     "Reservations this month": 142,
-    "Tickets issued":          118,
-    "Active agents":             7,
-    "Open support tickets":      2,
+    "Tickets issued": 118,
+    "Active agents": 7,
+    "Open support tickets": 2,
 }
 
 FEATURE_USAGE = pd.DataFrame({
-    "Feature":    ["Online booking", "Markup rules", "Email notifications",
-                   "Customer profiles", "Statistics", "API connector"],
-    "Used":       [True, True, True, False, False, False],
-    "Setup score":[95, 70, 60, 0, 0, 0],
+    "Feature":     ["Online booking", "Markup rules", "Email notifications",
+                    "Customer profiles", "Statistics", "API connector"],
+    "Used":        [True, True, True, False, False, False],
+    "Setup score": [95, 70, 60, 0, 0, 0],
 })
 
-MONTHLY_BOOKINGS = pd.DataFrame({
+MONTHLY = pd.DataFrame({
     "Month":        ["Oct", "Nov", "Dec", "Jan", "Feb", "Mar"],
     "Reservations": [88, 102, 134, 97, 119, 142],
     "Issued":       [72, 90, 122, 80, 99, 118],
 })
 
-# ── KPI row ───────────────────────────────────────────────────────────────────
-cols = st.columns(len(DEMO_METRICS))
-for col, (label, value) in zip(cols, DEMO_METRICS.items()):
+# ── KPIs ──────────────────────────────────────────────────────────────────────
+cols = st.columns(len(METRICS))
+for col, (label, value) in zip(cols, METRICS.items()):
     col.metric(label, value)
 
 st.divider()
@@ -62,7 +55,7 @@ c1, c2 = st.columns(2)
 with c1:
     st.markdown("#### Monthly activity")
     fig = px.bar(
-        MONTHLY_BOOKINGS, x="Month",
+        MONTHLY, x="Month",
         y=["Reservations", "Issued"],
         barmode="group",
         color_discrete_map={"Reservations": "#1e40af", "Issued": "#0ea5e9"},
@@ -85,18 +78,10 @@ with c2:
 
 # ── Recommendations ───────────────────────────────────────────────────────────
 st.markdown("#### 💡 Recommendations")
-unused = FEATURE_USAGE[~FEATURE_USAGE["Used"]]
-for _, row in unused.iterrows():
+for _, row in FEATURE_USAGE[~FEATURE_USAGE["Used"]].iterrows():
     with st.expander(f"🔓 Unlock **{row['Feature']}** – not configured yet"):
-        st.markdown(
-            f"Your agency hasn't set up **{row['Feature']}** yet. "
-            "This feature can save you time and improve the booking experience."
-        )
+        st.markdown(f"Set up **{row['Feature']}** to get more value from GOL IBE.")
         st.page_link("pages/2_Walkthroughs.py", label="👉 Open setup guide")
 
-# ── Data source notice ────────────────────────────────────────────────────────
 st.divider()
-st.caption(
-    "📌 **Demo data only.** Connect real data by setting `METABASE_EMBED_TOKEN` "
-    "or `GOOGLE_SHEETS_CREDS` in your `.env` file."
-)
+st.caption("📌 Demo data only. Connect real data via `METABASE_EMBED_TOKEN` in `.env`.")

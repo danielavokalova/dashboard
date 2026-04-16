@@ -1,23 +1,326 @@
-/* Customer Portal — global overrides for Streamlit */
+/* ============================================================
+   Customer Portal — GOL IBE visual theme
+   Primary orange : #F26322
+   Dark navy      : #1a2744
+   Background     : #e8edf2
+   ============================================================ */
+
+/* ---------- Global typography & background ---------- */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+html, body, [class*="css"] {
+    font-family: "Nunito", "Segoe UI", system-ui, sans-serif !important;
+}
 
 [data-testid="stAppViewContainer"] {
-    background-color: #f5f7fa;
+    background-color: #e8edf2;
 }
 
+[data-testid="stMain"] > div {
+    padding-top: 1.5rem;
+}
+
+/* ---------- Sidebar ---------- */
 [data-testid="stSidebar"] {
     background-color: #ffffff;
-    border-right: 1px solid #e2e8f0;
+    border-right: 1px solid #d1dbe6;
 }
 
-h1, h2, h3 {
-    font-family: "Segoe UI", system-ui, sans-serif;
-    color: #1a202c;
+[data-testid="stSidebar"] .stMarkdown p,
+[data-testid="stSidebar"] span,
+[data-testid="stSidebar"] label {
+    color: #1a2744;
 }
 
-/* Tile-style metric cards */
+/* Sidebar nav links */
+[data-testid="stSidebarNav"] a {
+    border-radius: 8px;
+    transition: background 0.15s;
+    color: #1a2744 !important;
+    font-weight: 600;
+}
+
+[data-testid="stSidebarNav"] a:hover {
+    background: #fef0e8 !important;
+    color: #F26322 !important;
+}
+
+[data-testid="stSidebarNav"] a[aria-current="page"] {
+    background: #fef0e8 !important;
+    color: #F26322 !important;
+    border-left: 3px solid #F26322;
+}
+
+/* ---------- Headings ---------- */
+h1, h2, h3, h4 {
+    font-family: "Nunito", "Segoe UI", system-ui, sans-serif !important;
+    color: #1a2744 !important;
+    font-weight: 800 !important;
+}
+
+h1 { font-size: 2rem !important; }
+h2 { font-size: 1.5rem !important; }
+h3 { font-size: 1.2rem !important; }
+
+/* ---------- White content cards ---------- */
+[data-testid="stVerticalBlock"] > [data-testid="stVerticalBlock"],
+section[data-testid="stSidebar"] > div {
+    border-radius: 12px;
+}
+
+/* Card wrapper for main panels */
+div[data-testid="stForm"],
+div.stChatFloatingInputContainer {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #d1dbe6;
+    box-shadow: 0 2px 10px rgba(26, 39, 68, 0.06);
+    padding: 1.5rem;
+}
+
+/* ---------- Metric tiles (Agency Health) ---------- */
 [data-testid="stMetric"] {
     background: #ffffff;
     border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 20px 24px;
+    box-shadow: 0 2px 10px rgba(26, 39, 68, 0.07);
+    border: 1px solid #e2eaf2;
+}
+
+[data-testid="stMetricLabel"] {
+    color: #6b7a99 !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+[data-testid="stMetricValue"] {
+    color: #1a2744 !important;
+    font-size: 2rem !important;
+    font-weight: 800 !important;
+}
+
+[data-testid="stMetricDelta"] {
+    color: #F26322 !important;
+    font-weight: 600 !important;
+}
+
+/* ---------- Buttons (GOL orange) ---------- */
+button[kind="primary"],
+[data-testid="baseButton-primary"],
+button[data-testid="baseButton-primary"] {
+    background-color: #F26322 !important;
+    border: none !important;
+    border-radius: 8px !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.03em;
+    transition: background 0.15s, box-shadow 0.15s;
+    box-shadow: 0 2px 8px rgba(242, 99, 34, 0.30);
+}
+
+button[kind="primary"]:hover,
+[data-testid="baseButton-primary"]:hover {
+    background-color: #d9541a !important;
+    box-shadow: 0 4px 14px rgba(242, 99, 34, 0.40) !important;
+}
+
+button[kind="secondary"],
+[data-testid="baseButton-secondary"] {
+    border: 2px solid #F26322 !important;
+    color: #F26322 !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    font-weight: 700 !important;
+}
+
+button[kind="secondary"]:hover {
+    background: #fef0e8 !important;
+}
+
+/* ---------- Inputs & text areas ---------- */
+input[type="text"], textarea, [data-baseweb="input"] input {
+    border-radius: 8px !important;
+    border: 1.5px solid #c9d4e0 !important;
+    font-family: inherit !important;
+    background: #ffffff !important;
+    color: #1a2744 !important;
+    transition: border-color 0.15s;
+}
+
+input[type="text"]:focus, textarea:focus,
+[data-baseweb="input"] input:focus {
+    border-color: #F26322 !important;
+    box-shadow: 0 0 0 3px rgba(242, 99, 34, 0.12) !important;
+}
+
+/* ---------- Info / alert boxes ---------- */
+[data-testid="stInfo"] {
+    background: #eef4fb !important;
+    border-left: 4px solid #4a90d9 !important;
+    border-radius: 8px !important;
+    color: #1a2744 !important;
+}
+
+[data-testid="stWarning"] {
+    background: #fff7ed !important;
+    border-left: 4px solid #F26322 !important;
+    border-radius: 8px !important;
+}
+
+[data-testid="stSuccess"] {
+    background: #edfaf3 !important;
+    border-left: 4px solid #28a76a !important;
+    border-radius: 8px !important;
+}
+
+/* ---------- Expanders (Walkthroughs steps) ---------- */
+[data-testid="stExpander"] {
+    background: #ffffff;
+    border: 1px solid #d1dbe6 !important;
+    border-radius: 10px !important;
+    box-shadow: 0 1px 5px rgba(26, 39, 68, 0.05);
+    margin-bottom: 8px;
+}
+
+[data-testid="stExpander"] summary {
+    font-weight: 700 !important;
+    color: #1a2744 !important;
+}
+
+[data-testid="stExpander"] summary:hover {
+    color: #F26322 !important;
+}
+
+/* ---------- Navigation tiles (homepage) ---------- */
+.nav-tile {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1.5px solid #e2eaf2;
+    box-shadow: 0 2px 10px rgba(26, 39, 68, 0.06);
+    padding: 28px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s;
+    text-decoration: none;
+    display: block;
+}
+
+.nav-tile:hover {
+    box-shadow: 0 6px 24px rgba(242, 99, 34, 0.15);
+    border-color: #F26322;
+    transform: translateY(-2px);
+}
+
+.nav-tile .tile-icon {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.nav-tile .tile-label {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #1a2744;
+}
+
+.nav-tile .tile-sub {
+    font-size: 0.82rem;
+    color: #6b7a99;
+    margin-top: 4px;
+}
+
+/* ---------- Search bar (Omnisearch) ---------- */
+.omnisearch-wrap {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1.5px solid #d1dbe6;
+    box-shadow: 0 2px 10px rgba(26, 39, 68, 0.06);
+    padding: 16px 20px;
+    margin-bottom: 1.5rem;
+}
+
+/* ---------- Chat messages ---------- */
+[data-testid="stChatMessage"] {
+    border-radius: 10px !important;
+    margin-bottom: 8px;
+}
+
+[data-testid="stChatMessage"][data-role="user"] {
+    background: #fef0e8 !important;
+}
+
+[data-testid="stChatMessage"][data-role="assistant"] {
+    background: #ffffff !important;
+    border: 1px solid #e2eaf2 !important;
+}
+
+/* Chat input */
+[data-testid="stChatInput"] textarea {
+    border-radius: 24px !important;
+    border: 1.5px solid #c9d4e0 !important;
+    padding: 12px 20px !important;
+}
+
+[data-testid="stChatInput"] button {
+    background: #F26322 !important;
+    border-radius: 50% !important;
+}
+
+/* ---------- Dividers ---------- */
+hr {
+    border-color: #d1dbe6 !important;
+    margin: 1.2rem 0 !important;
+}
+
+/* ---------- Caption / small text ---------- */
+.stCaption, small, [data-testid="stCaptionContainer"] {
+    color: #6b7a99 !important;
+}
+
+/* ---------- Page link buttons ---------- */
+[data-testid="stPageLink"] a {
+    border: 1.5px solid #e2eaf2 !important;
+    border-radius: 10px !important;
+    background: #ffffff !important;
+    padding: 12px 16px !important;
+    color: #1a2744 !important;
+    font-weight: 700 !important;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+[data-testid="stPageLink"] a:hover {
+    border-color: #F26322 !important;
+    background: #fef0e8 !important;
+    color: #F26322 !important;
+}
+
+/* ---------- Spinner ---------- */
+[data-testid="stSpinner"] > div {
+    border-top-color: #F26322 !important;
+}
+
+/* ---------- Tab navigation ---------- */
+[data-baseweb="tab-list"] {
+    background: #dde5ee !important;
+    border-radius: 10px !important;
+    padding: 4px !important;
+    gap: 4px !important;
+}
+
+[data-baseweb="tab"] {
+    border-radius: 7px !important;
+    font-weight: 700 !important;
+    color: #6b7a99 !important;
+}
+
+[aria-selected="true"][data-baseweb="tab"] {
+    background: #ffffff !important;
+    color: #1a2744 !important;
+    box-shadow: 0 1px 4px rgba(26, 39, 68, 0.10) !important;
+}
+
+[data-baseweb="tab-highlight"] {
+    background: transparent !important;
 }

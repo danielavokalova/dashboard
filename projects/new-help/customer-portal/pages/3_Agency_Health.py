@@ -1,12 +1,18 @@
 import streamlit as st
+from core.ui import apply_theme, gol_header
 
-st.set_page_config(page_title="Agency Health", page_icon="📊", layout="wide")
-st.title("📊 Agency Health Check")
+st.set_page_config(page_title="Agency Health – GOL", page_icon="📊", layout="wide")
+apply_theme()
+gol_header("Agency Health")
+
+st.markdown("### 📊 Agency Health Check")
 st.caption("Vizuální přehled toho, jak efektivně klient systém využívá.")
 
 st.info("Tato sekce bude napojena na data z Google Sheets / Metabase.")
 
-col1, col2, col3 = st.columns(3)
+st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+
+col1, col2, col3 = st.columns(3, gap="medium")
 with col1:
     st.metric("Tickets tento měsíc", "—", help="Počet rezervací")
 with col2:

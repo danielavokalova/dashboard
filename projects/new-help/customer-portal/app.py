@@ -9,7 +9,8 @@ st.set_page_config(
 )
 
 # ── inject CSS ──────────────────────────────────────────────────
-css = Path("assets/style.css").read_text(encoding="utf-8")
+_CSS = Path(__file__).parent / "assets" / "style.css"
+css = _CSS.read_text(encoding="utf-8")
 st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
 
 # ── Header ──────────────────────────────────────────────────────

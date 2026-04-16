@@ -2,71 +2,92 @@ import streamlit as st
 from pathlib import Path
 
 st.set_page_config(
-    page_title="GOL Customer Portal",
-    page_icon="🟠",
+    page_title="New Help Portal",
+    page_icon="✈️",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# ── inject CSS ──────────────────────────────────────────────────
+# ── CSS ─────────────────────────────────────────────────────────
 _CSS = Path(__file__).parent / "assets" / "style.css"
-css = _CSS.read_text(encoding="utf-8")
-st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
+st.markdown(f"<style>{_CSS.read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
 
-# ── Header ──────────────────────────────────────────────────────
+# ── Sidebar branding ─────────────────────────────────────────────
+with st.sidebar:
+    st.markdown("""
+    <div class="sidebar-brand">
+        <span style="font-size:1.3rem;">✈️</span>
+        <div>
+            <div class="sidebar-title">New Help Portal</div>
+            <div class="sidebar-sub">GOL IBE Admin Console</div>
+        </div>
+    </div>
+    <hr class="sidebar-hr">
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="sidebar-version">v0.1 · Help Center prototype</div>
+    """, unsafe_allow_html=True)
+
+# ── Hero banner ──────────────────────────────────────────────────
 st.markdown("""
-<div style="display:flex; align-items:center; gap:16px; margin-bottom:0.5rem;">
-  <div style="
-    background:#F26322; border-radius:50%; width:54px; height:54px;
-    display:flex; align-items:center; justify-content:center;
-    font-weight:900; font-size:1.1rem; color:#fff; letter-spacing:-1px;
-    box-shadow: 0 3px 10px rgba(242,99,34,0.35);
-  ">GOL</div>
-  <div>
-    <div style="font-size:1.05rem; color:#6b7a99; font-weight:600; line-height:1.1;">Your next trip</div>
-    <div style="font-size:1.05rem; color:#1a2744; font-weight:800; line-height:1.1;">starts here</div>
-  </div>
-  <div style="flex:1;"></div>
-  <div style="color:#6b7a99; font-size:0.9rem; font-weight:600;">Customer Portal — Travelport GOL IBE</div>
+<div class="hero-banner">
+    <div class="hero-title">✈️ New Help Portal</div>
+    <div class="hero-sub">Your smart guide to the GOL IBE Admin Console. Get answers instantly.</div>
 </div>
-<hr style="margin:0.75rem 0 1.25rem 0;">
 """, unsafe_allow_html=True)
 
-# ── Omnisearch ───────────────────────────────────────────────────
+# ── Search ───────────────────────────────────────────────────────
 query = st.text_input(
     "",
-    placeholder="🔍  Hledej akce, návody, nastavení… (např. 'jak přidat uživatele')",
+    placeholder="🔍  Search anything… e.g. 'add new user', 'configure markup', 'cancel reservation'",
     label_visibility="collapsed",
 )
-
 if query and query.strip():
     from core.search import search
     hits = search(query)
     if hits:
         for h in hits:
-            st.markdown(f"**{h['title']}** · skóre {h['score']}  \n{h['snippet']}")
+            st.markdown(f"**{h['title']}** — {h['snippet']}")
     else:
-        st.info("Žádné výsledky. Zkus jiný dotaz nebo použij AI Pomocníka.")
+        st.info("Žádné výsledky. Zkus jiný dotaz nebo použij AI Assistanta.")
+
+st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+st.markdown("### Browse by topic")
+st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
+
+# ── Topic tiles ──────────────────────────────────────────────────
+topics = [
+    ("🏢", "Agency",          "Profile, settings, branding"),
+    ("🤝", "Dealers",         "Dealer accounts and commissions"),
+    ("👤", "Customers",       "Passenger profiles and loyalty data"),
+    ("🎫", "Reservations",    "Create, modify and cancel bookings"),
+    ("💰", "Prices & Markup", "Fares, markups and surcharges"),
+    ("📋", "Code Lists",      "Carriers, destinations, cache"),
+    ("👥", "Users",           "Agents, roles, passwords"),
+    ("🔔", "Notifications",   "Email templates and alerts"),
+]
+
+def _card(icon, title, sub):
+    return f"""
+    <div class="topic-card">
+      <div class="topic-icon">{icon}</div>
+      <div class="topic-title">{title}</div>
+      <div class="topic-sub">{sub}</div>
+    </div>
+    """
+
+row1 = st.columns(4, gap="medium")
+row2 = st.columns(4, gap="medium")
+
+for col, (icon, title, sub) in zip(row1, topics[:4]):
+    with col:
+        st.markdown(_card(icon, title, sub), unsafe_allow_html=True)
+        st.markdown("<div class='explore-link'>Explore →</div>", unsafe_allow_html=True)
 
 st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
-# ── Navigation tiles ─────────────────────────────────────────────
-st.markdown("### Kde chceš začít?")
-
-tiles = [
-    ("pages/1_AI_Assistant.py",  "💬", "AI Pomocník",    "Zeptej se na cokoliv"),
-    ("pages/2_Walkthroughs.py",  "🗺️", "Průvodci",       "Krok za krokem"),
-    ("pages/3_Agency_Health.py", "📊", "Agency Health",  "Přehled výkonu agentury"),
-    ("pages/4_Changelog.py",     "🆕", "Co je nového",   "Release notes"),
-]
-
-cols = st.columns(4, gap="medium")
-for col, (page, icon, label, sub) in zip(cols, tiles):
+for col, (icon, title, sub) in zip(row2, topics[4:]):
     with col:
-        st.markdown(f"""
-        <a class="nav-tile" href="{page}" target="_self">
-          <span class="tile-icon">{icon}</span>
-          <div class="tile-label">{label}</div>
-          <div class="tile-sub">{sub}</div>
-        </a>
-        """, unsafe_allow_html=True)
+        st.markdown(_card(icon, title, sub), unsafe_allow_html=True)
+        st.markdown("<div class='explore-link'>Explore →</div>", unsafe_allow_html=True)

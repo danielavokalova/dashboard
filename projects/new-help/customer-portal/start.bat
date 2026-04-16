@@ -17,14 +17,21 @@ if errorlevel 1 (
     exit /b 1
 )
 
+:: Zkontroluj Git
+git --version >nul 2>&1
+if errorlevel 1 (
+    echo [UPOZORNENI] Git neni nainstalovan – automaticke aktualizace nebudou fungovat.
+    echo Stahni z: https://git-scm.com/download/win
+)
+
 :: Prejdi do slozky skriptu
 cd /d "%~dp0"
 
 :: Zkontroluj .env soubor
 if not exist ".env" (
-    echo [UPOZORNENI] Soubor .env nenalezen – kopiruji z .env.example
+    echo [INFO] Vytvarim .env ze sablony...
     copy ".env.example" ".env" >nul
-    echo Otevri soubor .env a doplň svuj ANTHROPIC_API_KEY pro AI chat.
+    echo [INFO] Doplnte ANTHROPIC_API_KEY do souboru .env pro AI chat.
     echo.
 )
 
@@ -40,14 +47,22 @@ if errorlevel 1 (
     )
 )
 
+:: Spust kontrolu aktualizaci na pozadi (kazde 3 minuty)
+start "GOL-Updater" /min cmd /c "%~dp0update_checker.bat"
+
 echo [OK] Spoustim Customer Portal na http://localhost:8501
-echo [INFO] Pro ukonceni stiskni Ctrl+C v tomto okne
+echo [INFO] Aktualizace ze serveru se kontroluji automaticky.
+echo [INFO] Pro ukonceni zavri toto okno.
 echo.
 
-:: Spust Streamlit
+:: Spust a automaticky restartuj pri padu
 :restart
+:: Stahni nejnovejsi kod pred kazdym startem
+git pull origin claude/new-project-setup-lle2T --quiet 2>nul && echo [INFO] Kod aktualizovan.
+
 streamlit run app.py --server.address localhost --server.port 8501
+
 echo.
-echo [INFO] App skoncila. Restartuji za 3 sekundy... (Ctrl+C pro ukonceni)
+echo [INFO] App skoncila. Restartuji za 3 sekundy... (zavri okno pro ukonceni)
 timeout /t 3 /nobreak >nul
 goto restart

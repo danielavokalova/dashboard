@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brain Not Found</title>
+<style>
+:root {
+  --ink: #1f2a2a;
+  --blue-muted: #4f6a6c;
+  --blue-line: #425c5e;
+  --paper: rgba(245,246,244,0.92);
+  --tile-bg: rgba(245,246,244,0.9);
+  --tile-shadow: rgba(90,115,115,0.35);
+  --notes-bg: rgba(245,246,244,0.94);
+  --octopus: #8f3e4a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  color: var(--ink);
+  background-color: #c8d0cb;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cg fill='none' stroke='%23425c5e' stroke-width='0.5' opacity='0.22'%3E%3Cellipse cx='45' cy='70' rx='20' ry='34' transform='rotate(-25 45 70)'/%3E%3Cellipse cx='185' cy='45' rx='15' ry='26' transform='rotate(18 185 45)'/%3E%3Cellipse cx='115' cy='175' rx='22' ry='36' transform='rotate(-12 115 175)'/%3E%3Cellipse cx='200' cy='155' rx='13' ry='22' transform='rotate(28 200 155)'/%3E%3Cellipse cx='25' cy='190' rx='17' ry='28' transform='rotate(8 25 190)'/%3E%3Cellipse cx='240' cy='100' rx='11' ry='19' transform='rotate(-30 240 100)'/%3E%3Cellipse cx='80' cy='230' rx='14' ry='24' transform='rotate(15 80 230)'/%3E%3Cpath d='M45 36 Q58 22 70 36' stroke-width='0.7'/%3E%3Cpath d='M185 19 Q196 7 206 19' stroke-width='0.7'/%3E%3Cpath d='M115 139 Q128 125 140 139' stroke-width='0.7'/%3E%3Cpath d='M25 162 Q36 150 46 162' stroke-width='0.7'/%3E%3Cline x1='45' y1='36' x2='45' y2='70' stroke-width='0.5'/%3E%3Cline x1='185' y1='19' x2='185' y2='45' stroke-width='0.5'/%3E%3Cline x1='115' y1='139' x2='115' y2='175' stroke-width='0.5'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ── HEADER ── */
+header { padding: 36px 56px 24px; }
+
+.header-row {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.logo-chobotnice {
+  color: var(--octopus);
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.header-titles { display: flex; flex-direction: column; gap: 3px; }
+
+h1 {
+  font-size: 28px;
+  letter-spacing: 0.28em;
+  font-weight: 800;
+  color: var(--ink);
+  text-shadow: 0 1px 4px rgba(90,115,115,0.18);
+}
+
+.subtitle {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  font-weight: 700;
+  color: var(--octopus);
+  text-transform: uppercase;
+}
+
+#clock {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--blue-muted);
+  text-align: right;
+  line-height: 1.5;
+}
+
+.divider { height: 2px; background: var(--blue-line); margin-top: 18px; }
+
+/* ── MAIN ── */
+main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 44px;
+  padding: 40px 56px;
+}
+
+/* ── SECTIONS ── */
+.section-container { margin-bottom: 44px; }
+
+.section-label {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.4em;
+  color: var(--blue-muted);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+/* ── THOUGHT CARDS ── */
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.card {
+  background: var(--tile-bg);
+  border-radius: 18px;
+  padding: 22px 24px;
+  box-shadow: 0 8px 22px var(--tile-shadow);
+  backdrop-filter: blur(2px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  color: var(--blue-muted);
+  text-transform: uppercase;
+}
+
+.card textarea {
+  flex: 1;
+  border: none;
+  background: transparent;
+  resize: none;
+  font-family: inherit;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--ink);
+  outline: none;
+  min-height: 110px;
+}
+
+.card textarea::placeholder { color: #a0b4b4; }
+
+/* ── TILES ── */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 14px;
+}
+
+.tile {
+  height: 80px;
+  background: var(--tile-bg);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--blue-muted);
+  text-align: center;
+  line-height: 1.4;
+  box-shadow: 0 8px 22px var(--tile-shadow);
+  backdrop-filter: blur(2px);
+  text-decoration: none;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.tile:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px rgba(90,115,115,0.45);
+}
+
+/* ── SIDE ── */
+.side { display: flex; flex-direction: column; gap: 22px; }
+
+.error-badge {
+  background: var(--notes-bg);
+  border-radius: 26px;
+  padding: 28px 28px 22px;
+  box-shadow: 0 8px 26px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.error-badge .code {
+  font-size: 72px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: var(--octopus);
+  opacity: 0.15;
+  line-height: 1;
+  user-select: none;
+}
+
+.error-badge .msg {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  color: var(--blue-muted);
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+.error-badge .desc {
+  font-size: 12px;
+  color: var(--blue-muted);
+  opacity: 0.65;
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.notes {
+  flex: 1;
+  background: var(--notes-bg);
+  border-radius: 26px;
+  padding: 28px;
+  box-shadow: 0 8px 26px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.notes h2 {
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  margin-bottom: 18px;
+  color: var(--blue-muted);
+}
+
+.notes textarea {
+  flex: 1;
+  border: none;
+  background: transparent;
+  resize: none;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink);
+  outline: none;
+  min-height: 220px;
+}
+
+/* ── FOOTER ── */
+footer {
+  background: var(--paper);
+  border-top: 2px solid var(--blue-line);
+  padding: 0 56px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--blue-muted);
+  font-size: 13px;
+}
+
+footer a {
+  color: var(--blue-muted);
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+footer a:hover { opacity: 1; }
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-row">
+    <svg class="logo-chobotnice" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="40" r="25" fill="currentColor"/>
+      <g fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round">
+        <path d="M50 65 C45 75 55 85 50 95"/>
+        <path d="M40 63 C30 75 45 85 35 95"/>
+        <path d="M60 63 C70 75 55 85 65 95"/>
+        <path d="M30 58 C15 70 35 85 20 92"/>
+        <path d="M70 58 C85 70 65 85 80 92"/>
+      </g>
+      <g fill="white">
+        <circle cx="42" cy="40" r="3.5"/>
+        <circle cx="58" cy="40" r="3.5"/>
+      </g>
+    </svg>
+    <div class="header-titles">
+      <h1>BRAIN NOT FOUND</h1>
+      <span class="subtitle">Error 404 · Mozek nenalezen</span>
+    </div>
+    <div id="clock"></div>
+  </div>
+  <div class="divider"></div>
+</header>
+
+<main>
+  <div>
+
+    <div class="section-container">
+      <span class="section-label">Myšlenky</span>
+      <div class="cards">
+        <div class="card">
+          <span class="card-label">Aktuálně řeším</span>
+          <textarea id="current" placeholder="Co mi teď leží v hlavě…"></textarea>
+        </div>
+        <div class="card">
+          <span class="card-label">Nápady</span>
+          <textarea id="ideas" placeholder="Rychlé zachycení nápadů…"></textarea>
+        </div>
+        <div class="card">
+          <span class="card-label">Otázky</span>
+          <textarea id="questions" placeholder="Co chci zjistit nebo pochopit…"></textarea>
+        </div>
+        <div class="card">
+          <span class="card-label">Zítra</span>
+          <textarea id="tomorrow" placeholder="Co nesmím zapomenout…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-container">
+      <span class="section-label">Nástroje</span>
+      <div class="tiles">
+        <a class="tile" href="https://claude.ai/" target="_blank">CLAUDE</a>
+        <a class="tile" href="https://chatgpt.com/" target="_blank">GPT</a>
+        <a class="tile" href="https://gemini.google.com/app" target="_blank">GEMINI</a>
+        <a class="tile" href="https://www.notion.so/" target="_blank">NOTION</a>
+        <a class="tile" href="https://danielavokalova.github.io/dashboard/" target="_blank">DASHBOARD</a>
+      </div>
+    </div>
+
+  </div>
+
+  <aside class="side">
+    <div class="error-badge">
+      <div class="code">404</div>
+      <div class="msg">Brain Not Found</div>
+      <div class="desc">ale zápisky jsou v bezpečí</div>
+    </div>
+    <div class="notes">
+      <h2>POZNÁMKY</h2>
+      <textarea id="notes" placeholder="Volné myšlenky, citáty, cokoli…"></textarea>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  <span>brain not found · myšlenky · poznámky · 404</span>
+  <a href="https://danielavokalova.github.io/dashboard/" target="_blank">dashboard →</a>
+</footer>
+
+<script>
+const fields = ["current", "ideas", "questions", "tomorrow", "notes"];
+fields.forEach(id => {
+  const el = document.getElementById(id);
+  el.value = localStorage.getItem("bnf_" + id) || "";
+  el.addEventListener("input", () => localStorage.setItem("bnf_" + id, el.value));
+});
+
+const clock = document.getElementById("clock");
+function updateClock() {
+  const now = new Date();
+  const date = now.toLocaleDateString("cs-CZ", { weekday: "short", day: "numeric", month: "long", year: "numeric" });
+  const time = now.toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  clock.innerHTML = `${date}<br>${time}`;
+}
+updateClock();
+setInterval(updateClock, 1000);
+</script>
+
+</body>
+</html>

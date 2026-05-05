@@ -147,7 +147,7 @@
       padding: 12px;
       overflow: auto;
       font-size: 1rem;
-      line-height: 1.5;
+      line-height: 1.1;
       outline: none;
       word-break: break-word;
       overflow-wrap: break-word;
@@ -302,7 +302,7 @@
       padding: 6px;
       overflow: auto;
       font-size: 1rem;
-      line-height: 1.5;
+      line-height: 1.1;
       outline: none;
       word-break: break-word;
       overflow-wrap: break-word;
@@ -777,7 +777,7 @@
       const clone = document.createElement("div");
       clone.innerHTML = rawHtml;
 
-      const editorLineHeight = ideaEditor.style.lineHeight || "1.5";
+      const editorLineHeight = ideaEditor.style.lineHeight || "1.1";
       const isCompact = ideaEditor.classList.contains("compact-spacing");
 
       // Inline list indentation so email clients don't collapse it

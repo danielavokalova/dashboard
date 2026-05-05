@@ -158,6 +158,15 @@
       color: #9ca3af;
     }
 
+    .rich-editor p, .rich-editor div, .rich-editor ul, .rich-editor ol, .rich-editor li {
+      margin: 0;
+      padding: 0;
+    }
+
+    .rich-editor ul, .rich-editor ol {
+      padding-left: 20px;
+    }
+
     .panel {
       border: 1px solid var(--border);
       border-radius: 10px;
@@ -311,6 +320,15 @@
     .idea-editor:empty::before {
       content: attr(data-placeholder);
       color: #9ca3af;
+    }
+
+    .idea-editor p, .idea-editor div, .idea-editor ul, .idea-editor ol, .idea-editor li {
+      margin: 0;
+      padding: 0;
+    }
+
+    .idea-editor ul, .idea-editor ol {
+      padding-left: 20px;
     }
 
     .workspace textarea#auditInput {
@@ -789,17 +807,15 @@
         el.setAttribute("style", prev + ";padding-left:24px;margin-left:0;" + spacing);
       });
 
-      // Inline paragraph spacing
-      clone.querySelectorAll("p").forEach(function (el) {
+      // Inline paragraph spacing — always zero to match editor appearance
+      clone.querySelectorAll("p, div").forEach(function (el) {
         const prev = el.getAttribute("style") || "";
-        const spacing = isCompact ? "margin:0;" : "margin-top:0;margin-bottom:10px;";
-        el.setAttribute("style", prev + ";" + spacing);
+        el.setAttribute("style", prev + ";margin:0;padding:0;");
       });
 
-      // Inline li spacing
       clone.querySelectorAll("li").forEach(function (el) {
         const prev = el.getAttribute("style") || "";
-        if (isCompact) el.setAttribute("style", prev + ";margin:0;");
+        el.setAttribute("style", prev + ";margin:0;padding:0;");
       });
 
       // Apply editor line-height to divs without one

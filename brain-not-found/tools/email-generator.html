@@ -421,6 +421,8 @@
               <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-selection-style="normal">Normální blok</button>
               <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-selection-style="compact">Menší mezery</button>
               <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-editor-cmd="insertLineBreak">↵ Nový řádek</button>
+              <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-editor-cmd="insertLink">🔗 Odkaz</button>
+              <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-editor-cmd="unlink">× Odkaz</button>
             </div>
             <div id="templateBodyEditor" class="rich-editor" contenteditable="true" data-placeholder="Sem napiš základ šablony e-mailu..."></div>
           </div>
@@ -448,6 +450,8 @@
             <button class="editor-btn" type="button" data-editor-target="ideaEditor" data-editor-cmd="italic"><em>I</em></button>
             <button class="editor-btn" type="button" data-editor-target="ideaEditor" data-editor-cmd="insertUnorderedList">•</button>
             <button class="editor-btn" type="button" data-editor-target="ideaEditor" data-editor-cmd="insertLineBreak">↵</button>
+            <button class="editor-btn" type="button" data-editor-target="ideaEditor" data-editor-cmd="insertLink">🔗</button>
+            <button class="editor-btn" type="button" data-editor-target="ideaEditor" data-editor-cmd="unlink">× odkaz</button>
           </div>
           <div id="ideaEditor" class="idea-editor" contenteditable="true" data-placeholder="Sem se načte šablona nebo vygenerovaný e-mail."></div>
         </section>
@@ -1286,6 +1290,30 @@
         // insertLineBreak = soft <br>, not a new paragraph
         if (cmd === "insertLineBreak") {
           document.execCommand("insertHTML", false, "<br>");
+          return;
+        }
+
+        // insertLink: prompt for URL, wrap selection or insert new link
+        if (cmd === "insertLink") {
+          const url = prompt("URL:", "https://");
+          if (!url || url.trim() === "https://") return;
+          const clean = url.trim();
+          const sel = window.getSelection();
+          const hasSelection = sel && !sel.isCollapsed && targetEditor.contains(sel.anchorNode);
+          targetEditor.focus();
+          if (hasSelection) {
+            document.execCommand("createLink", false, clean);
+            // Set target="_blank" on the new link
+            targetEditor.querySelectorAll('a[href="' + clean + '"]').forEach(function (a) {
+              a.target = "_blank";
+              a.rel = "noopener noreferrer";
+            });
+          } else {
+            const text = prompt("Text odkazu:", clean) || clean;
+            document.execCommand("insertHTML", false,
+              '<a href="' + clean + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(text) + '</a>');
+          }
+          showToast("Odkaz vložen.");
           return;
         }
 

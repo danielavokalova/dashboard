@@ -135,9 +135,6 @@
       cursor: pointer;
     }
 
-    /* FIX: removed white-space:pre-wrap — it was embedding hard newlines from
-       the editor width into saved content, causing sentences to break mid-word
-       and huge gaps when the text was displayed at a different width in email */
     .rich-editor {
       border: 1px solid var(--border);
       border-radius: 8px;
@@ -158,7 +155,8 @@
       color: #9ca3af;
     }
 
-    .rich-editor p, .rich-editor div, .rich-editor ul, .rich-editor ol, .rich-editor li {
+    .rich-editor p, .rich-editor div,
+    .rich-editor ul, .rich-editor ol, .rich-editor li {
       margin: 0;
       padding: 0;
     }
@@ -300,7 +298,6 @@
       font-size: 0.9rem;
     }
 
-    /* FIX: removed white-space:pre-wrap */
     .idea-editor {
       border: 1px solid var(--border);
       border-radius: 8px;
@@ -322,7 +319,8 @@
       color: #9ca3af;
     }
 
-    .idea-editor p, .idea-editor div, .idea-editor ul, .idea-editor ol, .idea-editor li {
+    .idea-editor p, .idea-editor div,
+    .idea-editor ul, .idea-editor ol, .idea-editor li {
       margin: 0;
       padding: 0;
     }
@@ -427,18 +425,13 @@
             <div class="editor-toolbar">
               <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-editor-cmd="bold"><strong>B</strong></button>
               <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-editor-cmd="italic"><em>I</em></button>
+              <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-editor-cmd="underline"><u>U</u></button>
               <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-editor-cmd="removeFormat">Tx</button>
               <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-editor-cmd="insertUnorderedList">• List</button>
               <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-editor-cmd="insertOrderedList">1. List</button>
-              <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-editor-cmd="indent">↦ Odsadit</button>
-              <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-editor-cmd="outdent">↤ Předsadit</button>
-              <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-selection-lineheight="1.1">Vybrané 1.1</button>
-              <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-selection-lineheight="1.25">Vybrané 1.25</button>
-              <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-selection-lineheight="1.4">Vybrané 1.4</button>
-              <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-selection-style="narrow">Zúžit blok</button>
-              <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-selection-style="normal">Normální blok</button>
-              <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-selection-style="compact">Menší mezery</button>
-              <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-editor-cmd="insertLineBreak">↵ Nový řádek</button>
+              <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-editor-cmd="indent">↦</button>
+              <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-editor-cmd="outdent">↤</button>
+              <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-editor-cmd="insertLineBreak">↵</button>
               <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-editor-cmd="insertLink">🔗 Odkaz</button>
               <button class="editor-btn" type="button" data-editor-target="templateBodyEditor" data-editor-cmd="unlink">× Odkaz</button>
             </div>
@@ -450,6 +443,7 @@
           <button class="ghost" id="loadTemplateToEditorBtn" type="button">Načíst do editoru</button>
           <button class="ghost" id="updateTemplateBtn" type="button">Uložit změny</button>
           <button class="secondary" id="deleteSelectedBtn" type="button">Smazat vybranou</button>
+          <button class="ghost" id="loadDefaultsBtn" type="button">+ Přidat výchozí</button>
         </div>
       </aside>
 
@@ -466,7 +460,12 @@
           <div class="editor-toolbar">
             <button class="editor-btn" type="button" data-editor-target="ideaEditor" data-editor-cmd="bold"><strong>B</strong></button>
             <button class="editor-btn" type="button" data-editor-target="ideaEditor" data-editor-cmd="italic"><em>I</em></button>
-            <button class="editor-btn" type="button" data-editor-target="ideaEditor" data-editor-cmd="insertUnorderedList">•</button>
+            <button class="editor-btn" type="button" data-editor-target="ideaEditor" data-editor-cmd="underline"><u>U</u></button>
+            <button class="editor-btn" type="button" data-editor-target="ideaEditor" data-editor-cmd="removeFormat">Tx</button>
+            <button class="editor-btn" type="button" data-editor-target="ideaEditor" data-editor-cmd="insertUnorderedList">• List</button>
+            <button class="editor-btn" type="button" data-editor-target="ideaEditor" data-editor-cmd="insertOrderedList">1. List</button>
+            <button class="editor-btn" type="button" data-editor-target="ideaEditor" data-editor-cmd="indent">↦</button>
+            <button class="editor-btn" type="button" data-editor-target="ideaEditor" data-editor-cmd="outdent">↤</button>
             <button class="editor-btn" type="button" data-editor-target="ideaEditor" data-editor-cmd="insertLineBreak">↵</button>
             <button class="editor-btn" type="button" data-editor-target="ideaEditor" data-editor-cmd="insertLink">🔗</button>
             <button class="editor-btn" type="button" data-editor-target="ideaEditor" data-editor-cmd="unlink">× odkaz</button>
@@ -512,6 +511,7 @@
     const templateSelect = document.getElementById("templateSelect");
     const templateEditSelect = document.getElementById("templateEditSelect");
     const deleteSelectedBtn = document.getElementById("deleteSelectedBtn");
+    const loadDefaultsBtn = document.getElementById("loadDefaultsBtn");
     const editorButtons = document.querySelectorAll("[data-editor-target]");
     const toast = document.getElementById("toast");
 
@@ -523,7 +523,7 @@
     // Enter creates <p> elements, not <div>
     document.execCommand("defaultParagraphSeparator", false, "p");
 
-    // Shift+Enter = soft line break (<br>)
+    // Shift+Enter = soft line break
     [templateBodyEditor, ideaEditor].forEach(function (editor) {
       editor.addEventListener("keydown", function (e) {
         if (e.key === "Enter" && e.shiftKey) {
@@ -553,32 +553,6 @@
 
     function getEditorById(editorId) {
       return document.getElementById(editorId);
-    }
-
-    function adjustEditorLineHeight(editorEl, delta) {
-      if (!editorEl) return;
-      const current = parseFloat(editorEl.style.lineHeight || "1.5");
-      const next = Math.min(2.2, Math.max(1.1, current + delta));
-      editorEl.style.lineHeight = next.toFixed(2);
-      showToast("Řádkování upraveno.");
-    }
-
-    function setEditorLineHeight(editorEl, value) {
-      if (!editorEl) return;
-      const numeric = parseFloat(value);
-      if (!numeric || numeric <= 0) return;
-      editorEl.style.lineHeight = String(numeric);
-      showToast(`Řádkování ${numeric}.`);
-    }
-
-    function toggleCompactSpacing(editorEl) {
-      if (!editorEl) return;
-      editorEl.classList.toggle("compact-spacing");
-      if (editorEl.classList.contains("compact-spacing")) {
-        showToast("Odebrány mezery mezi odstavci.");
-      } else {
-        showToast("Obnoveny výchozí mezery.");
-      }
     }
 
     function applyStyleToSelection(editorEl, styleMap) {
@@ -657,7 +631,6 @@
         return;
       }
       if (bodyText && bodyText.trim()) {
-        // Convert plain text to proper <p> paragraphs — never use <br> chains
         const paragraphs = bodyText.split(/\n{2,}/);
         templateBodyEditor.innerHTML = paragraphs
           .map(function (p) {
@@ -733,9 +706,7 @@
 
         const tag = node.tagName.toLowerCase();
 
-        if (tag === "br") {
-          return "\n";
-        }
+        if (tag === "br") return "\n";
 
         if (tag === "ul" || tag === "ol") {
           let listOut = "";
@@ -749,16 +720,14 @@
           return listOut ? listOut + "\n" : "";
         }
 
-        if (tag === "li") {
-          return serializeListItem(node);
-        }
+        if (tag === "li") return serializeListItem(node);
 
         const content = serializeChildren(node).trim();
-        const blockWithSingleBreak = ["div", "section", "article", "blockquote", "h1", "h2", "h3", "h4", "h5", "h6"].includes(tag);
-        const blockWithDoubleBreak = ["p"].includes(tag);
+        const blockSingle = ["div", "section", "article", "blockquote", "h1", "h2", "h3", "h4", "h5", "h6"].includes(tag);
+        const blockDouble = tag === "p";
         if (!content) return "";
-        if (blockWithDoubleBreak) return content + "\n\n";
-        if (blockWithSingleBreak) return content + "\n";
+        if (blockDouble) return content + "\n\n";
+        if (blockSingle) return content + "\n";
         return content;
       }
 
@@ -775,7 +744,6 @@
         return;
       }
       if (plainValue && plainValue.trim()) {
-        // Convert plain text to proper <p> paragraphs
         const paragraphs = plainValue.split(/\n{2,}/);
         ideaEditor.innerHTML = paragraphs
           .map(function (p) {
@@ -796,18 +764,12 @@
       clone.innerHTML = rawHtml;
 
       const editorLineHeight = ideaEditor.style.lineHeight || "1.1";
-      const isCompact = ideaEditor.classList.contains("compact-spacing");
 
-      // Inline list indentation so email clients don't collapse it
       clone.querySelectorAll("ul, ol").forEach(function (el) {
         const prev = el.getAttribute("style") || "";
-        const spacing = isCompact
-          ? "margin-top:0;margin-bottom:0;"
-          : "margin-top:4px;margin-bottom:4px;";
-        el.setAttribute("style", prev + ";padding-left:24px;margin-left:0;" + spacing);
+        el.setAttribute("style", prev + ";padding-left:20px;margin:0;");
       });
 
-      // Inline paragraph spacing — always zero to match editor appearance
       clone.querySelectorAll("p, div").forEach(function (el) {
         const prev = el.getAttribute("style") || "";
         el.setAttribute("style", prev + ";margin:0;padding:0;");
@@ -816,13 +778,6 @@
       clone.querySelectorAll("li").forEach(function (el) {
         const prev = el.getAttribute("style") || "";
         el.setAttribute("style", prev + ";margin:0;padding:0;");
-      });
-
-      // Apply editor line-height to divs without one
-      clone.querySelectorAll("div").forEach(function (el) {
-        if (!el.style.lineHeight) {
-          el.style.lineHeight = editorLineHeight;
-        }
       });
 
       const wrapStyle = [
@@ -852,22 +807,7 @@
     }
 
     function getDefaultTemplates() {
-      return [
-        {
-          id: Date.now().toString() + "-1",
-          product: "Service",
-          purpose: "Reply to interest",
-          subject: "Thanks for your interest",
-          body: "Thank you for your interest. I would be happy to suggest the next step that fits your timeline."
-        },
-        {
-          id: Date.now().toString() + "-2",
-          product: "Služba",
-          purpose: "Připomenutí",
-          subject: "Krátké připomenutí",
-          body: "Jen navazuji na předchozí zprávu. Pokud je to stále aktuální, ráda navrhnu další postup."
-        }
-      ];
+      return [];
     }
 
     function loadTemplates() {
@@ -944,9 +884,7 @@
     function syncRightEditorFromLeftDraft() {
       const draftBodyHtml = getTemplateBodyHtml();
       const draftBodyText = getTemplateBodyText();
-      if (!draftBodyHtml && !draftBodyText) {
-        return;
-      }
+      if (!draftBodyHtml && !draftBodyText) return;
       setIdeaContent(draftBodyHtml, draftBodyText);
       applyEditorFormat(ideaEditor, getEditorFormat(templateBodyEditor));
     }
@@ -966,63 +904,28 @@
       showToast("Šablona načtena pro e-mail.");
     }
 
-    function buildEmailFromTemplate(template) {
-      const language = languageInput.value;
-      if (language === "cz") {
-        return [
-          `Předmět: ${template.subject}`,
-          "",
-          "Dobrý den,",
-          "",
-          toSentence(template.body),
-          "",
-          "S pozdravem,",
-          "Daniela"
-        ].join("\n");
-      }
-      return [
-        `Subject: ${template.subject}`,
-        "",
-        "Hello,",
-        "",
-        toSentence(template.body),
-        "",
-        "Best regards,",
-        "Daniela"
-      ].join("\n");
-    }
-
     function buildEmail() {
       const language = languageInput.value;
       const idea = getIdeaText().trim();
       if (language === "cz") {
         const shortIdea = idea ? toSentence(idea) : "Děkuji za zprávu a zájem.";
         return [
-          "Předmět: Krátká reakce",
-          "",
-          "Dobrý den,",
-          "",
+          "Předmět: Krátká reakce", "",
+          "Dobrý den,", "",
           shortIdea,
           "Ráda navrhnu krátký další krok, který vám bude časově vyhovovat.",
-          "Když budete chtít, pošlu hned konkrétní termíny.",
-          "",
-          "S pozdravem,",
-          "Daniela"
+          "Když budete chtít, pošlu hned konkrétní termíny.", "",
+          "S pozdravem,", "Daniela"
         ].join("\n");
       }
-
       const shortIdea = idea ? toSentence(idea) : "Thank you for your message and interest.";
       return [
-        "Subject: Quick follow-up",
-        "",
-        "Hello,",
-        "",
+        "Subject: Quick follow-up", "",
+        "Hello,", "",
         shortIdea,
         "I would be happy to suggest a short next step that fits your schedule.",
-        "If useful, I can send available time slots right away.",
-        "",
-        "Best regards,",
-        "Daniela"
+        "If useful, I can send available time slots right away.", "",
+        "Best regards,", "Daniela"
       ].join("\n");
     }
 
@@ -1074,9 +977,7 @@
       saveTemplates();
       renderTemplates();
       resetTemplateEditor();
-      if (templateSelect.value) {
-        applySelectedTemplate();
-      }
+      if (templateSelect.value) applySelectedTemplate();
       showToast("Šablona uložena.");
     });
 
@@ -1131,9 +1032,7 @@
 
     templateSelect.addEventListener("change", function () {
       applySelectedTemplate();
-      if (!templateSelect.value) {
-        showToast("Výběr šablony zrušen.");
-      }
+      if (!templateSelect.value) showToast("Výběr šablony zrušen.");
     });
 
     templateEditSelect.addEventListener("change", function () {
@@ -1166,6 +1065,14 @@
       showToast("Šablona smazána.");
     });
 
+    loadDefaultsBtn.addEventListener("click", function () {
+      const defaults = getDefaultTemplates();
+      templates = templates.concat(defaults);
+      saveTemplates();
+      renderTemplates();
+      showToast("Výchozí šablony přidány (" + defaults.length + ").");
+    });
+
     generateBtn.addEventListener("click", function () {
       if (templateSelect.value && isRichTemplateContent()) {
         showToast("Šablona je už připravena včetně formátu.");
@@ -1187,14 +1094,10 @@
         await navigator.clipboard.writeText(textToCopy);
         copyBtn.textContent = "Copied";
         showToast("Text zkopírován.");
-        setTimeout(function () {
-          copyBtn.textContent = "Copy";
-        }, 1200);
+        setTimeout(function () { copyBtn.textContent = "Copy"; }, 1200);
       } catch (error) {
         copyBtn.textContent = "Copy failed";
-        setTimeout(function () {
-          copyBtn.textContent = "Copy";
-        }, 1500);
+        setTimeout(function () { copyBtn.textContent = "Copy"; }, 1500);
       }
     });
 
@@ -1223,10 +1126,7 @@
         const htmlBlob = new Blob([formattedHtml], { type: "text/html" });
         const textBlob = new Blob([plainBody], { type: "text/plain" });
         navigator.clipboard.write([
-          new ClipboardItem({
-            "text/html": htmlBlob,
-            "text/plain": textBlob
-          })
+          new ClipboardItem({ "text/html": htmlBlob, "text/plain": textBlob })
         ]).then(function () {
           window.location.href = mailtoUrl;
           showToast("Otevřen nový e-mail. Vlož Ctrl+V pro přesný vzhled.");
@@ -1246,80 +1146,24 @@
         const targetEditor = getEditorById(editorId);
         if (!targetEditor) return;
 
-        const selectedLineHeight = btn.getAttribute("data-selection-lineheight");
-        if (selectedLineHeight) {
-          const ok = applyStyleToSelection(targetEditor, {
-            lineHeight: selectedLineHeight
-          });
-          showToast(ok ? `Řádkování výběru ${selectedLineHeight}.` : "Nejdřív označ text.");
-          return;
-        }
-
-        const selectionStyle = btn.getAttribute("data-selection-style");
-        if (selectionStyle) {
-          let styleToApply = null;
-          if (selectionStyle === "narrow") {
-            styleToApply = {
-              display: "inline-block",
-              maxWidth: "620px",
-              width: "100%"
-            };
-          } else if (selectionStyle === "normal") {
-            styleToApply = {
-              display: "inline",
-              maxWidth: "none",
-              width: "auto",
-              margin: "0"
-            };
-          } else if (selectionStyle === "compact") {
-            styleToApply = {
-              lineHeight: "1.2"
-            };
-          }
-          const ok = styleToApply ? applyStyleToSelection(targetEditor, styleToApply) : false;
-          showToast(ok ? "Styl použit na výběr." : "Nejdřív označ text.");
-          return;
-        }
-
-        const lineValue = btn.getAttribute("data-lineheight-value");
-        if (lineValue) {
-          setEditorLineHeight(targetEditor, lineValue);
-          return;
-        }
-
-        const lineDelta = btn.getAttribute("data-lineheight-delta");
-        if (lineDelta) {
-          adjustEditorLineHeight(targetEditor, parseFloat(lineDelta));
-          return;
-        }
-
-        const compactSpacing = btn.getAttribute("data-compact-spacing");
-        if (compactSpacing === "toggle") {
-          toggleCompactSpacing(targetEditor);
-          return;
-        }
-
         const cmd = btn.getAttribute("data-editor-cmd");
         if (!cmd) return;
+
         targetEditor.focus();
 
-        // insertLineBreak = soft <br>, not a new paragraph
         if (cmd === "insertLineBreak") {
           document.execCommand("insertHTML", false, "<br>");
           return;
         }
 
-        // insertLink: prompt for URL, wrap selection or insert new link
         if (cmd === "insertLink") {
           const url = prompt("URL:", "https://");
           if (!url || url.trim() === "https://") return;
           const clean = url.trim();
           const sel = window.getSelection();
           const hasSelection = sel && !sel.isCollapsed && targetEditor.contains(sel.anchorNode);
-          targetEditor.focus();
           if (hasSelection) {
             document.execCommand("createLink", false, clean);
-            // Set target="_blank" on the new link
             targetEditor.querySelectorAll('a[href="' + clean + '"]').forEach(function (a) {
               a.target = "_blank";
               a.rel = "noopener noreferrer";
@@ -1327,7 +1171,7 @@
           } else {
             const text = prompt("Text odkazu:", clean) || clean;
             document.execCommand("insertHTML", false,
-              '<a href="' + clean + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(text) + '</a>');
+              '<a href="' + clean + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(text) + "</a>");
           }
           showToast("Odkaz vložen.");
           return;

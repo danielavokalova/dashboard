@@ -1055,6 +1055,17 @@
     loadTemplates();
     renderTemplateSelect();
     renderLibrary();
+
+    // Load template passed via URL parameter ?t=<id> (from main page)
+    const urlParam = new URLSearchParams(location.search).get("t");
+    if (urlParam) {
+      const tpl = LIBRARY_TEMPLATES.find(function (t) { return t.id === urlParam; });
+      if (tpl) {
+        librarySelectedSubject = tpl.subject || "";
+        setIdeaContent("", tpl.content);
+        showToast("Načteno: " + tpl.title);
+      }
+    }
   </script>
 </body>
 </html>

@@ -1183,6 +1183,33 @@
 
     loadTemplates();
     renderTemplates();
+
+    // Load template passed from the search page via sessionStorage
+    const pendingRaw = sessionStorage.getItem("brain-load-template");
+    if (pendingRaw) {
+      try {
+        const pending = JSON.parse(pendingRaw);
+        sessionStorage.removeItem("brain-load-template");
+        if (pending.subject || pending.body) {
+          // Insert as a one-off template at the top
+          const oneOff = {
+            id: "session-" + Date.now(),
+            product: "—",
+            purpose: pending.subject || "Template",
+            subject: pending.subject || "",
+            body: pending.body || "",
+            bodyHtml: "",
+            bodyFormat: {}
+          };
+          templates.unshift(oneOff);
+          saveTemplates();
+          renderTemplates();
+          templateSelect.value = oneOff.id;
+          applySelectedTemplate();
+          showToast("Šablona načtena ze stránky šablon.");
+        }
+      } catch (_) {}
+    }
   </script>
 </body>
 </html>

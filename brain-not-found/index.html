@@ -21,63 +21,61 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding: 32px 24px;
+      padding: 28px 24px;
     }
 
-    .container {
-      max-width: 760px;
-      margin: 0 auto;
-    }
+    .container { max-width: 760px; margin: 0 auto; }
 
     h1 {
-      font-size: 1.4rem;
+      font-size: 1.5rem;
       font-weight: 800;
       letter-spacing: 0.14em;
       text-transform: uppercase;
       color: var(--muted);
-      margin-bottom: 24px;
-      text-align: center;
+      margin-bottom: 20px;
     }
 
     /* ── NAV TILES ── */
-    .nav-tiles {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
       margin-bottom: 36px;
     }
 
-    .nav-tile {
-      flex: 1;
-      min-width: 120px;
-      height: 72px;
+    .nav-card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
+      padding: 18px 16px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.05);
       display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      text-decoration: none;
-      font-size: 0.78rem;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .nav-card h2 {
+      font-size: 0.95rem;
       font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease;
-      line-height: 1.4;
-      padding: 10px;
+      color: var(--text);
     }
 
-    .nav-tile:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 22px rgba(37,99,235,0.12);
-      border-color: var(--accent);
-      color: var(--accent);
+    .nav-link {
+      display: inline-block;
+      text-decoration: none;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: opacity 0.15s;
+      align-self: flex-start;
     }
 
-    /* ── TEMPLATE LIBRARY ── */
+    .nav-link:hover { opacity: 0.88; }
+
+    /* ── SECTION LABEL ── */
     .section-label {
       font-size: 0.75rem;
       font-weight: 700;
@@ -87,22 +85,39 @@
       margin-bottom: 12px;
     }
 
+    /* ── SEARCH ── */
+    .search-wrap {
+      position: relative;
+      margin-bottom: 14px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+      font-size: 0.95rem;
+    }
+
     .lib-search {
       width: 100%;
-      border: 1px solid var(--border);
+      border: 1.5px solid var(--border);
       border-radius: 10px;
-      padding: 10px 14px;
+      padding: 10px 14px 10px 36px;
       font: inherit;
       font-size: 0.95rem;
       color: var(--text);
       background: var(--card);
       outline: none;
-      margin-bottom: 14px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      transition: border-color 0.15s;
     }
 
     .lib-search:focus { border-color: var(--accent); }
 
+    /* ── TEMPLATE CARDS ── */
     .lib-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -113,27 +128,23 @@
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 12px 14px;
+      padding: 13px 14px;
       cursor: pointer;
       text-decoration: none;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 7px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.04);
       transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
     }
 
     .lib-card:hover {
       border-color: var(--accent);
-      box-shadow: 0 6px 18px rgba(37,99,235,0.11);
+      box-shadow: 0 5px 18px rgba(37,99,235,0.12);
       transform: translateY(-2px);
     }
 
-    .lib-card-top {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .lib-card-top { display: flex; align-items: center; gap: 8px; }
 
     .lib-card-title {
       font-size: 0.88rem;
@@ -157,11 +168,7 @@
     .lib-type--email  { background: #dbeafe; color: #1e40af; }
     .lib-type--prompt { background: #ede9fe; color: #5b21b6; }
 
-    .lib-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-    }
+    .lib-tags { display: flex; flex-wrap: wrap; gap: 4px; }
 
     .lib-tag {
       font-size: 0.68rem;
@@ -171,81 +178,52 @@
       padding: 1px 7px;
     }
 
-    .lib-empty {
-      color: var(--muted);
-      font-size: 0.9rem;
-      padding: 8px 0;
-    }
+    .lib-empty { color: var(--muted); font-size: 0.9rem; padding: 8px 0; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Brain Not Found</h1>
 
-    <div class="nav-tiles">
-      <a class="nav-tile" href="tools/email-generator.html">Email<br>Generator</a>
-      <a class="nav-tile" href="tools/smart-reply.html">Smart<br>Reply</a>
-      <a class="nav-tile" href="inbox/index.html">Quick<br>Notes</a>
-      <a class="nav-tile" href="https://danielavokalova.github.io/dashboard/" target="_blank" rel="noopener noreferrer">Dashboard</a>
+    <div class="nav-grid">
+      <div class="nav-card">
+        <h2>Email Generator</h2>
+        <a class="nav-link" href="tools/email-generator.html">Otevřít</a>
+      </div>
+      <div class="nav-card">
+        <h2>Smart Reply ✦</h2>
+        <a class="nav-link" href="tools/smart-reply.html">Otevřít</a>
+      </div>
+      <div class="nav-card">
+        <h2>Quick Notes</h2>
+        <a class="nav-link" href="inbox/index.html">Otevřít</a>
+      </div>
+      <div class="nav-card">
+        <h2>Dashboard</h2>
+        <a class="nav-link" href="https://danielavokalova.github.io/dashboard/" target="_blank" rel="noopener noreferrer">Otevřít</a>
+      </div>
     </div>
 
     <p class="section-label">Šablony &amp; prompty</p>
-    <input type="search" class="lib-search" id="lib-search" placeholder="Hledat šablony…" autocomplete="off" />
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="search" class="lib-search" id="lib-search" placeholder="Hledat šablony…" autocomplete="off" />
+    </div>
     <div class="lib-grid" id="lib-grid"></div>
   </div>
 
   <script>
     const TEMPLATES = [
-      {
-        id: "email-reply-to-interest", type: "email",
-        title: "Reply to client interest",
-        tags: ["client", "reply", "interest", "inquiry"]
-      },
-      {
-        id: "email-follow-up", type: "email",
-        title: "Follow-up reminder",
-        tags: ["follow-up", "reminder", "client"]
-      },
-      {
-        id: "email-polite-rejection", type: "email",
-        title: "Polite rejection",
-        tags: ["rejection", "decline", "boundary"]
-      },
-      {
-        id: "email-proposal-send", type: "email",
-        title: "Send proposal / offer",
-        tags: ["proposal", "offer", "sales"]
-      },
-      {
-        id: "email-meeting-confirmation", type: "email",
-        title: "Confirm a meeting",
-        tags: ["meeting", "confirm", "calendar"]
-      },
-      {
-        id: "prompt-rewrite-professional", type: "prompt",
-        title: "Rewrite email — professional tone",
-        tags: ["rewrite", "tone", "professional"]
-      },
-      {
-        id: "prompt-summarize-thread", type: "prompt",
-        title: "Summarize email thread",
-        tags: ["summary", "thread", "tldr"]
-      },
-      {
-        id: "prompt-cold-outreach", type: "prompt",
-        title: "Write cold outreach email",
-        tags: ["cold", "outreach", "sales"]
-      },
-      {
-        id: "prompt-improve-subject-line", type: "prompt",
-        title: "Improve email subject line",
-        tags: ["subject", "headline", "optimize"]
-      },
-      {
-        id: "prompt-extract-action-items", type: "prompt",
-        title: "Extract action items from text",
-        tags: ["action items", "tasks", "extract"]
-      }
+      { id: "email-reply-to-interest", type: "email", title: "Reply to client interest", tags: ["client", "reply", "interest", "inquiry"] },
+      { id: "email-follow-up", type: "email", title: "Follow-up reminder", tags: ["follow-up", "reminder", "client"] },
+      { id: "email-polite-rejection", type: "email", title: "Polite rejection", tags: ["rejection", "decline", "boundary"] },
+      { id: "email-proposal-send", type: "email", title: "Send proposal / offer", tags: ["proposal", "offer", "sales"] },
+      { id: "email-meeting-confirmation", type: "email", title: "Confirm a meeting", tags: ["meeting", "confirm", "calendar"] },
+      { id: "prompt-rewrite-professional", type: "prompt", title: "Rewrite email — professional tone", tags: ["rewrite", "tone", "professional"] },
+      { id: "prompt-summarize-thread", type: "prompt", title: "Summarize email thread", tags: ["summary", "thread", "tldr"] },
+      { id: "prompt-cold-outreach", type: "prompt", title: "Write cold outreach email", tags: ["cold", "outreach", "sales"] },
+      { id: "prompt-improve-subject-line", type: "prompt", title: "Improve email subject line", tags: ["subject", "headline", "optimize"] },
+      { id: "prompt-extract-action-items", type: "prompt", title: "Extract action items from text", tags: ["action items", "tasks", "extract"] }
     ];
 
     const grid = document.getElementById("lib-grid");
@@ -254,14 +232,10 @@
     function render(filter) {
       const q = (filter || "").toLowerCase().trim();
       const items = q
-        ? TEMPLATES.filter(t =>
-            t.title.toLowerCase().includes(q) ||
-            t.tags.some(tag => tag.toLowerCase().includes(q))
-          )
+        ? TEMPLATES.filter(t => t.title.toLowerCase().includes(q) || t.tags.some(tag => tag.toLowerCase().includes(q)))
         : TEMPLATES;
 
       grid.innerHTML = "";
-
       if (!items.length) {
         const p = document.createElement("p");
         p.className = "lib-empty";
@@ -299,7 +273,6 @@
           tags.appendChild(span);
         });
         a.appendChild(tags);
-
         grid.appendChild(a);
       });
     }

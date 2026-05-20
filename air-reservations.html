@@ -94,6 +94,40 @@ body {
 }
 .btn-outline:hover { background: rgba(79,106,108,0.1); }
 
+/* ── SERVER STATUS ──────────────────────────────────────── */
+.server-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.server-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: #bbb;
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+.server-dot.online  { background: #5a9a5a; box-shadow: 0 0 0 3px rgba(90,154,90,0.18); }
+.server-dot.offline { background: #c05050; box-shadow: 0 0 0 3px rgba(192,80,80,0.18); }
+
+.btn-start-server {
+  padding: 5px 12px;
+  border: 1.5px solid rgba(192,80,80,0.4);
+  border-radius: 8px;
+  background: rgba(192,80,80,0.08);
+  color: #a03030;
+  font: 700 11px/1 inherit;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-start-server:hover { background: rgba(192,80,80,0.16); }
+
 /* ── MAIN ───────────────────────────────────────────────── */
 .main {
   padding: 28px 40px 52px;
@@ -377,6 +411,11 @@ td.cell-empty { color: var(--muted); }
   <a class="btn-back" href="index.html">← Dashboard</a>
   <div class="topbar-title">AIR RESERVATIONS</div>
   <div class="topbar-right">
+    <div class="server-status" id="server-status-wrap">
+      <span class="server-dot" id="server-dot"></span>
+      <span id="server-status-text">Připojuji…</span>
+      <a class="btn-start-server" href="start-server.bat" download id="btn-start-server" style="display:none">⬇ Spustit server</a>
+    </div>
     <button class="btn-sm btn-primary" id="btn-refresh" onclick="loadData()">Obnovit</button>
     <div class="topbar-meta" id="topbar-meta">Načítám…</div>
   </div>
@@ -1299,6 +1338,26 @@ function esc(s) {
     .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
+// ── Server status indicator ───────────────────────────────────────
+function updateServerStatus(online) {
+  const dot  = document.getElementById("server-dot");
+  const text = document.getElementById("server-status-text");
+  const btn  = document.getElementById("btn-start-server");
+  if (!dot) return;
+  dot.className  = "server-dot " + (online ? "online" : "offline");
+  text.textContent = online ? "Server běží" : "Server offline";
+  btn.style.display = online ? "none" : "";
+}
+
+async function pingServer() {
+  try {
+    const r = await fetch(`${API}/api/stats`, { signal: AbortSignal.timeout(3000) });
+    updateServerStatus(r.ok);
+  } catch {
+    updateServerStatus(false);
+  }
+}
+
 // ── Init ──────────────────────────────────────────────────────────
 function loadAll(e) {
   e.preventDefault();
@@ -1306,6 +1365,8 @@ function loadAll(e) {
   loadData();
 }
 
+pingServer();
+setInterval(pingServer, 15000);
 loadData();
 </script>
 </body>

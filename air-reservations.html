@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Air Reservations</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
 :root {
   --ink:       #1f2a2a;
@@ -86,7 +87,7 @@ body {
 .btn-sm:hover    { opacity: 0.82; transform: translateY(-1px); }
 .btn-sm:disabled { opacity: 0.38; cursor: wait; transform: none; }
 .btn-primary { background: var(--muted); color: #fff; }
-.btn-outline  {
+.btn-outline {
   background: transparent;
   color: var(--muted);
   border: 1.5px solid var(--border);
@@ -167,10 +168,33 @@ body {
   cursor: pointer;
   transition: background 0.14s, border-color 0.14s, color 0.14s;
 }
-.btn-range:hover   { background: rgba(79,106,108,0.08); }
-.btn-range.active  { background: var(--muted); color: #fff; border-color: var(--muted); }
+.btn-range:hover  { background: rgba(79,106,108,0.08); }
+.btn-range.active { background: var(--muted); color: #fff; border-color: var(--muted); }
 
-/* ── CHART LEGEND ────────────────────────────────────────── */
+/* ── CHART SECTIONS ─────────────────────────────────────── */
+.chart-section {
+  background: var(--paper);
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 5px 20px var(--shadow);
+  margin-bottom: 18px;
+  display: none;
+}
+.chart-section.visible { display: block; }
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.chart-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
 .chart-legend {
   display: flex;
   gap: 16px;
@@ -189,36 +213,7 @@ body {
   border-radius: 2px;
   flex-shrink: 0;
 }
-
-/* ── CHART SECTION ──────────────────────────────────────── */
-.chart-section {
-  background: var(--paper);
-  border-radius: 16px;
-  padding: 20px 24px;
-  box-shadow: 0 5px 20px var(--shadow);
-  margin-bottom: 18px;
-  display: none;
-}
-
-.chart-section.visible { display: block; }
-
-.chart-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.chart-title {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
 .chart-toggle {
-  margin-left: auto;
   font-size: 11px;
   color: var(--muted);
   background: none;
@@ -231,190 +226,28 @@ body {
 }
 .chart-toggle:hover { background: rgba(79,106,108,0.1); }
 
-.chart-body { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 32px; }
-@media (max-width: 900px) { .chart-body { grid-template-columns: 1fr; } }
-
-/* ── MONTHLY TREND ──────────────────────────────────────── */
-.monthly-wrap {
-  overflow-x: auto;
-  padding-bottom: 4px;
-}
-.monthly-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 6px;
-  height: 130px;
-  min-width: max-content;
-  padding-bottom: 24px;
-  box-sizing: content-box;
-}
-.month-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-  min-width: 38px;
-}
-.month-pair {
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-}
-.month-bar {
-  width: 14px;
-  border-radius: 3px 3px 0 0;
-  transition: height 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.15s;
+/* ── CANVAS WRAPPERS ────────────────────────────────────── */
+.canvas-wrap {
   position: relative;
-  cursor: default;
-  flex-shrink: 0;
-}
-.month-bar.total  { background: var(--bar-fill); }
-.month-bar.issued { background: #8f3e4a; }
-.month-bar:hover  { opacity: 0.75; }
-.month-bar:hover::after {
-  content: attr(data-tip);
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--ink);
-  color: #fff;
-  font-size: 11px;
-  padding: 4px 9px;
-  border-radius: 6px;
-  white-space: nowrap;
-  pointer-events: none;
-  z-index: 20;
-}
-.month-lbl {
-  font-size: 9px;
-  color: var(--muted);
-  white-space: nowrap;
-  text-align: center;
-  margin-top: 5px;
-  line-height: 1;
 }
 
-/* ── REVENUE BAR ─────────────────────────────────────────── */
-.bar-revenue {
-  font-size: 10px;
-  color: var(--muted);
-  text-align: right;
-  white-space: nowrap;
-}
-
-/* ── BREAKDOWN ──────────────────────────────────────────── */
-.breakdown-grid {
+/* ── BREAKDOWN GRID ─────────────────────────────────────── */
+.breakdown-charts-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px 40px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px 32px;
 }
-@media (max-width: 900px) { .breakdown-grid { grid-template-columns: 1fr; } }
-.breakdown-col-title {
+@media (max-width: 1000px) { .breakdown-charts-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px)  { .breakdown-charts-grid { grid-template-columns: 1fr; } }
+
+.breakdown-panel-title {
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--muted);
   margin-bottom: 10px;
-  padding-left: 6px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.btn-chart-type {
-  font-size: 10px;
-  font-family: inherit;
-  padding: 2px 7px;
-  border: 1.5px solid var(--border);
-  border-radius: 5px;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  transition: background 0.12s;
-  margin-left: auto;
-  line-height: 1.4;
-}
-.btn-chart-type:hover { background: rgba(79,106,108,0.1); }
-
-/* ── PIE CHART ───────────────────────────────────────────── */
-.pie-wrap {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  flex-wrap: wrap;
-}
-.pie-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  flex: 1;
-  min-width: 120px;
-}
-.pie-leg {
-  display: grid;
-  grid-template-columns: 10px 1fr auto auto;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-}
-.pie-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
-  flex-shrink: 0;
-}
-.pie-leg-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--ink);
-}
-.pie-leg-pct  { color: var(--muted); font-weight: 700; min-width: 32px; text-align: right; }
-.pie-leg-cnt  { color: var(--muted); font-size: 10px; min-width: 44px; text-align: right; }
-
-.bar-row {
-  display: grid;
-  grid-template-columns: 160px 1fr 56px;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  border-radius: 7px;
-  padding: 3px 6px;
-  transition: background 0.12s;
-}
-.bar-row:hover { background: rgba(79,106,108,0.08); }
-.bar-row.active { background: rgba(79,106,108,0.15); }
-
-.bar-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--ink);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.bar-track {
-  height: 8px;
-  background: var(--bar-bg);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.bar-fill {
-  height: 100%;
-  background: var(--bar-fill);
-  border-radius: 4px;
-  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
-}
-
-.bar-count {
-  font-size: 11px;
-  font-variant-numeric: tabular-nums;
-  color: var(--muted);
-  text-align: right;
-  white-space: nowrap;
+  padding-left: 2px;
 }
 
 /* ── FILTER BAR ─────────────────────────────────────────── */
@@ -452,12 +285,11 @@ body {
   height: 34px;
   transition: border-color 0.15s;
 }
-.fg-input:focus { border-color: var(--muted); }
+.fg-input:focus  { border-color: var(--muted); }
 .fg-input.wide   { min-width: 220px; }
 .fg-input.narrow { min-width: 136px; }
 
 .filter-right { margin-left: auto; display: flex; align-items: flex-end; gap: 8px; }
-
 .filter-count { font-size: 11px; color: var(--muted); padding-bottom: 7px; white-space: nowrap; }
 
 /* ── TABLE ──────────────────────────────────────────────── */
@@ -467,7 +299,6 @@ body {
   box-shadow: 0 5px 20px var(--shadow);
   overflow: hidden;
 }
-
 .table-scroll {
   overflow-x: auto;
   overflow-y: auto;
@@ -476,9 +307,7 @@ body {
 }
 
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
-
 thead { position: sticky; top: 0; z-index: 10; }
-
 thead th {
   background: rgba(50,76,78,0.93);
   color: #fff;
@@ -503,7 +332,6 @@ th:not(.sort-asc):not(.sort-desc) .sort-icon::after { content: "⇅"; }
 tbody tr { border-bottom: 1px solid var(--border); transition: background 0.09s; }
 tbody tr:nth-child(even) { background: var(--row-alt); }
 tbody tr:hover { background: var(--row-hover); }
-
 tbody td { padding: 8px 13px; white-space: nowrap; max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
 td.cell-date  { font-variant-numeric: tabular-nums; font-weight: 600; }
 td.cell-num   { font-variant-numeric: tabular-nums; text-align: right; }
@@ -557,8 +385,7 @@ td.cell-empty { color: var(--muted); }
 <div class="main">
 
   <div class="error-box" id="error-box"></div>
-  <div id="limit-banner" style="display:none; background:rgba(79,106,108,0.1); border:1.5px solid rgba(79,106,108,0.25); border-radius:12px; padding:11px 18px; font-size:13px; color:var(--muted); margin-bottom:18px;">
-  </div>
+  <div id="limit-banner" style="display:none; background:rgba(79,106,108,0.1); border:1.5px solid rgba(79,106,108,0.25); border-radius:12px; padding:11px 18px; font-size:13px; color:var(--muted); margin-bottom:18px;"></div>
 
   <!-- KPI -->
   <div class="kpi-row">
@@ -600,72 +427,66 @@ td.cell-empty { color: var(--muted); }
     <button class="btn-range" onclick="setRange(0,this)">Vše</button>
   </div>
 
-  <!-- MONTHLY TREND -->
+  <!-- MONTHLY TREND — line chart -->
   <div class="chart-section" id="monthly-section">
     <div class="chart-header">
       <div class="chart-title">Měsíční trend</div>
       <div class="chart-legend">
-        <div class="legend-item"><div class="legend-dot" style="background:var(--bar-fill)"></div>Rezervace</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#4f6a6c"></div>Rezervace</div>
         <div class="legend-item"><div class="legend-dot" style="background:#8f3e4a"></div>Vydáno</div>
       </div>
       <button class="chart-toggle" id="monthly-toggle" onclick="toggleSection('monthly')">Skrýt ▲</button>
     </div>
-    <div class="monthly-wrap"><div class="monthly-bars" id="monthly-body"></div></div>
+    <div class="canvas-wrap" style="height:240px" id="monthly-content">
+      <canvas id="monthly-canvas"></canvas>
+    </div>
   </div>
 
-  <!-- AGENCY CHART -->
+  <!-- AGENCY — horizontal bar chart -->
   <div class="chart-section" id="chart-section">
     <div class="chart-header">
-      <div class="chart-title" id="chart-title">Agentury</div>
-      <div class="chart-legend">
-        <div class="legend-item"><div class="legend-dot" style="background:var(--bar-fill)"></div>Celkem</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#8f3e4a"></div>Vydáno</div>
-      </div>
-      <button class="chart-toggle" id="chart-toggle" onclick="toggleChart()">Skrýt ▲</button>
+      <div class="chart-title" id="chart-title">Agentury – počty rezervací</div>
+      <button class="chart-toggle" id="chart-toggle" onclick="toggleSection('chart')">Skrýt ▲</button>
     </div>
-    <div class="chart-body" id="chart-body"></div>
+    <div id="chart-content">
+      <div class="canvas-wrap" id="agency-canvas-wrap" style="height:360px">
+        <canvas id="agency-canvas"></canvas>
+      </div>
+    </div>
   </div>
 
-  <!-- BREAKDOWN: 6 panelů -->
+  <!-- BREAKDOWN — doughnuts + currency bar -->
   <div class="chart-section" id="breakdown-section">
     <div class="chart-header">
       <div class="chart-title">Přehled</div>
       <button class="chart-toggle" id="breakdown-toggle" onclick="toggleSection('breakdown')">Skrýt ▲</button>
     </div>
-    <div class="breakdown-grid" style="grid-template-columns:1fr 1fr 1fr">
-      <div>
-        <div class="breakdown-col-title">Status
-          <button class="btn-chart-type" onclick="togglePanelType('status')">⬤ Koláč</button>
+    <div id="breakdown-content">
+      <div class="breakdown-charts-grid">
+        <div>
+          <div class="breakdown-panel-title">Status</div>
+          <div class="canvas-wrap" style="height:210px"><canvas id="status-canvas"></canvas></div>
         </div>
-        <div id="status-body"></div>
-      </div>
-      <div>
-        <div class="breakdown-col-title">Poslední status
-          <button class="btn-chart-type" onclick="togglePanelType('last-status')">⬤ Koláč</button>
+        <div>
+          <div class="breakdown-panel-title">Poslední status</div>
+          <div class="canvas-wrap" style="height:210px"><canvas id="last-status-canvas"></canvas></div>
         </div>
-        <div id="last-status-body"></div>
-      </div>
-      <div>
-        <div class="breakdown-col-title">Země
-          <button class="btn-chart-type" onclick="togglePanelType('country')">⬤ Koláč</button>
+        <div>
+          <div class="breakdown-panel-title">Země</div>
+          <div class="canvas-wrap" style="height:210px"><canvas id="country-canvas"></canvas></div>
         </div>
-        <div id="country-body"></div>
-      </div>
-      <div>
-        <div class="breakdown-col-title">Měna &amp; Tržby</div>
-        <div id="currency-body"></div>
-      </div>
-      <div>
-        <div class="breakdown-col-title">Connector
-          <button class="btn-chart-type" onclick="togglePanelType('connector')">⬤ Koláč</button>
+        <div>
+          <div class="breakdown-panel-title">Connector</div>
+          <div class="canvas-wrap" style="height:210px"><canvas id="connector-canvas"></canvas></div>
         </div>
-        <div id="connector-body"></div>
-      </div>
-      <div>
-        <div class="breakdown-col-title">Typ letu
-          <button class="btn-chart-type" onclick="togglePanelType('type')">⬤ Koláč</button>
+        <div>
+          <div class="breakdown-panel-title">Typ letu</div>
+          <div class="canvas-wrap" style="height:210px"><canvas id="type-canvas"></canvas></div>
         </div>
-        <div id="type-body"></div>
+        <div>
+          <div class="breakdown-panel-title">Měna &amp; Tržby</div>
+          <div class="canvas-wrap" style="height:210px"><canvas id="currency-canvas"></canvas></div>
+        </div>
       </div>
     </div>
   </div>
@@ -744,13 +565,26 @@ let allColumns   = [];
 let filteredRows = [];
 let specialCols  = { date: null, agency: null };
 let sortState    = { col: null, dir: "asc" };
-let chartCollapsed  = false;
 let activeBarAgency = null;
-let _statsLoaded    = false; // true once /api/stats populated KPIs
-let _lastStats      = null;  // cached stats for chart rebuilds
+let _statsLoaded    = false;
+let _lastStats      = null;
 
-// ── Column detection ────────────────────────────────────────────
+// ── Chart registry ────────────────────────────────────────────────
+const _charts = {};
+function destroyChart(id) {
+  if (_charts[id]) { _charts[id].destroy(); delete _charts[id]; }
+}
 
+const PALETTE = [
+  "#4f6a6c","#c47a5a","#6b95b0","#8a7050",
+  "#5a8a6a","#9a6088","#b8a040","#708090",
+  "#a06040","#506870","#7a9050","#906070"
+];
+
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+Chart.defaults.color       = "#4f6a6c";
+
+// ── Column detection ─────────────────────────────────────────────
 function detectCols(cols) {
   const lc = s => s.toLowerCase();
   return {
@@ -765,8 +599,7 @@ function detectCols(cols) {
   };
 }
 
-// ── Date helpers ────────────────────────────────────────────────
-
+// ── Date helpers ─────────────────────────────────────────────────
 function parseDate(v) {
   if (!v) return null;
   const s = String(v);
@@ -784,18 +617,23 @@ function fmtDate(v) {
 }
 
 function toISO(d) { return d.toISOString().slice(0,10); }
+function fmt(n)   { return Number(n).toLocaleString("cs-CZ"); }
+function fmtMonth(ym) {
+  if (!ym) return "—";
+  const [y, m] = ym.split("-");
+  return `${m}/${y}`;
+}
 
-// ── Stats: rychlé KPI + grafy hned při načtení ─────────────────
-
+// ── Stats → KPIs + charts ─────────────────────────────────────────
 function applyStats(stats) {
   _statsLoaded = true;
   _lastStats   = stats;
   const t = stats.totals || {};
 
-  if (t.total    != null) document.getElementById("kpi-total").textContent     = fmt(t.total);
-  if (t.agencies != null) document.getElementById("kpi-agencies").textContent  = fmt(t.agencies);
-  if (t.countries!= null) document.getElementById("kpi-countries").textContent = fmt(t.countries);
-  if (t.issued   != null) {
+  if (t.total     != null) document.getElementById("kpi-total").textContent     = fmt(t.total);
+  if (t.agencies  != null) document.getElementById("kpi-agencies").textContent  = fmt(t.agencies);
+  if (t.countries != null) document.getElementById("kpi-countries").textContent = fmt(t.countries);
+  if (t.issued    != null) {
     document.getElementById("kpi-issued").textContent = fmt(t.issued);
     const pct = t.total > 0 ? Math.round(t.issued / t.total * 100) : 0;
     document.getElementById("kpi-issued-pct").textContent = `${pct} % z celku`;
@@ -808,134 +646,223 @@ function applyStats(stats) {
     document.getElementById("kpi-last-sub").textContent = "";
   }
 
-  buildMonthlyChart(stats.monthly || []);
-  buildChartFromStats(stats.by_agency || []);
+  buildMonthlyChart(stats.monthly  || []);
+  buildAgencyChart(stats.by_agency || []);
   buildBreakdownCharts(stats);
 }
 
-function fmt(n)      { return Number(n).toLocaleString("cs-CZ"); }
-function fmtMonth(ym) {
-  if (!ym) return "—";
-  const [y, m] = ym.split("-");
-  return `${m}/${y}`;
-}
-
-// Měsíční trend — dvě série: rezervace vs vydáno
+// ── Monthly — line chart ──────────────────────────────────────────
 function buildMonthlyChart(monthly) {
   const items   = (monthly || []).filter(x => x.month);
   const section = document.getElementById("monthly-section");
-  if (!items.length) { section.classList.remove("visible"); return; }
+  if (!items.length) { section.classList.remove("visible"); destroyChart("monthly"); return; }
   section.classList.add("visible");
 
-  const maxTotal = Math.max(...items.map(x => Number(x.total))) || 1;
-  const H = 110;
+  const labels = items.map(x => x.month.slice(2).replace("-", "/"));
+  const totals = items.map(x => Number(x.total));
+  const issued = items.map(x => Number(x.issued || 0));
 
-  document.getElementById("monthly-body").innerHTML = items.map(({month, total, issued}) => {
-    const tot = Number(total), iss = Number(issued || 0);
-    const hT  = Math.max(2, Math.round(tot / maxTotal * H));
-    const hI  = Math.max(0, Math.round(iss / maxTotal * H));
-    const lbl = month.slice(2).replace("-", "/");
-    const pct = tot > 0 ? Math.round(iss / tot * 100) : 0;
-    return `<div class="month-col">
-      <div class="month-pair">
-        <div class="month-bar total"  style="height:${hT}px"
-             data-tip="${esc(month)}: ${fmt(tot)} rezervací"></div>
-        <div class="month-bar issued" style="height:${hI}px"
-             data-tip="${esc(month)}: ${fmt(iss)} vydáno (${pct} %)"></div>
-      </div>
-      <div class="month-lbl">${esc(lbl)}</div>
-    </div>`;
-  }).join("");
+  destroyChart("monthly");
+  const ctx = document.getElementById("monthly-canvas").getContext("2d");
+  _charts["monthly"] = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Rezervace",
+          data: totals,
+          borderColor: "#4f6a6c",
+          backgroundColor: "rgba(79,106,108,0.08)",
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointHoverRadius: 7,
+          borderWidth: 2.5,
+        },
+        {
+          label: "Vydáno",
+          data: issued,
+          borderColor: "#8f3e4a",
+          backgroundColor: "rgba(143,62,74,0.08)",
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointHoverRadius: 7,
+          borderWidth: 2.5,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.raw)}` }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: "rgba(66,92,94,0.1)" },
+          ticks: { color: "#4f6a6c", callback: v => fmt(v) }
+        },
+        x: {
+          grid: { color: "rgba(66,92,94,0.05)" },
+          ticks: { color: "#4f6a6c", maxRotation: 0, autoSkip: true, maxTicksLimit: 18 }
+        }
+      }
+    }
+  });
 }
 
-// Agency — celkem + vydáno %
-function buildChartFromStats(byAgency) {
-  const items   = byAgency.filter(x => x.label && x.label !== "(prázdné)");
+// ── Agency — horizontal bar chart ────────────────────────────────
+function buildAgencyChart(byAgency) {
+  const items   = (byAgency || []).filter(x => x.label && x.label !== "(prázdné)").slice(0, 15);
   const section = document.getElementById("chart-section");
-  if (!items.length) { section.classList.remove("visible"); return; }
+  if (!items.length) { destroyChart("agency"); section.classList.remove("visible"); return; }
   section.classList.add("visible");
-  if (chartCollapsed) return;
 
-  const maxCnt = items[0]?.cnt || 1;
-  document.getElementById("chart-body").innerHTML = items.slice(0, 15).map(({label, cnt, issued}) => {
-    const w   = Math.round(Number(cnt)    / maxCnt * 100);
-    const wi  = Math.round(Number(issued||0) / maxCnt * 100);
-    const pct = cnt > 0 ? Math.round((issued||0) / cnt * 100) : 0;
-    const act = activeBarAgency === label ? "active" : "";
-    return `<div class="bar-row ${act}" onclick="clickBar('${esc(label)}')"
-         title="${esc(label)}: ${fmt(cnt)} rezervací, ${fmt(issued||0)} vydáno (${pct} %)">
-      <div class="bar-label">${esc(label)}</div>
-      <div class="bar-track">
-        <div class="bar-fill" style="width:${w}%"></div>
-        <div class="bar-fill" style="width:${wi}%;background:#8f3e4a;margin-top:2px"></div>
-      </div>
-      <div class="bar-count">${fmt(cnt)}<br><small style="color:#8f3e4a">${fmt(issued||0)} (${pct}%)</small></div>
-    </div>`;
-  }).join("");
+  const h = Math.max(220, items.length * 32 + 60);
+  document.getElementById("agency-canvas-wrap").style.height = h + "px";
+
+  const baseColor = "rgba(79,106,108,0.75)";
+  const dimColor  = "rgba(79,106,108,0.28)";
+  const bgColors  = items.map(x =>
+    !activeBarAgency || x.label === activeBarAgency ? baseColor : dimColor
+  );
+
+  destroyChart("agency");
+  const ctx = document.getElementById("agency-canvas").getContext("2d");
+  _charts["agency"] = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: items.map(x => x.label),
+      datasets: [
+        {
+          label: "Rezervace",
+          data: items.map(x => Number(x.cnt)),
+          backgroundColor: bgColors,
+          borderRadius: 4,
+          borderSkipped: false,
+        },
+        {
+          label: "Vydáno",
+          data: items.map(x => Number(x.issued || 0)),
+          backgroundColor: "rgba(143,62,74,0.65)",
+          borderRadius: 4,
+          borderSkipped: false,
+        }
+      ]
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: "top",
+          align: "end",
+          labels: { boxWidth: 12, font: { size: 11 }, padding: 14 }
+        },
+        tooltip: {
+          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.raw)}` }
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          grid: { color: "rgba(66,92,94,0.1)" },
+          ticks: { color: "#4f6a6c", callback: v => fmt(v) }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { color: "#1f2a2a", font: { size: 11 } }
+        }
+      },
+      onClick: (evt, elements) => {
+        if (elements.length) clickBar(items[elements[0].index].label);
+      },
+      onHover: (evt, elements) => {
+        evt.native.target.style.cursor = elements.length ? "pointer" : "default";
+      }
+    }
+  });
 }
 
-// ── Koláčové grafy ───────────────────────────────────────────────
+// alias kept for compatibility
+function buildChartFromStats(byAgency) { buildAgencyChart(byAgency); }
 
-const CHART_COLORS = [
-  "#4f6a6c","#c47a5a","#6b95b0","#8a7050",
-  "#5a8a6a","#9a6088","#b8a040","#708090"
-];
-
-// Stav přepínačů — výchozí: pruhy (bar)
-const _panelType = {
-  "status": "bar", "last-status": "bar",
-  "country": "bar", "connector": "bar", "type": "bar"
-};
-
-function togglePanelType(key) {
-  _panelType[key] = _panelType[key] === "bar" ? "pie" : "bar";
-  // Aktualizuj popisek tlačítka
-  const btn = document.querySelector(`[onclick="togglePanelType('${key}')"]`);
-  if (btn) btn.textContent = _panelType[key] === "pie" ? "▬ Pruhy" : "⬤ Koláč";
-  // Překresli, pokud máme data
-  if (_lastStats) buildBreakdownCharts(_lastStats);
-}
-
-function svgPie(items, colors) {
-  const top   = items.filter(x => x.label && x.label !== "(prázdné)").slice(0, 8);
+// ── Doughnut helper ───────────────────────────────────────────────
+function buildDoughnut(canvasId, items) {
+  const top   = (items || []).filter(x => x.label && x.label !== "(prázdné)").slice(0, 10);
   const total = top.reduce((s, x) => s + Number(x.cnt), 0);
-  if (!total) return "";
+  destroyChart(canvasId);
+  if (!total) return;
 
-  const R  = 46, cx = 56, cy = 56;
-  const C  = 2 * Math.PI * R;
-  let cumAngle = 0;
+  const ctx = document.getElementById(canvasId)?.getContext("2d");
+  if (!ctx) return;
 
-  const circles = top.map((item, i) => {
-    const pct  = Number(item.cnt) / total;
-    const arc  = pct * C;
-    const rot  = cumAngle;
-    cumAngle  += pct * 360;
-    return `<circle r="${R}" cx="${cx}" cy="${cy}" fill="none"
-      stroke="${colors[i]}" stroke-width="${R * 2 - 2}"
-      stroke-dasharray="${arc.toFixed(3)} ${C.toFixed(3)}"
-      stroke-dashoffset="${(C / 4).toFixed(3)}"
-      transform="rotate(${rot.toFixed(3)} ${cx} ${cy})"/>`;
-  }).join("");
-
-  const legend = top.map((item, i) => {
-    const pct = Math.round(Number(item.cnt) / total * 100);
-    return `<div class="pie-leg">
-      <div class="pie-dot" style="background:${colors[i]}"></div>
-      <div class="pie-leg-label" title="${esc(item.label)}">${esc(item.label)}</div>
-      <div class="pie-leg-pct">${pct}%</div>
-      <div class="pie-leg-cnt">${fmt(item.cnt)}</div>
-    </div>`;
-  }).join("");
-
-  return `<div class="pie-wrap">
-    <svg width="112" height="112" viewBox="0 0 112 112" style="flex-shrink:0">${circles}</svg>
-    <div class="pie-legend">${legend}</div>
-  </div>`;
+  _charts[canvasId] = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: top.map(x => x.label),
+      datasets: [{
+        data: top.map(x => Number(x.cnt)),
+        backgroundColor: PALETTE.slice(0, top.length),
+        borderWidth: 2,
+        borderColor: "rgba(245,246,244,0.85)",
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: "56%",
+      plugins: {
+        legend: {
+          position: "right",
+          labels: {
+            color: "#1f2a2a",
+            font: { size: 10 },
+            boxWidth: 10,
+            padding: 6,
+            generateLabels: chart => {
+              const ds = chart.data.datasets[0];
+              return chart.data.labels.map((lbl, i) => {
+                const val = Number(ds.data[i]);
+                const pct = Math.round(val / total * 100);
+                const short = lbl.length > 14 ? lbl.slice(0, 13) + "…" : lbl;
+                return {
+                  text: `${short}  ${pct}%`,
+                  fillStyle: ds.backgroundColor[i],
+                  strokeStyle: ds.backgroundColor[i],
+                  lineWidth: 0,
+                  index: i,
+                };
+              });
+            }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const pct = Math.round(Number(ctx.raw) / total * 100);
+              return ` ${fmt(ctx.raw)} (${pct}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
 }
 
-// Breakdown — 6 panelů
+// ── Breakdown section ─────────────────────────────────────────────
 function buildBreakdownCharts(stats) {
-  const section = document.getElementById("breakdown-section");
+  const section  = document.getElementById("breakdown-section");
   const allItems = [
     stats.by_status, stats.by_last_status, stats.by_country,
     stats.by_currency, stats.by_connector, stats.by_type
@@ -945,67 +872,55 @@ function buildBreakdownCharts(stats) {
   }
   section.classList.add("visible");
 
-  const renderBars = (items, n) => {
-    if (!items?.length) return "";
-    const maxCnt = Math.max(...items.map(x => Number(x.cnt))) || 1;
-    return items.slice(0, n).map(({label, cnt}) => {
-      const w = Math.round(Number(cnt) / maxCnt * 100);
-      return `<div class="bar-row" style="cursor:default">
-        <div class="bar-label">${esc(label)}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${w}%"></div></div>
-        <div class="bar-count">${fmt(cnt)}</div>
-      </div>`;
-    }).join("");
-  };
+  buildDoughnut("status-canvas",      stats.by_status      || []);
+  buildDoughnut("last-status-canvas", stats.by_last_status || []);
+  buildDoughnut("country-canvas",     stats.by_country     || []);
+  buildDoughnut("connector-canvas",   stats.by_connector   || []);
+  buildDoughnut("type-canvas",        stats.by_type        || []);
 
-  const renderPanel = (id, items, key, n) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (!items?.length) { el.innerHTML = ""; return; }
-    if (_panelType[key] === "pie") {
-      el.innerHTML = svgPie(items, CHART_COLORS);
-    } else {
-      el.className = "chart-body";
-      el.style.gridTemplateColumns = "1fr";
-      el.innerHTML = renderBars(items, n);
-    }
-    // Pokud přepínáme z pie na bar, je třeba obnovit třídu
-    if (_panelType[key] !== "pie") {
-      el.className = "chart-body";
-      el.style.gridTemplateColumns = "1fr";
-    } else {
-      el.className = "";
-      el.style.gridTemplateColumns = "";
-    }
-  };
-
-  renderPanel("status-body",      stats.by_status,      "status",      10);
-  renderPanel("last-status-body", stats.by_last_status, "last-status", 10);
-  renderPanel("country-body",     stats.by_country,     "country",     12);
-  renderPanel("connector-body",   stats.by_connector,   "connector",   10);
-  renderPanel("type-body",        stats.by_type,        "type",        10);
-
-  // Měna + tržby (speciální layout s revenue)
-  const currencies = stats.by_currency || [];
+  // Currency — vertical bar with revenue or count
+  const currencies = (stats.by_currency || []).slice(0, 8);
+  destroyChart("currency-canvas");
   if (currencies.length) {
-    const maxRev = Math.max(...currencies.map(x => Number(x.revenue||0))) || 1;
-    document.getElementById("currency-body").innerHTML = currencies.slice(0, 8).map(({label, cnt, revenue}) => {
-      const rev = Number(revenue || 0);
-      const w   = Math.round(rev / maxRev * 100);
-      return `<div class="bar-row" style="cursor:default;grid-template-columns:60px 1fr 90px">
-        <div class="bar-label" style="font-weight:800">${esc(label)}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${w}%"></div></div>
-        <div class="bar-count" style="font-size:10px">${rev > 0 ? fmt(Math.round(rev)) : fmt(cnt)+" ks"}</div>
-      </div>`;
-    }).join("");
+    const ctx = document.getElementById("currency-canvas")?.getContext("2d");
+    if (!ctx) return;
+    const hasRevenue = currencies.some(x => Number(x.revenue || 0) > 0);
+    _charts["currency-canvas"] = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: currencies.map(x => x.label),
+        datasets: [{
+          label: hasRevenue ? "Tržby" : "Počet",
+          data: currencies.map(x => hasRevenue ? Number(x.revenue || 0) : Number(x.cnt)),
+          backgroundColor: PALETTE.slice(0, currencies.length).map(c => c + "bb"),
+          borderRadius: 5,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ` ${fmt(Math.round(ctx.raw))}` } }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: "rgba(66,92,94,0.1)" },
+            ticks: { color: "#4f6a6c", callback: v => fmt(v) }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: "#4f6a6c" }
+          }
+        }
+      }
+    });
   }
 }
 
-// ── Načtení dat ─────────────────────────────────────────────────
-// Stats a záznamy se spouštějí paralelně.
-// Stats (agregované query) obvykle dorazí dřív → KPI + graf se zobrazí okamžitě.
-// Tabulka se zobrazí, jakmile dorazí záznamy.
-
+// ── Load data ─────────────────────────────────────────────────────
 async function loadData() {
   const btn = document.getElementById("btn-refresh");
   btn.disabled = true; btn.textContent = "…";
@@ -1013,16 +928,13 @@ async function loadData() {
   showLoadingState();
   hideError();
 
-  // Naplní dropdowny filtrů (paralelně, tiše)
   loadFilterOptions();
 
-  // /api/stats – spustit ihned, výsledek aplikovat hned jak přijde
   fetch(`${API}/api/stats`)
     .then(r => r.json())
     .then(data => { if (data.ok) applyStats(data); })
-    .catch(() => {}); // selhání stats není kritické
+    .catch(() => {});
 
-  // /api/reservations – čekáme na tabulku
   try {
     const limit = window._loadAll ? 0 : 200;
     const res   = await fetch(`${API}/api/reservations?limit=${limit}`);
@@ -1034,22 +946,21 @@ async function loadData() {
     specialCols = detectCols(allColumns);
 
     buildControls();
-    computeKPIs();   // doplní/přepíše jen to, co stats ještě nestihlo
+    computeKPIs();
     applyFilters();
 
     const t = new Date().toLocaleTimeString("cs-CZ",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-    const realTotal = data.total;
     const limitBanner = document.getElementById("limit-banner");
     if (data.limited) {
       limitBanner.style.display = "";
       limitBanner.innerHTML = `Zobrazeno <strong>${data.count.toLocaleString("cs-CZ")}</strong> nejnovějších záznamů`
-        + ` z celkových <strong>${Number(realTotal).toLocaleString("cs-CZ")}</strong>.`
+        + ` z celkových <strong>${Number(data.total).toLocaleString("cs-CZ")}</strong>.`
         + ` <a href="#" onclick="loadAll(event)">Načíst vše</a> (může trvat déle)`;
     } else {
       limitBanner.style.display = "none";
     }
     document.getElementById("topbar-meta").innerHTML =
-      `Aktualizováno: ${t}<br>${data.count.toLocaleString("cs-CZ")} z ${Number(realTotal).toLocaleString("cs-CZ")} záznamů`;
+      `Aktualizováno: ${t}<br>${data.count.toLocaleString("cs-CZ")} z ${Number(data.total).toLocaleString("cs-CZ")} záznamů`;
 
   } catch(e) {
     showError(e.message);
@@ -1059,12 +970,10 @@ async function loadData() {
   }
 }
 
-// ── Build controls ──────────────────────────────────────────────
-
+// ── Build controls ────────────────────────────────────────────────
 function buildControls() {
   const {date, agency} = specialCols;
 
-  // Nastav výchozí časový rozsah podle dat v tabulce
   if (date) {
     const dates = allRows.map(r => parseDate(r[date])).filter(Boolean).sort((a,b)=>a-b);
     if (dates.length) {
@@ -1077,23 +986,21 @@ function buildControls() {
     }
   }
 
-  // Aktualizuj popisky podle detekovaného sloupce agentury
   if (agency) {
     const lbl = agency.replace(/_/g," ");
     document.getElementById("fg-agency-label").textContent  = lbl;
     document.getElementById("kpi-agency-label").textContent = lbl;
-    document.getElementById("chart-title").textContent      = lbl.charAt(0).toUpperCase()+lbl.slice(1)+" – počty rezervací";
+    const titleEl = document.getElementById("chart-title");
+    if (titleEl) titleEl.textContent = lbl.charAt(0).toUpperCase()+lbl.slice(1)+" – počty rezervací";
   }
 }
 
-// ── Načte možnosti filtrů ze serveru ────────────────────────────
-
+// ── Filter options ────────────────────────────────────────────────
 async function loadFilterOptions() {
   try {
     const res  = await fetch(`${API}/api/filter-options`);
     const data = await res.json();
     if (!data.ok) return;
-
     const populate = (id, vals) => {
       const sel = document.getElementById(id);
       if (!sel) return;
@@ -1101,17 +1008,15 @@ async function loadFilterOptions() {
       sel.innerHTML = `<option value="">Vše</option>` +
         vals.map(v => `<option value="${esc(v)}"${v === cur ? " selected" : ""}>${esc(v)}</option>`).join("");
     };
-
     populate("f-agency",    data.agency          || []);
     populate("f-country",   data.agency_country  || []);
     populate("f-status",    data.status          || []);
     populate("f-connector", data.connector       || []);
     populate("f-currency",  data.currency        || []);
-  } catch(e) { /* tiché selhání */ }
+  } catch(e) {}
 }
 
-// ── KPI ─────────────────────────────────────────────────────────
-
+// ── KPIs ──────────────────────────────────────────────────────────
 function computeKPIs() {
   if (!_statsLoaded)
     document.getElementById("kpi-total").textContent = allRows.length.toLocaleString("cs-CZ");
@@ -1139,43 +1044,7 @@ function computeKPIs() {
   }
 }
 
-// ── Chart ────────────────────────────────────────────────────────
-
-function buildChart(rows) {
-  const section = document.getElementById("chart-section");
-  if (!specialCols.agency) { section.classList.remove("visible"); return; }
-  if (_statsLoaded) {
-    // Pouze aktualizuj aktivní bar, bez přestavby celého grafu
-    document.querySelectorAll("#chart-body .bar-row").forEach(row => {
-      const lbl = row.querySelector(".bar-label")?.textContent ?? "";
-      row.classList.toggle("active", lbl === activeBarAgency);
-    });
-    return;
-  }
-
-  section.classList.add("visible");
-  if (chartCollapsed) return;
-
-  const {agency} = specialCols;
-  const counts = {};
-  allRows.forEach(r => {
-    const v = String(r[agency] ?? "");
-    if (v) counts[v] = (counts[v] || 0) + 1;
-  });
-  const top = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0, 20);
-  const max = top[0]?.[1] || 1;
-
-  document.getElementById("chart-body").innerHTML = top.map(([name, cnt]) => {
-    const w   = Math.round(cnt / max * 100);
-    const act = activeBarAgency === name ? "active" : "";
-    return `<div class="bar-row ${act}" onclick="clickBar('${esc(name)}')" title="${esc(name)}: ${cnt} rezervací">
-      <div class="bar-label">${esc(name)}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${w}%"></div></div>
-      <div class="bar-count">${cnt.toLocaleString("cs-CZ")}</div>
-    </div>`;
-  }).join("");
-}
-
+// ── Agency bar click ──────────────────────────────────────────────
 function clickBar(name) {
   const sel = document.getElementById("f-agency");
   if (activeBarAgency === name) {
@@ -1186,27 +1055,20 @@ function clickBar(name) {
     sel.value = name;
   }
   applyFilters();
+  reloadStats();
 }
 
-function toggleChart() {
-  chartCollapsed = !chartCollapsed;
-  const body = document.getElementById("chart-body");
-  const btn  = document.getElementById("chart-toggle");
-  body.style.display = chartCollapsed ? "none" : "";
-  btn.textContent    = chartCollapsed ? "Zobrazit ▼" : "Skrýt ▲";
-}
-
+// ── Section toggles ───────────────────────────────────────────────
 function toggleSection(id) {
-  const section = document.getElementById(id + "-section");
   const btn     = document.getElementById(id + "-toggle");
-  const content = section.querySelector(":scope > :not(.chart-header)");
-  const hidden  = content.style.display === "none";
+  const content = document.getElementById(id + "-content");
+  if (!content) return;
+  const hidden = content.style.display === "none";
   content.style.display = hidden ? "" : "none";
   btn.textContent       = hidden ? "Skrýt ▲" : "Zobrazit ▼";
 }
 
-// ── Filters ──────────────────────────────────────────────────────
-
+// ── Filters ───────────────────────────────────────────────────────
 function applyFilters() {
   const search    = document.getElementById("f-search").value.toLowerCase().trim();
   const dateFrom  = document.getElementById("f-date-from").value;
@@ -1237,18 +1099,17 @@ function applyFilters() {
         if (dateTo   && d > new Date(dateTo+"T23:59:59")) return false;
       }
     }
-    if (ac          && agency    && String(row[ac])           !== agency)    return false;
-    if (countryCol  && country   && String(row[countryCol])   !== country)   return false;
-    if (statusCol   && status    && String(row[statusCol])    !== status)    return false;
-    if (connectorCol && connector && String(row[connectorCol]) !== connector) return false;
-    if (currencyCol && currency  && String(row[currencyCol])  !== currency)  return false;
+    if (ac           && agency    && String(row[ac])            !== agency)    return false;
+    if (countryCol   && country   && String(row[countryCol])    !== country)   return false;
+    if (statusCol    && status    && String(row[statusCol])     !== status)    return false;
+    if (connectorCol && connector && String(row[connectorCol])  !== connector) return false;
+    if (currencyCol  && currency  && String(row[currencyCol])   !== currency)  return false;
     return true;
   });
 
   if (sortState.col !== null) filteredRows = doSort(filteredRows);
 
   renderTable(filteredRows);
-  buildChart(filteredRows);
 
   const n   = filteredRows.length;
   const tot = allRows.length;
@@ -1277,11 +1138,9 @@ function clearFilters() {
   reloadStats();
 }
 
-// Rychlé filtry pohledu
 function setRange(months, btn) {
   document.querySelectorAll(".btn-range").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
-
   if (months === 0) {
     document.getElementById("f-date-from").value = "";
     document.getElementById("f-date-to").value   = "";
@@ -1296,7 +1155,6 @@ function setRange(months, btn) {
   reloadStats();
 }
 
-// Znovu načte stats s aktuálními filtry (pro grafy)
 function reloadStats() {
   const params = new URLSearchParams();
   const df = document.getElementById("f-date-from").value;
@@ -1321,8 +1179,7 @@ function reloadStats() {
     .catch(() => {});
 }
 
-// ── Sort ─────────────────────────────────────────────────────────
-
+// ── Sort ──────────────────────────────────────────────────────────
 function toggleSort(col) {
   sortState.dir = sortState.col === col && sortState.dir === "asc" ? "desc" : "asc";
   sortState.col = col;
@@ -1342,8 +1199,7 @@ function doSort(rows) {
   });
 }
 
-// ── Render table ─────────────────────────────────────────────────
-
+// ── Render table ──────────────────────────────────────────────────
 function renderTable(rows) {
   const el = document.getElementById("table-container");
   if (!rows.length) {
@@ -1376,12 +1232,11 @@ function renderTable(rows) {
 }
 
 // ── CSV Export ────────────────────────────────────────────────────
-
 function exportCSV() {
   if (!filteredRows.length) return;
-  const dc = specialCols.date;
+  const dc     = specialCols.date;
   const header = allColumns.join(",");
-  const body = filteredRows.map(row =>
+  const body   = filteredRows.map(row =>
     allColumns.map(col => {
       let v = row[col];
       if (col === dc) v = fmtDate(v);
@@ -1389,8 +1244,7 @@ function exportCSV() {
       return `"${v}"`;
     }).join(",")
   ).join("\n");
-
-  const blob = new Blob(["\uFEFF" + header + "\n" + body], { type: "text/csv;charset=utf-8" });
+  const blob = new Blob(["﻿" + header + "\n" + body], { type: "text/csv;charset=utf-8" });
   const url  = URL.createObjectURL(blob);
   const a    = Object.assign(document.createElement("a"), {
     href: url,
@@ -1401,7 +1255,6 @@ function exportCSV() {
 }
 
 // ── States ────────────────────────────────────────────────────────
-
 function showLoadingState() {
   document.getElementById("table-container").innerHTML = `
     <div class="state">
@@ -1442,7 +1295,6 @@ function esc(s) {
 }
 
 // ── Init ──────────────────────────────────────────────────────────
-
 function loadAll(e) {
   e.preventDefault();
   window._loadAll = true;

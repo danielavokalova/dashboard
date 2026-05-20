@@ -93,6 +93,68 @@ body {
 }
 .btn-outline:hover { background: rgba(79,106,108,0.1); }
 
+/* ── OFFLINE PANEL ──────────────────────────────────────── */
+.offline-panel {
+  display: none;
+  background: var(--paper);
+  border-radius: 20px;
+  padding: 48px 40px 40px;
+  box-shadow: 0 5px 24px var(--shadow);
+  margin-bottom: 22px;
+  text-align: center;
+}
+.offline-panel.show { display: block; }
+.offline-icon  { font-size: 44px; margin-bottom: 14px; }
+.offline-title { font-size: 22px; font-weight: 800; color: var(--ink); margin-bottom: 8px; }
+.offline-sub   { font-size: 13px; color: var(--muted); margin-bottom: 32px; line-height: 1.7; }
+.offline-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+.offline-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 18px 24px;
+  background: rgba(79,106,108,0.06);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  color: var(--ink);
+  text-decoration: none;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+  min-width: 210px;
+  text-align: left;
+}
+.offline-btn:hover { background: rgba(79,106,108,0.13); box-shadow: 0 4px 14px var(--shadow); }
+.offline-btn-title { font-size: 13px; font-weight: 800; color: var(--ink); }
+.offline-btn-desc  { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.offline-btn.accent {
+  border-color: rgba(79,106,108,0.35);
+  background: rgba(79,106,108,0.1);
+}
+.offline-status {
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.offline-spinner {
+  width: 13px; height: 13px;
+  border: 2px solid rgba(79,106,108,0.2);
+  border-top-color: var(--muted);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+  flex-shrink: 0;
+}
+
 /* ── SERVER STATUS ──────────────────────────────────────── */
 .server-status {
   display: flex;
@@ -425,6 +487,34 @@ td.cell-empty { color: var(--muted); }
 
   <div class="error-box" id="error-box"></div>
   <div id="limit-banner" style="display:none; background:rgba(79,106,108,0.1); border:1.5px solid rgba(79,106,108,0.25); border-radius:12px; padding:11px 18px; font-size:13px; color:var(--muted); margin-bottom:18px;"></div>
+
+  <!-- OFFLINE PANEL -->
+  <div class="offline-panel" id="offline-panel">
+    <div class="offline-icon">🔌</div>
+    <div class="offline-title">Server není spuštěn</div>
+    <div class="offline-sub">
+      Data se načítají z lokálního serveru <strong>localhost:8080</strong>, který momentálně neběží.<br>
+      Vyber jednu z možností níže — stránka se načte automaticky, jakmile server poběží.
+    </div>
+    <div class="offline-actions">
+      <a class="offline-btn accent" href="start-server.bat" download>
+        <div class="offline-btn-title">⬇ start-server.bat</div>
+        <div class="offline-btn-desc">Stáhnout a spustit server<br>Pro jednorázové spuštění</div>
+      </a>
+      <a class="offline-btn" href="install-autostart.bat" download>
+        <div class="offline-btn-title">⬇ install-autostart.bat</div>
+        <div class="offline-btn-desc">Spustit jednou — server se pak<br>spustí automaticky při každém přihlášení</div>
+      </a>
+      <a class="offline-btn" href="http://localhost:8080/air-reservations.html">
+        <div class="offline-btn-title">→ Otevřít lokálně</div>
+        <div class="offline-btn-desc">Přímý odkaz na localhost:8080<br>(pokud server již běží)</div>
+      </a>
+    </div>
+    <div class="offline-status">
+      <div class="offline-spinner"></div>
+      <span id="offline-retry-text">Automaticky zkouším znovu…</span>
+    </div>
+  </div>
 
   <!-- KPI -->
   <div class="kpi-row">
@@ -1321,24 +1411,11 @@ function showErrorState() {
   document.getElementById("table-container").innerHTML = `
     <div class="state">
       <div class="state-icon">⚠️</div>
-      <div class="state-title">Server není spuštěn</div>
-      <div class="state-sub" style="max-width:480px;margin:0 auto;text-align:left;line-height:2">
-        <b style="color:var(--ink)">Krok 1 —</b> Spusť server:<br>
-        &nbsp;&nbsp;→ <a href="start-server.bat" download
-             style="color:var(--muted);font-weight:700">⬇ Stáhnout start-server.bat</a>
-        &nbsp;&nbsp;(dvojklik po stažení)<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;nebo v terminálu: <code>python server.py</code><br><br>
-        <b style="color:var(--ink)">Krok 2 —</b> Otevři stránku s daty:<br>
-        &nbsp;&nbsp;→ <a href="http://localhost:8080/air-reservations.html"
-             style="color:var(--muted);font-weight:700;text-decoration:underline">
-             http://localhost:8080/air-reservations.html</a><br><br>
-        <b style="color:var(--ink)">Automatický start při přihlášení:</b><br>
-        &nbsp;&nbsp;→ <a href="install-autostart.bat" download
-             style="color:var(--muted);font-weight:700">⬇ Stáhnout install-autostart.bat</a>
-        &nbsp;&nbsp;(spustit jednou, pak vždy běží samo)
-      </div>
+      <div class="state-title">Nelze načíst data</div>
+      <div class="state-sub">Viz pokyny výše.</div>
     </div>`;
   document.getElementById("topbar-meta").textContent = "Chyba připojení";
+  updateServerStatus(false);
 }
 
 function showError(msg) {
@@ -1355,17 +1432,47 @@ function esc(s) {
     .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
-// ── Server status indicator ───────────────────────────────────────
+// ── Server status + offline panel ────────────────────────────────
+let _offlinePollTimer = null;
+
 function updateServerStatus(online) {
-  const dot   = document.getElementById("server-dot");
-  const text  = document.getElementById("server-status-text");
-  const btn   = document.getElementById("btn-start-server");
-  const local = document.getElementById("btn-open-local");
-  if (!dot) return;
-  dot.className    = "server-dot " + (online ? "online" : "offline");
-  text.textContent = online ? "Server běží" : "Server offline";
-  btn.style.display   = online ? "none" : "";
-  local.style.display = online ? "none" : "";
+  const dot  = document.getElementById("server-dot");
+  const text = document.getElementById("server-status-text");
+  const bStart = document.getElementById("btn-start-server");
+  const bLocal = document.getElementById("btn-open-local");
+  if (dot)  dot.className    = "server-dot " + (online ? "online" : "offline");
+  if (text) text.textContent = online ? "Server běží" : "Server offline";
+  if (bStart) bStart.style.display = online ? "none" : "";
+  if (bLocal) bLocal.style.display = online ? "none" : "";
+
+  const panel = document.getElementById("offline-panel");
+  if (!panel) return;
+  if (online) {
+    panel.classList.remove("show");
+    stopOfflinePoll();
+  } else {
+    panel.classList.add("show");
+    startOfflinePoll();
+  }
+}
+
+function startOfflinePoll() {
+  if (_offlinePollTimer) return;
+  let n = 0;
+  _offlinePollTimer = setInterval(async () => {
+    n++;
+    const t = document.getElementById("offline-retry-text");
+    if (t) t.textContent = `Automaticky zkouším znovu… (${n})`;
+    try {
+      const r = await fetch(`${API}/api/stats`, { signal: AbortSignal.timeout(2000) });
+      if (r.ok) { updateServerStatus(true); loadData(); }
+    } catch {}
+  }, 5000);
+}
+
+function stopOfflinePoll() {
+  clearInterval(_offlinePollTimer);
+  _offlinePollTimer = null;
 }
 
 async function pingServer() {

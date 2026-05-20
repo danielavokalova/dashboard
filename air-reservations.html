@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Air Reservations</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
 :root {
   --ink:       #1f2a2a;
@@ -414,7 +413,8 @@ td.cell-empty { color: var(--muted); }
     <div class="server-status" id="server-status-wrap">
       <span class="server-dot" id="server-dot"></span>
       <span id="server-status-text">Připojuji…</span>
-      <a class="btn-start-server" href="start-server.bat" download id="btn-start-server" style="display:none">⬇ Spustit server</a>
+      <a class="btn-start-server" href="start-server.bat" download id="btn-start-server" style="display:none">⬇ Stáhnout start-server.bat</a>
+      <a class="btn-start-server" href="http://localhost:8080/air-reservations.html" id="btn-open-local" style="display:none;border-color:rgba(79,106,108,0.4);background:rgba(79,106,108,0.08);color:var(--muted)">Otevřít lokálně →</a>
     </div>
     <button class="btn-sm btn-primary" id="btn-refresh" onclick="loadData()">Obnovit</button>
     <div class="topbar-meta" id="topbar-meta">Načítám…</div>
@@ -596,6 +596,7 @@ td.cell-empty { color: var(--muted); }
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
 const API = "http://localhost:8080";
 
@@ -1340,13 +1341,15 @@ function esc(s) {
 
 // ── Server status indicator ───────────────────────────────────────
 function updateServerStatus(online) {
-  const dot  = document.getElementById("server-dot");
-  const text = document.getElementById("server-status-text");
-  const btn  = document.getElementById("btn-start-server");
+  const dot   = document.getElementById("server-dot");
+  const text  = document.getElementById("server-status-text");
+  const btn   = document.getElementById("btn-start-server");
+  const local = document.getElementById("btn-open-local");
   if (!dot) return;
-  dot.className  = "server-dot " + (online ? "online" : "offline");
+  dot.className    = "server-dot " + (online ? "online" : "offline");
   text.textContent = online ? "Server běží" : "Server offline";
-  btn.style.display = online ? "none" : "";
+  btn.style.display   = online ? "none" : "";
+  local.style.display = online ? "none" : "";
 }
 
 async function pingServer() {

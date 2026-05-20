@@ -1104,9 +1104,12 @@ async function loadData() {
     document.getElementById("topbar-meta").innerHTML =
       `Aktualizováno: ${t}<br>${data.count.toLocaleString("cs-CZ")} z ${Number(data.total).toLocaleString("cs-CZ")} záznamů`;
 
+    updateServerStatus(true);  // server is clearly running — hide offline panel
+
   } catch(e) {
     showError(e.message);
     showErrorState();
+    pingServer();  // re-check: is server down or just a DB/query error?
   } finally {
     btn.disabled = false; btn.textContent = "Obnovit";
   }
@@ -1412,10 +1415,9 @@ function showErrorState() {
     <div class="state">
       <div class="state-icon">⚠️</div>
       <div class="state-title">Nelze načíst data</div>
-      <div class="state-sub">Viz pokyny výše.</div>
+      <div class="state-sub">Zkontroluj připojení k databázi nebo spusť server.</div>
     </div>`;
-  document.getElementById("topbar-meta").textContent = "Chyba připojení";
-  updateServerStatus(false);
+  document.getElementById("topbar-meta").textContent = "Chyba";
 }
 
 function showError(msg) {

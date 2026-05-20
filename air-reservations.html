@@ -1314,12 +1314,21 @@ function showErrorState() {
   document.getElementById("table-container").innerHTML = `
     <div class="state">
       <div class="state-icon">⚠️</div>
-      <div class="state-title">Nelze načíst data</div>
-      <div class="state-sub">
-        Spusť server dvojklikem na <code>start-server.bat</code><br>
-        nebo ručně: <code>python server.py</code><br><br>
-        Zkontroluj také, zda je vyplněný soubor <code>.env</code><br>
-        se správnými přihlašovacími údaji k PostgreSQL.
+      <div class="state-title">Server není spuštěn</div>
+      <div class="state-sub" style="max-width:480px;margin:0 auto;text-align:left;line-height:2">
+        <b style="color:var(--ink)">Krok 1 —</b> Spusť server:<br>
+        &nbsp;&nbsp;→ <a href="start-server.bat" download
+             style="color:var(--muted);font-weight:700">⬇ Stáhnout start-server.bat</a>
+        &nbsp;&nbsp;(dvojklik po stažení)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;nebo v terminálu: <code>python server.py</code><br><br>
+        <b style="color:var(--ink)">Krok 2 —</b> Otevři stránku s daty:<br>
+        &nbsp;&nbsp;→ <a href="http://localhost:8080/air-reservations.html"
+             style="color:var(--muted);font-weight:700;text-decoration:underline">
+             http://localhost:8080/air-reservations.html</a><br><br>
+        <b style="color:var(--ink)">Automatický start při přihlášení:</b><br>
+        &nbsp;&nbsp;→ <a href="install-autostart.bat" download
+             style="color:var(--muted);font-weight:700">⬇ Stáhnout install-autostart.bat</a>
+        &nbsp;&nbsp;(spustit jednou, pak vždy běží samo)
       </div>
     </div>`;
   document.getElementById("topbar-meta").textContent = "Chyba připojení";

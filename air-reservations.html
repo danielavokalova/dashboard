@@ -516,6 +516,58 @@ td.cell-empty { color: var(--muted); }
     </div>
   </div>
 
+  <!-- FILTERS -->
+  <div class="filter-bar">
+    <div class="fg">
+      <label class="fg-label" id="fg-agency-label">Agentura</label>
+      <select class="fg-input narrow" id="f-agency" onchange="applyFilters();reloadStats()">
+        <option value="">Vše</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fg-label">Země</label>
+      <select class="fg-input narrow" id="f-country" onchange="applyFilters();reloadStats()">
+        <option value="">Vše</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fg-label">Status</label>
+      <select class="fg-input narrow" id="f-status" onchange="applyFilters();reloadStats()">
+        <option value="">Vše</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fg-label">Connector</label>
+      <select class="fg-input narrow" id="f-connector" onchange="applyFilters();reloadStats()">
+        <option value="">Vše</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fg-label">Měna</label>
+      <select class="fg-input narrow" id="f-currency" onchange="applyFilters();reloadStats()">
+        <option value="">Vše</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fg-label">Datum od</label>
+      <input class="fg-input narrow" type="date" id="f-date-from" onchange="applyFilters();reloadStats()">
+    </div>
+    <div class="fg">
+      <label class="fg-label">Datum do</label>
+      <input class="fg-input narrow" type="date" id="f-date-to" onchange="applyFilters();reloadStats()">
+    </div>
+    <div class="fg" style="flex:1;min-width:180px">
+      <label class="fg-label">Hledat</label>
+      <input class="fg-input wide" type="text" id="f-search"
+             placeholder="Hledat ve všech sloupcích…" oninput="applyFilters()">
+    </div>
+    <div class="filter-right">
+      <span class="filter-count" id="filter-count"></span>
+      <button class="btn-sm btn-outline" onclick="clearFilters()">Vymazat filtry</button>
+      <button class="btn-sm btn-outline" id="btn-export" onclick="exportCSV()">Export CSV</button>
+    </div>
+  </div>
+
   <!-- KPI -->
   <div class="kpi-row">
     <div class="kpi">
@@ -617,58 +669,6 @@ td.cell-empty { color: var(--muted); }
           <div class="canvas-wrap" style="height:210px"><canvas id="currency-canvas"></canvas></div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- FILTERS -->
-  <div class="filter-bar">
-    <div class="fg">
-      <label class="fg-label" id="fg-agency-label">Agentura</label>
-      <select class="fg-input narrow" id="f-agency" onchange="applyFilters();reloadStats()">
-        <option value="">Vše</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label class="fg-label">Země</label>
-      <select class="fg-input narrow" id="f-country" onchange="applyFilters();reloadStats()">
-        <option value="">Vše</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label class="fg-label">Status</label>
-      <select class="fg-input narrow" id="f-status" onchange="applyFilters();reloadStats()">
-        <option value="">Vše</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label class="fg-label">Connector</label>
-      <select class="fg-input narrow" id="f-connector" onchange="applyFilters();reloadStats()">
-        <option value="">Vše</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label class="fg-label">Měna</label>
-      <select class="fg-input narrow" id="f-currency" onchange="applyFilters();reloadStats()">
-        <option value="">Vše</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label class="fg-label">Datum od</label>
-      <input class="fg-input narrow" type="date" id="f-date-from" onchange="applyFilters();reloadStats()">
-    </div>
-    <div class="fg">
-      <label class="fg-label">Datum do</label>
-      <input class="fg-input narrow" type="date" id="f-date-to" onchange="applyFilters();reloadStats()">
-    </div>
-    <div class="fg" style="flex:1;min-width:180px">
-      <label class="fg-label">Hledat</label>
-      <input class="fg-input wide" type="text" id="f-search"
-             placeholder="Hledat ve všech sloupcích…" oninput="applyFilters()">
-    </div>
-    <div class="filter-right">
-      <span class="filter-count" id="filter-count"></span>
-      <button class="btn-sm btn-outline" onclick="clearFilters()">Vymazat filtry</button>
-      <button class="btn-sm btn-outline" id="btn-export" onclick="exportCSV()">Export CSV</button>
     </div>
   </div>
 

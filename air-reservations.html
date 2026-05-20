@@ -600,6 +600,13 @@ td.cell-empty { color: var(--muted); }
 <script>
 const API = "http://localhost:8080";
 
+// If opened from GitHub Pages and the local server is running → jump there directly
+if (location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
+  fetch(API + "/api/stats", { signal: AbortSignal.timeout(1500) })
+    .then(r => { if (r.ok) location.replace(API + "/air-reservations.html"); })
+    .catch(() => {});
+}
+
 let allRows      = [];
 let allColumns   = [];
 let filteredRows = [];

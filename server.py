@@ -7,7 +7,8 @@ from flask_cors import CORS
 import psycopg2, psycopg2.extras
 from dotenv import load_dotenv
 
-load_dotenv()
+# Prefer values from local .env over inherited shell variables.
+load_dotenv(override=True)
 
 TABLE = os.getenv("TABLE_NAME", "gol_reservations_sourcedata_3_20260311130217")
 PORT  = int(os.getenv("PORT", 8080))
@@ -58,9 +59,12 @@ def build_filter(args):
         conds.append(f"({_DATE}) >= %s::date"); params.append(args['date_from'])
     if args.get('date_to'):
         conds.append(f"({_DATE}) <= %s::date"); params.append(args['date_to'])
-    for col in ('agency','agency_country','currency','connector','status','type'):
+    for col in ('agency','dealer','agency_country','currency','connector','status','type'):
         if args.get(col):
             conds.append(f'"{col}" = %s'); params.append(args[col])
+    if args.get('search'):
+        conds.append(f"row_to_json(\"{TABLE}\")::text ILIKE %s")
+        params.append(f"%{args['search']}%")
     return ("WHERE " + " AND ".join(conds)) if conds else "", params
 
 def wand(where, extra):
@@ -168,7 +172,7 @@ def filter_options():
     try:
         conn = get_db(); cur = conn.cursor()
         opts = {}
-        for col in ('status','agency','agency_country','currency','connector','type'):
+        for col in ('status','agency','dealer','agency_country','currency','connector','type'):
             cur.execute(f"""SELECT DISTINCT "{col}"::text FROM "{TABLE}"
                            WHERE "{col}" IS NOT NULL AND "{col}"::text != '' ORDER BY 1""")
             opts[col] = [r[0] for r in cur.fetchall()]

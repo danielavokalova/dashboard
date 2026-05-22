@@ -1,14 +1,18 @@
 @echo off
 chcp 65001 >nul
-title Odinstalace automatického startu
+title Odinstalace automatickeho startu
 
-set LINK=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\AirReservationsDashboard.lnk
+set "LINK=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\AirReservationsDashboard.lnk"
+
+echo.
+echo  Odinstalovavam automaticky start Air Reservations Dashboard...
+echo.
 
 if exist "%LINK%" (
     del "%LINK%"
-    echo  [OK]  Server se již nebude spouštět automaticky.
+    echo  [OK] Automaticky start byl odstranen.
 ) else (
-    echo  [INFO] Zástupce nebyl nalezen – nic k odinstalování.
+    echo  [INFO] Automaticky start nebyl nainstalovan.
 )
 
 echo.

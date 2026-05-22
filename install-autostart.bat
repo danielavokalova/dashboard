@@ -1,10 +1,10 @@
 @echo off
 chcp 65001 >nul
-title Instalace automatického startu
+title Instalace automatickeho startu
 
-set STARTUP=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup
-set SCRIPT_DIR=%~dp0
-set LINK=%STARTUP%\AirReservationsDashboard.lnk
+set "STARTUP=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"
+set "SCRIPT_DIR=%~dp0"
+set "LINK=%STARTUP%\AirReservationsDashboard.lnk"
 
 echo.
 echo  Instaluji Air Reservations Dashboard do Startupu Windows...
@@ -20,14 +20,14 @@ powershell -NoProfile -Command ^
    $s.Save()"
 
 if exist "%LINK%" (
-    echo  [OK]  Hotovo! Server se bude spouštět automaticky při přihlášení.
+    echo  [OK] Hotovo. Server se bude spoustet automaticky pri prihlaseni.
     echo.
-    echo  Odkaz uložen do:
+    echo  Odkaz ulozen do:
     echo  %LINK%
     echo.
-    echo  Pro odinstalování spusť: remove-autostart.bat
+    echo  Pro odinstalovani spust: remove-autostart.bat
 ) else (
-    echo  [CHYBA] Nepodařilo se vytvořit zástupce.
+    echo  [CHYBA] Nepodarilo se vytvorit zastupce.
 )
 
 echo.

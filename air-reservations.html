@@ -164,6 +164,17 @@ body {
 .error-box.show { display: block; }
 #limit-banner { order: 2; }
 
+.table-limit-note {
+  position: sticky;
+  left: 0;
+  padding: 10px 14px;
+  background: rgba(245,246,244,0.96);
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .offline-panel {
   display: none;
   order: 2;
@@ -1111,6 +1122,8 @@ td.cell-empty { color: var(--muted); }
 
 <script>
 const API = "http://localhost:8080";
+const STATIC_DATA_URL = "air-reservations.csv";
+const TABLE_RENDER_LIMIT = 500;
 
 let allRows      = [];
 let allColumns   = [];
@@ -1127,6 +1140,7 @@ let monthlyType     = "line";
 let topGroupBy      = "agency";
 let topChartType    = "bar";
 let _searchStatsTimer = null;
+let dataMode = "static";
 
 // ── Column detection ────────────────────────────────────────────
 
@@ -1702,54 +1716,144 @@ function buildBreakdownCharts(stats) {
 
 async function loadData() {
   const btn = document.getElementById("btn-refresh");
-  btn.disabled = true; btn.textContent = "…";
+  btn.disabled = true; btn.textContent = "...";
   _statsLoaded = false;
   showLoadingState();
   hideError();
 
-  // /api/reservations – čekáme na tabulku
   try {
-    const limit = window._loadAll ? 0 : 200;
-    const res   = await fetch(`${API}/api/reservations?limit=${limit}`);
-    const data  = await res.json();
-    if (!data.ok) throw new Error(data.error || "Neznámá chyba");
+    let data;
+    try {
+      data = await loadStaticSnapshot();
+      dataMode = "static";
+    } catch (staticError) {
+      data = await loadApiReservations();
+      dataMode = "api";
+    }
 
-    allRows     = data.rows;
-    allColumns  = data.columns;
-    specialCols = detectCols(allColumns);
-
+    hydrateRows(data);
     buildControls();
-    await loadFilterOptions();
-    computeKPIs();   // doplní/přepíše jen to, co stats ještě nestihlo
+    if (dataMode === "api") await loadFilterOptions();
+    else loadFilterOptionsFromRows();
+    computeKPIs();
     applyFilters();
     reloadStats();
-
-    const t = new Date().toLocaleTimeString("cs-CZ",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-    const realTotal = data.total;
-    const limitBanner = document.getElementById("limit-banner");
-    if (data.limited) {
-      limitBanner.style.display = "";
-      limitBanner.innerHTML = `Zobrazeno <strong>${data.count.toLocaleString("cs-CZ")}</strong> nejnovějších záznamů`
-        + ` z celkových <strong>${Number(realTotal).toLocaleString("cs-CZ")}</strong>.`
-        + ` <a href="#" onclick="loadAll(event)">Načíst vše</a> (může trvat déle)`;
-    } else {
-      limitBanner.style.display = "none";
-    }
-    document.getElementById("topbar-meta").innerHTML =
-      `Aktualizováno: ${t}<br>${data.count.toLocaleString("cs-CZ")} z ${Number(realTotal).toLocaleString("cs-CZ")} záznamů`;
-
-    updateServerStatus(true);
-
+    updateDataMeta(data);
+    updateServerStatus(true, dataMode);
   } catch(e) {
     showError(e.message);
     showErrorState();
-    updateServerStatus(false);
+    updateServerStatus(false, dataMode);
   } finally {
     btn.disabled = false; btn.textContent = "Obnovit";
   }
 }
 
-// ── Build controls ──────────────────────────────────────────────
+async function loadStaticSnapshot() {
+  const res = await fetch(`${STATIC_DATA_URL}?v=${Date.now()}`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Static data ${res.status}`);
+  const text = await res.text();
+  const parsed = parseCsv(text);
+  return {
+    ok: true,
+    source: "csv-web",
+    columns: parsed.columns,
+    rows: parsed.rows,
+    count: parsed.rows.length,
+    total: parsed.rows.length
+  };
+}
+
+function normName(name) {
+  return String(name || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+function findCol(name) {
+  const wanted = normName(name);
+  return allColumns.find(col => normName(col) === wanted) || null;
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let field = "";
+  let inQuotes = false;
+  const firstLine = text.slice(0, text.indexOf("\n") > -1 ? text.indexOf("\n") : text.length);
+  const delimiter = (firstLine.match(/;/g) || []).length > (firstLine.match(/,/g) || []).length ? ";" : ",";
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    const next = text[i + 1];
+    if (inQuotes) {
+      if (ch === '"' && next === '"') {
+        field += '"';
+        i++;
+      } else if (ch === '"') {
+        inQuotes = false;
+      } else {
+        field += ch;
+      }
+    } else if (ch === '"') {
+      inQuotes = true;
+    } else if (ch === delimiter) {
+      row.push(field);
+      field = "";
+    } else if (ch === "\n") {
+      row.push(field);
+      rows.push(row);
+      row = [];
+      field = "";
+    } else if (ch !== "\r") {
+      field += ch;
+    }
+  }
+  if (field || row.length) {
+    row.push(field);
+    rows.push(row);
+  }
+  const columns = rows.shift() || [];
+  return {
+    columns,
+    rows: rows
+      .filter(values => values.some(v => v !== ""))
+      .map(values => Object.fromEntries(columns.map((col, i) => [col, values[i] === "" ? null : values[i] ?? null])))
+  };
+}
+
+async function loadApiReservations() {
+  const limit = window._loadAll ? 0 : 200;
+  const res = await fetch(`${API}/api/reservations?limit=${limit}`);
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || "Neznama chyba");
+  return data;
+}
+
+function hydrateRows(data) {
+  allRows = data.rows || [];
+  allColumns = data.columns && data.columns.length
+    ? data.columns
+    : (allRows[0] ? Object.keys(allRows[0]) : []);
+  specialCols = detectCols(allColumns);
+}
+
+function updateDataMeta(data) {
+  const t = new Date().toLocaleTimeString("cs-CZ",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  const realTotal = Number(data.total || data.count || allRows.length);
+  const limitBanner = document.getElementById("limit-banner");
+  if (dataMode === "api" && data.limited) {
+    limitBanner.style.display = "";
+    limitBanner.innerHTML = `Zobrazeno <strong>${data.count.toLocaleString("cs-CZ")}</strong> nejnovejsich zaznamu`
+      + ` z celkovych <strong>${realTotal.toLocaleString("cs-CZ")}</strong>.`
+      + ` <a href="#" onclick="loadAll(event)">Nacist vse</a> (muze trvat dele)`;
+  } else {
+    limitBanner.style.display = "none";
+  }
+  const label = dataMode === "static" ? "Data z webu" : "Server";
+  document.getElementById("topbar-meta").innerHTML =
+    `${label}: ${t}<br>${allRows.length.toLocaleString("cs-CZ")} z ${realTotal.toLocaleString("cs-CZ")} zaznamu`;
+}
 
 function buildControls() {
   const {date, agency} = specialCols;
@@ -1780,29 +1884,48 @@ function buildControls() {
 
 // ── Načte možnosti filtrů z celé DB ──────────────────────────────
 
-async function loadFilterOptions() {
-  const populate = (id, values) => {
-    const sel = document.getElementById(id);
-    if (!sel) return;
-    const cur = sel.value;
-    sel.innerHTML = `<option value="">Vše</option>` +
-      values.map(v => `<option value="${esc(v)}"${v === cur ? " selected" : ""}>${esc(v)}</option>`).join("");
-  };
+function populateFilterSelect(id, values) {
+  const sel = document.getElementById(id);
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = `<option value="">Vse</option>` +
+    values.map(v => `<option value="${esc(v)}"${v === cur ? " selected" : ""}>${esc(v)}</option>`).join("");
+}
 
+function uniqueColumnValues(colName) {
+  const col = findCol(colName);
+  if (!col) return [];
+  return [...new Set(allRows.map(row => row[col]).filter(v => v != null && String(v).trim() !== "").map(String))]
+    .sort((a, b) => a.localeCompare(b, "cs"));
+}
+
+function loadFilterOptionsFromRows() {
+  populateFilterSelect("f-agency", uniqueColumnValues("agency"));
+  populateFilterSelect("f-dealer", uniqueColumnValues("dealer"));
+  populateFilterSelect("f-country", uniqueColumnValues("agency_country"));
+  populateFilterSelect("f-status", uniqueColumnValues("status"));
+  populateFilterSelect("f-connector", uniqueColumnValues("connector"));
+  populateFilterSelect("f-currency", uniqueColumnValues("currency"));
+}
+
+async function loadFilterOptions() {
   try {
     const res  = await fetch(`${API}/api/filter-options`);
     const data = await res.json();
-    if (!data.ok) return;
-    populate("f-agency", data.agency || []);
-    populate("f-dealer", data.dealer || []);
-    populate("f-country", data.agency_country || []);
-    populate("f-status", data.status || []);
-    populate("f-connector", data.connector || []);
-    populate("f-currency", data.currency || []);
-  } catch(e) { /* tiché selhání */ }
+    if (!data.ok) {
+      loadFilterOptionsFromRows();
+      return;
+    }
+    populateFilterSelect("f-agency", data.agency || []);
+    populateFilterSelect("f-dealer", data.dealer || []);
+    populateFilterSelect("f-country", data.agency_country || []);
+    populateFilterSelect("f-status", data.status || []);
+    populateFilterSelect("f-connector", data.connector || []);
+    populateFilterSelect("f-currency", data.currency || []);
+  } catch(e) {
+    loadFilterOptionsFromRows();
+  }
 }
-
-// ── KPI ─────────────────────────────────────────────────────────
 
 function computeKPIs() {
   if (!_statsLoaded)
@@ -1835,8 +1958,8 @@ function computeKPIs() {
 
 function buildChart(rows) {
   const section = document.getElementById("chart-section");
-  const hasDealer = allColumns.some(c => c.toLowerCase() === "dealer");
-  const hasCountry = allColumns.some(c => c.toLowerCase() === "agency_country");
+  const hasDealer = !!findCol("dealer");
+  const hasCountry = !!findCol("agency_country");
   if (!specialCols.agency && !hasDealer && !hasCountry) { section.classList.remove("visible"); return; }
   if (!_statsLoaded) return;
   document.querySelectorAll("#chart-top-body .bar-row").forEach(row => {
@@ -1885,11 +2008,11 @@ function applyFilters() {
   if (activeBarCountry && country !== activeBarCountry) activeBarCountry = null;
 
   const {date: dc, agency: ac} = specialCols;
-  const dealerCol    = allColumns.find(c => c.toLowerCase() === "dealer")         || null;
-  const countryCol   = allColumns.find(c => c.toLowerCase() === "agency_country") || null;
-  const statusCol    = allColumns.find(c => c.toLowerCase() === "status")         || null;
-  const connectorCol = allColumns.find(c => c.toLowerCase() === "connector")      || null;
-  const currencyCol  = allColumns.find(c => c.toLowerCase() === "currency")       || null;
+  const dealerCol    = findCol("dealer");
+  const countryCol   = findCol("agency_country");
+  const statusCol    = findCol("status");
+  const connectorCol = findCol("connector");
+  const currencyCol  = findCol("currency");
 
   filteredRows = allRows.filter(row => {
     if (search) {
@@ -1977,39 +2100,12 @@ function setRange(months, btn) {
 
 // Načte stats z backendu dle aktivních filtrů
 function reloadStats() {
-  const search = document.getElementById("f-search").value.trim();
-  if (search) {
-    applyStats(buildStatsFromRows(filteredRows), { local: true });
-    return;
-  }
-
-  const params = new URLSearchParams();
-  const df = document.getElementById("f-date-from").value;
-  const dt = document.getElementById("f-date-to").value;
-  const agency = document.getElementById("f-agency").value;
-  const dealer = document.getElementById("f-dealer").value;
-  const country = document.getElementById("f-country").value;
-  const status = document.getElementById("f-status").value;
-  const connector = document.getElementById("f-connector").value;
-  const currency = document.getElementById("f-currency").value;
-  if (df) params.set("date_from", df);
-  if (dt) params.set("date_to", dt);
-  if (agency) params.set("agency", agency);
-  if (dealer) params.set("dealer", dealer);
-  if (country) params.set("agency_country", country);
-  if (status) params.set("status", status);
-  if (connector) params.set("connector", connector);
-  if (currency) params.set("currency", currency);
-  const qs = params.toString();
-  fetch(`${API}/api/stats${qs ? "?" + qs : ""}`)
-    .then(r => r.json())
-    .then(data => { if (data.ok) applyStats(data); })
-    .catch(() => {});
+  applyStats(buildStatsFromRows(filteredRows), { local: true });
 }
 
 function buildStatsFromRows(rows) {
   const items = rows || [];
-  const byLc = (name) => allColumns.find(c => c.toLowerCase() === name) || null;
+  const byLc = (name) => findCol(name);
   const colDate = byLc("reservation_date") || specialCols.date;
   const colAgency = byLc("agency") || specialCols.agency;
   const colDealer = byLc("dealer");
@@ -2155,7 +2251,8 @@ function renderTable(rows) {
     return `<th class="${cls}" onclick="toggleSort('${esc(col)}')">${esc(col.replace(/_/g," ").toUpperCase())}<i class="sort-icon"></i></th>`;
   }).join("");
 
-  const body = rows.map(row => {
+  const visibleRows = rows.slice(0, TABLE_RENDER_LIMIT);
+  const body = visibleRows.map(row => {
     const cells = allColumns.map(col => {
       let v = row[col], cls = "";
       if (col === dc) { v = fmtDate(v); cls = "cell-date"; }
@@ -2167,7 +2264,10 @@ function renderTable(rows) {
     return `<tr>${cells}</tr>`;
   }).join("");
 
-  el.innerHTML = `<table><thead><tr>${heads}</tr></thead><tbody>${body}</tbody></table>`;
+  const note = rows.length > TABLE_RENDER_LIMIT
+    ? `<div class="table-limit-note">V tabulce je pro rychlost zobrazeno prvnĂ­ch ${TABLE_RENDER_LIMIT.toLocaleString("cs-CZ")} z ${rows.length.toLocaleString("cs-CZ")} Ĺ™ĂˇdkĹŻ. Grafy a KPI poÄŤĂ­tajĂ­ vĹˇechny vyfiltrovanĂ© zĂˇznamy.</div>`
+    : "";
+  el.innerHTML = `${note}<table><thead><tr>${heads}</tr></thead><tbody>${body}</tbody></table>`;
 }
 
 // ── CSV Export ────────────────────────────────────────────────────
@@ -2201,25 +2301,22 @@ function showLoadingState() {
   document.getElementById("table-container").innerHTML = `
     <div class="state">
       <div class="spinner"></div>
-      <div class="state-title">Načítám data…</div>
-      <div class="state-sub">Připojuji se k databázi</div>
+      <div class="state-title">Nacitam data...</div>
+      <div class="state-sub">Stahuji data z webu</div>
     </div>`;
-  document.getElementById("topbar-meta").textContent = "Načítám…";
+  document.getElementById("topbar-meta").textContent = "Nacitam...";
 }
 
 function showErrorState() {
   document.getElementById("table-container").innerHTML = `
     <div class="state">
-      <div class="state-icon">⚠️</div>
-      <div class="state-title">Nelze načíst data</div>
+      <div class="state-icon">!</div>
+      <div class="state-title">Nelze nacist data</div>
       <div class="state-sub">
-        Spusť server dvojklikem na <code>start-server.bat</code><br>
-        nebo ručně: <code>python server.py</code><br><br>
-        Zkontroluj také, zda je vyplněný soubor <code>.env</code><br>
-        se správnými přihlašovacími údaji k PostgreSQL.
+        Webovy datovy soubor se nepodarilo nacist. Zkuste obnovit stranku.
       </div>
     </div>`;
-  document.getElementById("topbar-meta").textContent = "Chyba připojení";
+  document.getElementById("topbar-meta").textContent = "Chyba dat";
 }
 
 function showError(msg) {
@@ -2230,7 +2327,7 @@ function showError(msg) {
 
 function hideError() { document.getElementById("error-box").classList.remove("show"); }
 
-function updateServerStatus(online) {
+function updateServerStatus(online, mode = dataMode) {
   const dot = document.getElementById("server-dot");
   const text = document.getElementById("server-status-text");
   const link = document.getElementById("download-server-link");
@@ -2240,8 +2337,10 @@ function updateServerStatus(online) {
     dot.classList.toggle("online", online);
     dot.classList.toggle("offline", !online);
   }
-  if (text) text.textContent = online ? "Server běží" : "Server offline";
-  if (link) link.classList.toggle("show", !online);
+  if (text) text.textContent = online
+    ? (mode === "static" ? "Data online" : "Server bezi")
+    : "Data offline";
+  if (link) link.classList.remove("show");
   if (panel) panel.classList.toggle("show", !online);
 }
 

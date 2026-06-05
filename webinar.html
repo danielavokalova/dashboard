@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6. GOL IBE Refresh Webinář</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --text-color: #c9d1d9;
+            --text-bright: #f0f6fc;
+            --accent-color: #58a6ff;
+            --border-color: #30363d;
+            --footer-text: #8b949e;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+        header h1 {
+            color: var(--text-bright);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        header p {
+            color: var(--accent-color);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+        .section-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .section-card h2 {
+            color: var(--text-bright);
+            font-size: 1.5rem;
+            margin-bottom: 1.2rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        .section-card h3 {
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            margin: 1rem 0 0.5rem 0;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        li {
+            margin-bottom: 0.8rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        li::before {
+            content: "•";
+            color: var(--accent-color);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+        .links-grid {
+            display: block;
+        }
+        .link-item {
+            display: block;
+            background: #21262d;
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            color: var(--text-color);
+            transition: transform 0.2s, border-color 0.2s, background-color 0.2s;
+        }
+        .link-item:hover {
+            border-color: var(--accent-color);
+            background-color: #30363d;
+            transform: translateY(-2px);
+        }
+        .link-item strong {
+            color: var(--text-bright);
+            display: block;
+            font-size: 1.1rem;
+            margin-bottom: 0.2rem;
+        }
+        .link-item span {
+            font-size: 0.9rem;
+            color: var(--footer-text);
+        }
+        .badge-ai {
+            background-color: #238636;
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+        .highlight-box {
+            background: rgba(88, 166, 255, 0.1);
+            border-left: 4px solid var(--accent-color);
+            padding: 1rem;
+            border-radius: 0 4px 4px 0;
+            margin: 1rem 0;
+        }
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--footer-text);
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            font-weight: bold;
+            border-top: 1px solid var(--border-color);
+            margin-top: 3rem;
+            background-color: var(--card-bg);
+        }
+        .contact-info {
+            font-size: 0.95rem;
+            color: var(--text-color);
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>6. GOL IBE REFRESH WEBINÁŘ</h1>
+        <p>Prezentační &amp; Informační Portál</p>
+    </header>
+    <div class="container">
+        <!-- AGENDA -->
+        <div class="section-card">
+            <h2>1. Hlavní program &amp; Agenda</h2>
+            <h3>🔄 REFRESH</h3>
+            <ul>
+                <li>Doplňující materiály, texty a produktové listy.</li>
+                <li>Statistiky využití, logy a přehledy klientských požadavků.</li>
+                <li>Optimalizace supportních ticketů a systémové podpory.</li>
+            </ul>
+            <h3>💻 GOOD TO KNOWS (LIVE SHOW)</h3>
+            <ul>
+                <li><strong>Frontend Customizace:</strong> Živá ukázka úpravy tlačítek, pozadí, barev a textových vrstev v reálném čase.</li>
+                <li><strong>AI Styling Assistant:</strong> Generování čistého produkčního CSS kódu pomocí jednoduchých textových příkazů.</li>
+            </ul>
+            <h3>🍇 TASTINGS &amp; RECOMMENDATIONS</h3>
+            <ul>
+                <li>Přímá integrace hotelového obsahu bez prostředníků.</li>
+                <li>GOL API pro pokročilé vývojáře a vlastní frontend.</li>
+                <li>Queue Processor Automation jako prevence ADM.</li>
+            </ul>
+        </div>
+
+        <!-- PRODUCTION PORTALS -->
+        <div class="section-card">
+            <h2>2. Produkční portály pro inspiraci</h2>
+            <p style="margin-bottom: 1rem;">Kliknutím otevřete reálné a aktivní implementace našich klientů přímo z databáze:</p>
+            <div class="links-grid">
+                <a href="https://flybyleela.golibe.com/" target="_blank" rel="noopener" class="link-item">
+                    <strong>Leelawade Travel (Thajsko) ↗</strong>
+                    <span>Standardní čistá implementace GOL IBE se zakázkovými barvami.</span>
+                </a>
+                <a href="https://aaztrip.golibe.com/" target="_blank" rel="noopener" class="link-item">
+                    <strong>AAZ Travel (Velká Británie) ↗</strong>
+                    <span>Globální nasazení platformy uzpůsobené pro britský trh.</span>
+                </a>
+                <a href="https://skyceylon.golibe.com/" target="_blank" rel="noopener" class="link-item">
+                    <strong>Skyceylon (Austrálie) ↗</strong>
+                    <span>Moderní vyhledávací rozhraní přizpůsobené australským standardům.</span>
+                </a>
+                <a href="https://letenky.wohol.cz/" target="_blank" rel="noopener" class="link-item">
+                    <strong>Czech Kiwis (Česká republika) ↗</strong>
+                    <span>Pokročilá, vysoce modifikovaná a customizovaná verze vzhledu.</span>
+                </a>
+                <a href="https://bo.golibe.com/" target="_blank" rel="noopener" class="link-item" style="border-color: #238636;">
+                    <strong style="color: #4ade80;">GOL IBE Backoffice Konzole ↗</strong>
+                    <span>Přímý vstup do administrace pro živé ukázky během prezentace.</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- DESIGN TOOLS -->
+        <div class="section-card">
+            <h2>3. Nástroje pro inspiraci a výběr barev</h2>
+            <p style="margin-bottom: 1rem;">Prověřené nástroje pro rychlý výběr barevných palet přímo při prezentaci:</p>
+            <div class="links-grid">
+                <a href="https://coolors.co/palettes/trending" target="_blank" rel="noopener" class="link-item">
+                    <strong>Coolors.co — Trendy Palety ↗</strong>
+                    <span>Přímý odkaz na tisíce nejpopulárnějších barevných schémat současnosti.</span>
+                </a>
+                <a href="https://color.adobe.com/" target="_blank" rel="noopener" class="link-item">
+                    <strong>Adobe Color Wheel ↗</strong>
+                    <span>Profesionální generátor komplementárních barev na základě psychologie prodeje.</span>
+                </a>
+                <a href="https://colorhunt.co/" target="_blank" rel="noopener" class="link-item">
+                    <strong>Color Hunt ↗</strong>
+                    <span>Zjednodušené čtyřbarevné sety pro okamžitý návrh moderního webu bez grafika.</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- FRONTEND & AI -->
+        <div class="section-card">
+            <h2>4. Customizace frontendu &amp; AI CSS Assistant</h2>
+            <div class="badge-ai">AI POWERED TECHNOLOGY</div>
+            <h3>⚡ Svatá trojice tlačítek (The Big 3)</h3>
+            <ul>
+                <li>Kompletní vizuální kontrola nad klíčovými konverzními prvky: <strong>Vyhledat</strong>, <strong>Vybrat</strong> a <strong>Rezervovat</strong>.</li>
+                <li>Okamžité změny barev, zaoblení hran, velikostí písem a hover efektů bez nutnosti programování.</li>
+            </ul>
+            <h3>🔔 Notifikační a marketingové bannery</h3>
+            <ul>
+                <li>Nasazení upozornění pro zákazníky během několika sekund — provozní změny, stávky aerolinek, speciální akce.</li>
+            </ul>
+            <h3>🤖 Umělá inteligence v akci</h3>
+            <ul>
+                <li>Zákazník napíše zadání lidskou řečí (např. <em>"Chci velké vyhledávací tlačítko v neonově modré barvě s jemným stínem"</em>).</li>
+                <li>AI okamžitě zkompiluje validní produkční CSS a automaticky ho injektuje do systému.</li>
+            </ul>
+            <div class="highlight-box">
+                <strong>Proč je GOL IBE napřed před konkurencí?</strong><br>
+                U starých rezervačních systémů znamená změna barvy tlačítka otevírání ticketů u vývojářů, účtování programátorských hodin a dny čekání. V GOL IBE vše změníte sami v administraci — nulové náklady, okamžitý výsledek.
+            </div>
+        </div>
+
+        <!-- HOTEL CONTENT -->
+        <div class="section-card">
+            <h2>5. Hotel Content Integration</h2>
+            <ul>
+                <li><strong>Flexibilní integrace:</strong> Napojení přes předjednané licence CEE Systems nebo využití vlastních přímých kontraktů agentury.</li>
+                <li><strong>Hotelová peněženka &amp; Depozity:</strong> Automatizované finanční toky se strháváním kreditů ihned po potvrzení ubytování.</li>
+                <li><strong>Platební brána:</strong> Nezbytná podmínka pro plnou automatizaci a okamžitou fakturaci koncovým klientům.</li>
+            </ul>
+            <div class="links-grid" style="margin-top: 1.5rem;">
+                <a href="https://demo4.golibe.com" target="_blank" rel="noopener" class="link-item">
+                    <strong>Live Hotelové Demo ↗</strong>
+                    <span>Ostré testovací prostředí se zapnutými hotely pro živou ukázku.</span>
+                </a>
+                <a href="https://cee-systems.gitbook.io/enhelp-golibe/9.-hotel-content" target="_blank" rel="noopener" class="link-item">
+                    <strong>GitBook Dokumentace: Nastavení hotelů ↗</strong>
+                    <span>Kompletní technický průvodce implementací a nastavením parametrů.</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- GOL API -->
+        <div class="section-card">
+            <h2>6. GOL API pro Vývojáře</h2>
+            <ul>
+                <li><strong>Obejdení standardního rozhraní:</strong> Navrženo pro technologické agentury, velké konsolidátory a OTA, kteří nechtějí být limitováni předpřipraveným designem konzole.</li>
+                <li><strong>Absolutní svoboda:</strong> Vlastní unikátní nákupní procesy, nativní mobilní aplikace nebo interní podnikové systémy nad surovými XML/JSON daty.</li>
+                <li><strong>Chcete tvořit podle svého?</strong> Pokud vám nestačí možnosti konzole, GOL API je pravé řešení pro vás.</li>
+            </ul>
+            <div class="links-grid" style="margin-top: 1.5rem;">
+                <a href="https://www.cee-systems.com/solutions/gol-api" target="_blank" rel="noopener" class="link-item">
+                    <strong>Dokumentace GOL API ↗</strong>
+                    <span>Struktura endpointů, technické limity a vývojářská specifikace.</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- QUEUE PROCESSOR -->
+        <div class="section-card">
+            <h2>7. Queue Processor — Hlídač rezervací</h2>
+            <ul>
+                <li><strong>Prevence ADM:</strong> Automatické čištění rizikových HX segmentů zrušených leteckými společnostmi dříve, než vygenerují pokutu.</li>
+                <li><strong>Chytrá distribuce PNR:</strong> Každou hodinu kontroluje, filtruje a přesouvá rezervační záznamy do správných front dle nastavených pravidel.</li>
+                <li><strong>Za málo peněz hodně peněz:</strong> Plná automatizace odstraňuje lidskou chybovost a chrání agenturu před zbytečnými náklady.</li>
+            </ul>
+            <div class="links-grid" style="margin-top: 1.5rem;">
+                <a href="https://www.cee-systems.com/solutions/queue-processor" target="_blank" rel="noopener" class="link-item">
+                    <strong>Technický přehled Queue Processoru ↗</strong>
+                    <span>Metriky úspor, procesní schémata a podmínky nasazení.</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Q&A -->
+        <div class="section-card" style="text-align: center;">
+            <h2>Otázky, odpovědi &amp; Závěr</h2>
+            <p style="font-size: 1.1rem; margin-bottom: 1.5rem;">Všechny manuály, konfigurační postupy a nápovědy jsou dostupné online:</p>
+            <a href="https://cee-systems.gitbook.io/enhelp-golibe" target="_blank" rel="noopener" class="link-item" style="text-align: left; max-width: 500px; margin: 0 auto 1.5rem auto;">
+                <strong>Oficiální GitBook Manuál GOL IBE ↗</strong>
+                <span>Kompletní uživatelská a technická báze znalostí.</span>
+            </a>
+            <div class="contact-info">
+                <strong>Dotazy a technická podpora:</strong><br>
+                <a href="mailto:daniela.vokalova@travelportgds.cz" style="color: var(--accent-color); text-decoration: none; font-weight: bold;">daniela.vokalova@travelportgds.cz</a>
+            </div>
+        </div>
+    </div>
+    <footer>
+        CEE TRAVEL SYSTEMS
+    </footer>
+</body>
+</html>

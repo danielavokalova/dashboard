@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ideas Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:       #e8ddd2;
+  --white:       #f5ede4;
+  --ink:         #0a0a0a;
+  --ink-soft:    #1a1a1a;
+  --ink-muted:   #555550;
+  --border:      #cfc2b4;
+  --border-soft: #ddd0c6;
+  --shadow:      rgba(60,40,20,0.12);
+  --shadow-lg:   rgba(60,40,20,0.22);
+
+  /* accent — teal */
+  --accent:      #00736a;
+  --accent-bg:   #d6f0ee;
+  --accent-soft: #b0e0dc;
+
+  /* stage palette — vivid */
+  --s-spark-bg:    #d6f0ee;
+  --s-spark-bd:    #6cc8c0;
+  --s-spark-dot:   #00736a;
+
+  --s-explore-bg:  #dceeff;
+  --s-explore-bd:  #88bbf5;
+  --s-explore-dot: #1a6fd6;
+
+  --s-plan-bg:     #d8f7ec;
+  --s-plan-bd:     #70d4ae;
+  --s-plan-dot:    #0f9e64;
+
+  --s-wip-bg:      #fff0d8;
+  --s-wip-bd:      #f0be6a;
+  --s-wip-dot:     #d97008;
+
+  --s-done-bg:     #d8f5d8;
+  --s-done-bd:     #70cc70;
+  --s-done-dot:    #1fa81f;
+
+  --s-trash-bg:    #f0ece8;
+  --s-trash-bd:    #c4b8ae;
+  --s-trash-dot:   #8a7a70;
+
+  /* tab accent override for private */
+  --tab-work:    #00736a;
+  --tab-private: #00736a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  background: #e2d5c8;
+  background-attachment: fixed;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  color: var(--ink);
+}
+
+/* ───── HEADER ───── */
+header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 36px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 62px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-right: 36px;
+}
+
+.brand-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #00736a, #00a896);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.brand-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* tabs */
+.tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--border-soft);
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.tab-btn {
+  padding: 6px 20px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.tab-btn.active[data-tab="work"] {
+  background: var(--white);
+  color: var(--tab-work);
+  box-shadow: 0 1px 4px var(--shadow);
+}
+
+.tab-btn.active[data-tab="private"] {
+  background: var(--white);
+  color: var(--tab-private);
+  box-shadow: 0 1px 4px var(--shadow);
+}
+
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-new {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.btn-new:hover { opacity: 0.88; transform: translateY(-1px); }
+
+/* ───── BOARD ───── */
+.board-wrap {
+  padding: 28px 24px;
+  overflow-x: auto;
+}
+
+.board {
+  display: flex;
+  gap: 16px;
+  min-width: 900px;
+}
+
+/* ───── COLUMN ───── */
+.column {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.col-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--white);
+  border: 1px solid var(--border);
+}
+
+.col-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.col-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.col-count {
+  margin-left: auto;
+  background: var(--border-soft);
+  color: var(--ink-muted);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+.col-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-height: 80px;
+}
+
+/* ───── IDEA CARD ───── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 15px 12px;
+  cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+  position: relative;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px var(--shadow);
+  border-color: var(--border);
+}
+
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: #000;
+  flex: 1;
+}
+
+.card-excerpt {
+  font-size: 13px;
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.card-date {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.card-attach-badge {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  color: var(--ink-muted);
+}
+
+/* stage accent strip */
+.card[data-stage="spark"]       { border-left: 3px solid var(--s-spark-dot); }
+.card[data-stage="exploring"]   { border-left: 3px solid var(--s-explore-dot); }
+.card[data-stage="planning"]    { border-left: 3px solid var(--s-plan-dot); }
+.card[data-stage="in-progress"] { border-left: 3px solid var(--s-wip-dot); }
+.card[data-stage="done"]        { border-left: 3px solid var(--s-done-dot); }
+.card[data-stage="trashed"]     { border-left: 3px solid var(--s-trash-dot); opacity: 0.6; }
+
+/* empty column state */
+.col-empty {
+  padding: 20px 14px;
+  text-align: center;
+  color: var(--ink-muted);
+  font-size: 12px;
+  border: 1.5px dashed var(--border);
+  border-radius: 12px;
+}
+
+/* ───── MODAL ───── */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(30,24,20,0.46);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.overlay.open { display: flex; }
+
+.modal {
+  background: var(--white);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 960px;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 64px var(--shadow-lg);
+  overflow: hidden;
+  animation: modalIn 0.22s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border-soft);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.modal-header-text { flex: 1; }
+
+.modal-header-text h2 {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+.modal-header-text p {
+  font-size: 11px;
+  color: var(--ink-muted);
+  margin-top: 2px;
+}
+
+.modal-close {
+  width: 30px;
+  height: 30px;
+  background: var(--border-soft);
+  border: none;
+  border-radius: 9px;
+  color: var(--ink-soft);
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.modal-close:hover { background: var(--border); }
+
+.modal-body {
+  overflow-y: auto;
+  padding: 20px 28px;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 32px;
+  align-content: start;
+}
+
+/* notes and attachments span full width */
+.modal-body .field-notes,
+.modal-body .field-attach { grid-column: 1 / -1; }
+
+.modal-footer {
+  padding: 14px 24px;
+  border-top: 1px solid var(--border-soft);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* form fields */
+.field { display: flex; flex-direction: column; gap: 5px; }
+
+.field-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.field input[type="text"],
+.field textarea,
+.field select {
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 9px 13px;
+  outline: none;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  resize: none;
+}
+
+.field input[type="text"]:focus,
+.field textarea:focus,
+.field select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(124,92,191,0.12);
+  background: var(--white);
+}
+
+.field textarea { min-height: 140px; line-height: 1.7; font-size: 14px; }
+
+.field textarea.notes-area { min-height: 300px; font-size: 14px; }
+
+/* stage selector pills */
+.stage-pills {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.stage-pill {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.stage-pill:hover { border-color: var(--ink-muted); }
+
+.stage-pill.selected[data-stage="spark"]       { background: var(--s-spark-bg); border-color: var(--s-spark-dot); color: var(--s-spark-dot); }
+.stage-pill.selected[data-stage="exploring"]   { background: var(--s-explore-bg); border-color: var(--s-explore-dot); color: var(--s-explore-dot); }
+.stage-pill.selected[data-stage="planning"]    { background: var(--s-plan-bg); border-color: var(--s-plan-dot); color: var(--s-plan-dot); }
+.stage-pill.selected[data-stage="in-progress"] { background: var(--s-wip-bg); border-color: var(--s-wip-dot); color: var(--s-wip-dot); }
+.stage-pill.selected[data-stage="done"]        { background: var(--s-done-bg); border-color: var(--s-done-dot); color: var(--s-done-dot); }
+.stage-pill.selected[data-stage="trashed"]     { background: var(--s-trash-bg); border-color: var(--s-trash-dot); color: var(--s-trash-dot); }
+
+/* attachments */
+.attach-zone {
+  border: 1.5px dashed var(--border);
+  border-radius: 12px;
+  padding: 16px 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  color: var(--ink-muted);
+  font-size: 12px;
+}
+
+.attach-zone:hover { border-color: var(--accent); background: var(--accent-bg); color: var(--accent); }
+
+.attach-zone input { display: none; }
+
+.attach-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+
+.attach-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 11px;
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.attach-item-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.attach-item-name:hover { text-decoration: underline; }
+
+.attach-remove {
+  background: none;
+  border: none;
+  color: var(--ink-muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 2px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: color 0.12s;
+}
+
+.attach-remove:hover { color: #d95b5b; }
+
+/* footer buttons */
+.btn {
+  padding: 9px 20px;
+  border-radius: 10px;
+  border: none;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-ghost   { background: var(--border-soft); color: var(--ink-soft); }
+.btn-danger  { background: #fdecea; color: #c0392b; margin-right: auto; }
+
+/* ───── TOAST ───── */
+.toast {
+  position: fixed;
+  bottom: 22px;
+  right: 28px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 10px 18px;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px var(--shadow-lg);
+  transform: translateY(60px);
+  opacity: 0;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  pointer-events: none;
+  z-index: 500;
+}
+
+.toast.show { transform: translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="header-brand">
+    <div class="brand-icon">✦</div>
+    <span class="brand-title">Ideas</span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="work" onclick="switchTab('work')">Work</button>
+    <button class="tab-btn" data-tab="private" onclick="switchTab('private')">Private</button>
+  </div>
+
+  <div class="header-actions">
+    <button class="btn-new" onclick="openNew()">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+        <path d="M6.5 1.5v10M1.5 6.5h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      New Idea
+    </button>
+  </div>
+</header>
+
+<!-- ── BOARD ── -->
+<div class="board-wrap">
+  <div class="board" id="board"></div>
+</div>
+
+<!-- ── MODAL ── -->
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+  <div class="modal" id="modal">
+
+    <div class="modal-header">
+      <div class="modal-header-text">
+        <h2 id="modal-title-label">New Idea</h2>
+        <p id="modal-subtitle">Add your thought and track it from spark to realisation.</p>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="field">
+        <label class="field-label">Title</label>
+        <input type="text" id="f-title" placeholder="Name your idea…">
+      </div>
+
+      <div class="field">
+        <label class="field-label">Brief description</label>
+        <textarea id="f-desc" rows="3" placeholder="What's the idea about? A few sentences…"></textarea>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Stage</label>
+        <div class="stage-pills" id="stage-pills">
+          <button class="stage-pill selected" data-stage="spark"       onclick="selectStage('spark')">💡 Spark</button>
+          <button class="stage-pill"          data-stage="exploring"   onclick="selectStage('exploring')">🔍 Exploring</button>
+          <button class="stage-pill"          data-stage="planning"    onclick="selectStage('planning')">📋 Planning</button>
+          <button class="stage-pill"          data-stage="in-progress" onclick="selectStage('in-progress')">⚡ In Progress</button>
+          <button class="stage-pill"          data-stage="done"        onclick="selectStage('done')">✅ Done</button>
+          <button class="stage-pill"          data-stage="trashed"     onclick="selectStage('trashed')">🗑 Trashed</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Tags <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-muted);font-size:10px;">(comma separated)</span></label>
+        <input type="text" id="f-tags" placeholder="AI, automation, side-project…">
+      </div>
+
+      <div class="field field-notes">
+        <label class="field-label">Notes</label>
+        <textarea id="f-notes" class="notes-area" placeholder="Write anything here — links, thoughts, next steps, research…&#10;&#10;No limits."></textarea>
+      </div>
+
+      <div class="field field-attach">
+        <label class="field-label">Attachments</label>
+        <label class="attach-zone" id="attach-zone">
+          <input type="file" id="f-files" multiple onchange="handleFiles(this)">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style="margin:0 auto 6px;display:block;">
+            <path d="M9 1v10M5 5l4-4 4 4M2 13v1a2 2 0 002 2h10a2 2 0 002-2v-1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Click to attach files — images, PDFs, notes…
+        </label>
+        <div class="attach-list" id="attach-list"></div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="btn-delete" style="display:none" onclick="deleteIdea()">Delete</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveIdea()">Save idea</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────
+const STAGES = [
+  { id: 'spark',       label: '💡 Spark',       dot: 'var(--s-spark-dot)' },
+  { id: 'exploring',   label: '🔍 Exploring',   dot: 'var(--s-explore-dot)' },
+  { id: 'planning',    label: '📋 Planning',     dot: 'var(--s-plan-dot)' },
+  { id: 'in-progress', label: '⚡ In Progress', dot: 'var(--s-wip-dot)' },
+  { id: 'done',        label: '✅ Done',         dot: 'var(--s-done-dot)' },
+  { id: 'trashed',    label: '🗑 Trashed',      dot: 'var(--s-trash-dot)' },
+];
+
+// ─── STATE ────────────────────────────────────────────────────
+let currentTab = 'work';
+let editingId  = null;
+let pendingFiles = []; // [{name, type, data}]
+
+function storageKey() { return `ideas_${currentTab}`; }
+
+function loadIdeas() {
+  try { return JSON.parse(localStorage.getItem(storageKey()) || '[]'); } catch { return []; }
+}
+
+function saveIdeas(ideas) {
+  localStorage.setItem(storageKey(), JSON.stringify(ideas));
+}
+
+// ─── TAB SWITCH ───────────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === tab);
+  });
+  // update accent for private tab
+  const r = document.documentElement.style;
+  if (tab === 'private') {
+    r.setProperty('--accent', '#005f58');
+    r.setProperty('--accent-bg', '#c8e8e5');
+    r.setProperty('--accent-soft', '#a0d8d4');
+  } else {
+    r.setProperty('--accent', '#00736a');
+    r.setProperty('--accent-bg', '#d6f0ee');
+    r.setProperty('--accent-soft', '#b0e0dc');
+  }
+  renderBoard();
+}
+
+// ─── BOARD RENDER ─────────────────────────────────────────────
+function renderBoard() {
+  const ideas = loadIdeas();
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+
+  STAGES.forEach(stage => {
+    const stageIdeas = ideas.filter(i => i.stage === stage.id);
+
+    const col = document.createElement('div');
+    col.className = 'column';
+
+    // header
+    const hdr = document.createElement('div');
+    hdr.className = 'col-header';
+    hdr.innerHTML = `
+      <div class="col-dot" style="background:${stage.dot}"></div>
+      <span class="col-label">${stage.label}</span>
+      <span class="col-count">${stageIdeas.length}</span>
+    `;
+    col.appendChild(hdr);
+
+    // body
+    const body = document.createElement('div');
+    body.className = 'col-body';
+
+    if (stageIdeas.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'col-empty';
+      empty.textContent = 'No ideas here yet';
+      body.appendChild(empty);
+    } else {
+      stageIdeas.forEach(idea => {
+        body.appendChild(buildCard(idea));
+      });
+    }
+
+    col.appendChild(body);
+    board.appendChild(col);
+  });
+}
+
+function buildCard(idea) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.stage = idea.stage;
+  card.onclick = () => openEdit(idea.id);
+
+  const tags = (idea.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
+  const hasFiles = idea.files && idea.files.length > 0;
+  const date = new Date(idea.created).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+
+  card.innerHTML = `
+    <div class="card-top">
+      <div class="card-title">${escHtml(idea.title)}</div>
+    </div>
+    ${idea.description ? `<div class="card-excerpt">${escHtml(idea.description)}</div>` : ''}
+    <div class="card-footer">
+      ${tags}
+      ${hasFiles ? `<span class="card-attach-badge">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+          <path d="M8 4.5L4.5 8A2.5 2.5 0 011 4.5L5 .5a1.5 1.5 0 012.1 2.1L3.5 7a.5.5 0 01-.7-.7L6 3" stroke="currentColor" stroke-linecap="round"/>
+        </svg>
+        ${idea.files.length}
+      </span>` : ''}
+      <span class="card-date">${date}</span>
+    </div>
+  `;
+  return card;
+}
+
+// ─── MODAL: NEW ───────────────────────────────────────────────
+function openNew() {
+  editingId = null;
+  pendingFiles = [];
+  document.getElementById('modal-title-label').textContent = 'New Idea';
+  document.getElementById('modal-subtitle').textContent =
+    'Add your thought and track it from spark to realisation.';
+  document.getElementById('btn-delete').style.display = 'none';
+  clearForm();
+  selectStage('spark');
+  renderAttachList();
+  openOverlay();
+}
+
+// ─── MODAL: EDIT ──────────────────────────────────────────────
+function openEdit(id) {
+  const ideas = loadIdeas();
+  const idea = ideas.find(i => i.id === id);
+  if (!idea) return;
+
+  editingId = id;
+  pendingFiles = idea.files ? [...idea.files] : [];
+
+  document.getElementById('modal-title-label').textContent = 'Edit Idea';
+  document.getElementById('modal-subtitle').textContent =
+    `Created ${new Date(idea.created).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' })}`;
+  document.getElementById('btn-delete').style.display = 'block';
+
+  document.getElementById('f-title').value = idea.title || '';
+  document.getElementById('f-desc').value  = idea.description || '';
+  document.getElementById('f-tags').value  = (idea.tags || []).join(', ');
+  document.getElementById('f-notes').value = idea.notes || '';
+  selectStage(idea.stage || 'spark');
+  renderAttachList();
+  openOverlay();
+}
+
+function openOverlay() {
+  document.getElementById('overlay').classList.add('open');
+  setTimeout(() => document.getElementById('f-title').focus(), 80);
+}
+
+function closeModal() {
+  document.getElementById('overlay').classList.remove('open');
+  editingId = null;
+  pendingFiles = [];
+}
+
+function overlayClick(e) {
+  if (e.target === document.getElementById('overlay')) closeModal();
+}
+
+function clearForm() {
+  ['f-title','f-desc','f-tags','f-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+}
+
+// ─── STAGE PILLS ──────────────────────────────────────────────
+let selectedStage = 'spark';
+
+function selectStage(stage) {
+  selectedStage = stage;
+  document.querySelectorAll('.stage-pill').forEach(p => {
+    p.classList.toggle('selected', p.dataset.stage === stage);
+  });
+}
+
+// ─── SAVE ─────────────────────────────────────────────────────
+function saveIdea() {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) {
+    document.getElementById('f-title').focus();
+    shakeEl(document.getElementById('f-title'));
+    return;
+  }
+
+  const tagRaw = document.getElementById('f-tags').value;
+  const tags = tagRaw.split(',').map(t => t.trim()).filter(Boolean);
+
+  const ideas = loadIdeas();
+
+  if (editingId) {
+    const idx = ideas.findIndex(i => i.id === editingId);
+    if (idx !== -1) {
+      ideas[idx] = {
+        ...ideas[idx],
+        title,
+        description: document.getElementById('f-desc').value.trim(),
+        notes:       document.getElementById('f-notes').value,
+        tags,
+        stage:       selectedStage,
+        files:       pendingFiles,
+        updated:     Date.now(),
+      };
+    }
+  } else {
+    ideas.push({
+      id:          Date.now().toString(36) + Math.random().toString(36).slice(2),
+      title,
+      description: document.getElementById('f-desc').value.trim(),
+      notes:       document.getElementById('f-notes').value,
+      tags,
+      stage:       selectedStage,
+      files:       pendingFiles,
+      created:     Date.now(),
+      updated:     Date.now(),
+    });
+  }
+
+  saveIdeas(ideas);
+  closeModal();
+  renderBoard();
+  showToast(editingId ? 'Idea updated ✓' : 'Idea added ✓');
+}
+
+// ─── DELETE ───────────────────────────────────────────────────
+function deleteIdea() {
+  if (!editingId) return;
+  if (!confirm('Delete this idea? This cannot be undone.')) return;
+  const ideas = loadIdeas().filter(i => i.id !== editingId);
+  saveIdeas(ideas);
+  closeModal();
+  renderBoard();
+  showToast('Idea deleted');
+}
+
+// ─── FILE ATTACHMENTS ─────────────────────────────────────────
+function handleFiles(input) {
+  const files = Array.from(input.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      pendingFiles.push({ name: file.name, type: file.type, data: e.target.result });
+      renderAttachList();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function renderAttachList() {
+  const list = document.getElementById('attach-list');
+  list.innerHTML = '';
+  pendingFiles.forEach((f, i) => {
+    const item = document.createElement('div');
+    item.className = 'attach-item';
+
+    const icon = fileIcon(f.type);
+    const nameEl = document.createElement('span');
+    nameEl.className = 'attach-item-name';
+    nameEl.textContent = `${icon} ${f.name}`;
+    nameEl.title = f.name;
+    nameEl.onclick = () => openFile(f);
+
+    const remove = document.createElement('button');
+    remove.className = 'attach-remove';
+    remove.textContent = '✕';
+    remove.title = 'Remove';
+    remove.onclick = () => { pendingFiles.splice(i, 1); renderAttachList(); };
+
+    item.appendChild(nameEl);
+    item.appendChild(remove);
+    list.appendChild(item);
+  });
+}
+
+function openFile(f) {
+  const a = document.createElement('a');
+  a.href = f.data;
+  a.download = f.name;
+  a.click();
+}
+
+function fileIcon(type) {
+  if (!type) return '📄';
+  if (type.startsWith('image/'))       return '🖼';
+  if (type === 'application/pdf')      return '📕';
+  if (type.includes('spreadsheet') || type.includes('excel')) return '📊';
+  if (type.includes('word') || type.includes('document'))     return '📝';
+  if (type.startsWith('text/'))        return '📄';
+  return '📎';
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+function shakeEl(el) {
+  el.style.animation = 'none';
+  el.style.borderColor = '#d95b5b';
+  el.style.boxShadow   = '0 0 0 3px rgba(217,91,91,0.15)';
+  setTimeout(() => {
+    el.style.borderColor = '';
+    el.style.boxShadow   = '';
+  }, 1200);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// keyboard: Escape closes modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    if (document.getElementById('overlay').classList.contains('open')) saveIdea();
+  }
+});
+
+// ─── SEED DATA (runs once if storage is empty) ────────────────
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+
+const SEED_WORK = [
+  {
+    title: 'Upravit TG manuál dle GOL manuálu',
+    description: 'Aktualizovat TG manuál tak, aby odpovídal struktuře a obsahu GOL manuálu.',
+    tags: ['manuál', 'dokumentace'],
+    notes: ''
+  },
+  {
+    title: 'Budovat komunikaci nad klienty',
+    description: 'Vytvořit systém / rutinu pro proaktivní komunikaci se zákazníky.',
+    tags: ['klienti', 'komunikace'],
+    notes: ''
+  },
+  {
+    title: 'Zendesk – GitLab ticket',
+    description: 'Založit GitLab ticket propojený se Zendesk požadavkem.',
+    tags: ['zendesk', 'gitlab'],
+    notes: ''
+  },
+  {
+    title: 'PACT – vytvořit',
+    description: 'Vytvořit PACT (pravděpodobně šablona / framework pro procesy).',
+    tags: ['PACT'],
+    notes: ''
+  },
+  {
+    title: 'Open Router',
+    description: 'Prozkoumat a nastavit Open Router pro práci s AI modely.',
+    tags: ['AI', 'nástroje'],
+    notes: ''
+  },
+  {
+    title: 'Znalostní prompt na emaily – systém',
+    description: 'Udělat systémový prompt / znalostní bázi pro zpracování a psaní emailů pomocí AI.',
+    tags: ['AI', 'emaily', 'automatizace'],
+    notes: ''
+  },
+  {
+    title: 'Dovolenková aplikace',
+    description: 'Vytvořit aplikaci pro správu a přehled dovolených.',
+    tags: ['aplikace', 'HR'],
+    notes: ''
+  },
+  {
+    title: 'Widget pro GOL IBE admin konzoli',
+    description: 'Vytvořit widget přímo v GOL IBE admin konzoli pro rychlý přehled nebo akci.',
+    tags: ['GOL IBE', 'widget', 'vývoj'],
+    notes: ''
+  },
+  {
+    title: 'Widget pro další systémy – TCP?',
+    description: 'Rozšířit myšlenku widgetu i na TCP a další systémy.',
+    tags: ['TCP', 'widget', 'vývoj'],
+    notes: ''
+  },
+  {
+    title: 'TF Reporting – zjednodušit flow',
+    description: 'Zjednodušit a zautomatizovat proces tahání TF reportů jednou za měsíc.',
+    tags: ['reporting', 'automatizace'],
+    notes: ''
+  },
+  {
+    title: 'Vlastní AI asistent',
+    description: 'Vytvořit vlastního asistenta – nastavení, znalostní báze, napojení na systémy.',
+    tags: ['AI', 'asistent', 'automatizace'],
+    notes: ''
+  },
+  {
+    title: 'Agent – pracuje za mě',
+    description: 'Vytvořit AI agenta, který automaticky vykonává opakující se úkoly místo mě. Např. Cursor nebo jiný placený nástroj.',
+    tags: ['AI', 'agent', 'automatizace'],
+    notes: 'Zvážit: Cursor, n8n, nebo vlastní agent přes Claude API.'
+  },
+  {
+    title: 'Portál GOL IBE AC pro zákazníky',
+    description: 'Vytvořit zákaznický portál pro GOL IBE. Využít Macaly (zdarma), Google AI Studio.',
+    tags: ['GOL IBE', 'portál', 'vývoj'],
+    notes: 'Postup:\n1. Vypracovat souhrn zadání\n2. Vložit do Macaly → nechat udělat web\n3. Pobavit se s AI o zadání – nechat ji definovat požadavky\n4. Myslet na chytré hlášky, průvodce\n5. Začít iterovat'
+  },
+  {
+    title: 'Google Analytics – spustit',
+    description: 'Spustit GA na relevantních webech / nástrojích.',
+    tags: ['analytics', 'GA'],
+    notes: ''
+  },
+  {
+    title: 'Dashboardy – přehled a správa',
+    description: 'Vytvořit seznam datových dashboardů, které spravuji (implementace, schůzky). Napojit na Metabase.',
+    tags: ['dashboardy', 'data', 'Metabase'],
+    notes: ''
+  },
+  {
+    title: 'Metabase – datový dashboard rezervací',
+    description: 'Datový a aktualizovaný dashboard rezervací – přehled výkonu agentur pro přípravu na meetingy.',
+    tags: ['Metabase', 'data', 'dashboardy', 'GOL IBE'],
+    notes: `CESTA A KONTEXT\nCíl: přehled nad aktivitou agentur – součást přípravy na meetingy + obecný přehled.\nDélka od nápadu po realizaci: cca rok a půl.\n\nČASOVÁ OSA\n• 1.1.2024 – záměr tahat tabulku rezervací automaticky z AC (Mise: nejde z konzole)\n• 24.4.2025 – Martin dostal povolení od Mise, zpracoval tabulku\n• 1.3.2026 – využila jsem Martinovu tabulku, zautomatizovala nalévání dat do DB\n\nNÁSTROJE\n• ChatGPT (lepší na SQL kód), Gemini\n• Docker (úprava BIOS v PC)\n• PostgreSQL\n• Metabase\n• Google Cloud Console – API credentials\n• Martinova tabulka – sdílení přes extra GC emailovou adresu\n• N8N – mezičlánek mezi Dockerem a Metabase (Make nešel – vyžaduje veřejnou IP)\n\nSQL TIPY\nTabulka: gol_reservations_sourcedata_3_20260311130217\n\n-- Docker start:\ndocker start google-sync\n\n-- Dnešní datum:\nSELECT TO_CHAR(CURRENT_DATE, \'FMDDth "of" FMMonth, YYYY\') AS "Dnešní datum";\n\n-- Poslední rezervace:\nSELECT MAX(CASE WHEN reservation_date ~ \'^\\d{2}\\.\\d{2}\\.\\d{4}$\' THEN to_date(reservation_date,\'DD.MM.YYYY\') WHEN reservation_date ~ \'^\\d{4}-\\d{2}-\\d{2}$\' THEN reservation_date::date ELSE NULL END) AS last_reservation_date FROM gol_reservations_sourcedata_3_20260311130217;`
+  },
+  {
+    title: 'GOL IBE web – změna vzhledu',
+    description: 'Napsat kód pro úpravu a změnu vzhledu GOL IBE webů.',
+    tags: ['GOL IBE', 'web', 'vývoj', 'CSS'],
+    notes: ''
+  },
+  {
+    title: 'Mailbox – zpracování pošty',
+    description: 'Vytvořit systém / automatizaci pro zpracování příchozí pošty.',
+    tags: ['emaily', 'automatizace'],
+    notes: ''
+  },
+];
+
+const SEED_PRIVATE = [
+  {
+    title: 'LinkedIn – vyšperkovat profil',
+    description: 'Upravit a vylepšit LinkedIn profil – foto, popis, zkušenosti, doporučení.',
+    tags: ['LinkedIn', 'osobní brand'],
+    notes: ''
+  },
+];
+
+function seedIfEmpty(key, items) {
+  if (localStorage.getItem(key)) return;
+  const now = Date.now();
+  const ideas = items.map((item, i) => ({
+    id:          uid(),
+    title:       item.title,
+    description: item.description,
+    notes:       item.notes || '',
+    tags:        item.tags || [],
+    stage:       'spark',
+    files:       [],
+    created:     now - (items.length - i) * 60000,
+    updated:     now,
+  }));
+  localStorage.setItem(key, JSON.stringify(ideas));
+}
+
+seedIfEmpty('ideas_work',    SEED_WORK);
+seedIfEmpty('ideas_private', SEED_PRIVATE);
+
+// ─── INIT ─────────────────────────────────────────────────────
+renderBoard();
+</script>
+</body>
+</html>

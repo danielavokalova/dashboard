@@ -1,0 +1,17 @@
+python
+
+Microsoft Windows [Version 10.0.26100.4061]
+(c) Microsoft Corporation. Všechna práva vyhrazena.
+
+C:\Users\DanielaVokálová>cd ..
+
+C:\Users>cd ..
+
+C:\>cd python
+
+C:\python>copy con test.py
+print("TOTO JE TEST!")
+input()^Z
+        1 file(s) copied.
+
+C:\python>

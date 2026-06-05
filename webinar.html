@@ -1,320 +1,694 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>6. GOL IBE Refresh Webinář</title>
+    <title>GOL IBE Refresh — Webinar Series #6</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
         :root {
-            --bg-color: #0d1117;
-            --card-bg: #161b22;
-            --text-color: #c9d1d9;
-            --text-bright: #f0f6fc;
-            --accent-color: #58a6ff;
-            --border-color: #30363d;
-            --footer-text: #8b949e;
+            --bg:        #0b1120;
+            --bg2:       #0f1a2e;
+            --card:      #111827;
+            --card2:     #0d1f35;
+            --border:    rgba(0,210,196,0.18);
+            --teal:      #00d2c4;
+            --teal-dim:  rgba(0,210,196,0.12);
+            --white:     #f0f6fc;
+            --muted:     #8b9ab5;
+            --text:      #c9d8ee;
         }
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            padding-bottom: 60px;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.65;
         }
-        header {
-            background-color: var(--card-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 2rem 1rem;
-            text-align: center;
-        }
-        header h1 {
-            color: var(--text-bright);
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-        header p {
-            color: var(--accent-color);
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 2rem auto;
-            padding: 0 1.5rem;
-        }
-        .section-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-        .section-card h2 {
-            color: var(--text-bright);
-            font-size: 1.5rem;
-            margin-bottom: 1.2rem;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 0.5rem;
-        }
-        .section-card h3 {
-            color: var(--accent-color);
-            font-size: 1.2rem;
-            margin: 1rem 0 0.5rem 0;
-        }
-        ul {
-            list-style-type: none;
-            padding-left: 0;
-        }
-        li {
-            margin-bottom: 0.8rem;
+
+        /* ── HERO ── */
+        .hero {
+            min-height: 100vh;
+            background:
+                radial-gradient(ellipse 60% 70% at 100% 0%, rgba(0,210,196,0.14) 0%, transparent 65%),
+                var(--bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem 6rem;
             position: relative;
-            padding-left: 1.5rem;
         }
-        li::before {
-            content: "•";
-            color: var(--accent-color);
-            font-weight: bold;
-            position: absolute;
-            left: 0;
-            top: 0;
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            border: 1.5px solid var(--teal);
+            border-radius: 999px;
+            padding: 0.35rem 1.1rem;
+            font-size: 0.72rem;
+            letter-spacing: 0.18em;
+            color: var(--teal);
+            font-weight: 600;
+            width: fit-content;
+            margin-bottom: 2.2rem;
         }
-        .links-grid {
-            display: block;
+        .hero h1 {
+            font-size: clamp(3.5rem, 7vw, 6rem);
+            font-weight: 900;
+            color: var(--white);
+            line-height: 1.0;
+            margin-bottom: 1.4rem;
+            letter-spacing: -0.02em;
         }
-        .link-item {
-            display: block;
-            background: #21262d;
-            border: 1px solid var(--border-color);
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 6px;
-            text-decoration: none;
-            color: var(--text-color);
-            transition: transform 0.2s, border-color 0.2s, background-color 0.2s;
-        }
-        .link-item:hover {
-            border-color: var(--accent-color);
-            background-color: #30363d;
-            transform: translateY(-2px);
-        }
-        .link-item strong {
-            color: var(--text-bright);
-            display: block;
+        .hero-sub {
             font-size: 1.1rem;
+            color: var(--muted);
+            max-width: 640px;
+            margin-bottom: 3.5rem;
+        }
+        .agenda-cols {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            max-width: 820px;
+        }
+        .agenda-col h3 {
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--teal);
+            margin-bottom: 0.55rem;
+        }
+        .agenda-col p {
+            font-size: 0.88rem;
+            color: var(--muted);
+        }
+        .slide-footer {
+            position: absolute;
+            bottom: 2rem;
+            left: 6rem;
+            right: 6rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.78rem;
+            color: var(--muted);
+        }
+        .slide-footer strong { color: var(--white); font-weight: 700; letter-spacing: 0.05em; }
+
+        /* ── SECTION WRAPPER ── */
+        section {
+            min-height: 100vh;
+            padding: 4rem 6rem 5rem;
+            background:
+                radial-gradient(ellipse 50% 60% at 100% 0%, rgba(0,210,196,0.08) 0%, transparent 60%),
+                var(--bg2);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        section:nth-child(odd) { background-color: var(--bg); }
+
+        .section-tag {
+            font-size: 0.72rem;
+            letter-spacing: 0.12em;
+            color: var(--muted);
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+        section h2 {
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            font-weight: 900;
+            color: var(--teal);
+            letter-spacing: -0.01em;
+            margin-bottom: 2.5rem;
+            line-height: 1.1;
+        }
+
+        /* ── PORTAL CARDS ── */
+        .portal-intro {
+            font-size: 0.95rem;
+            color: var(--muted);
+            margin-bottom: 2rem;
+            max-width: 720px;
+        }
+        .portals-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+        .portal-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.8rem 1.4rem 1.4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .portal-num {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--teal);
+            line-height: 1;
             margin-bottom: 0.2rem;
         }
-        .link-item span {
-            font-size: 0.9rem;
-            color: var(--footer-text);
+        .portal-card h3 {
+            color: var(--white);
+            font-size: 1rem;
+            font-weight: 700;
         }
-        .badge-ai {
-            background-color: #238636;
-            color: white;
-            padding: 0.2rem 0.6rem;
+        .portal-tag {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            color: var(--teal);
+            border: 1px solid var(--teal);
             border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            display: inline-block;
-            margin-bottom: 0.5rem;
+            padding: 0.15rem 0.5rem;
+            width: fit-content;
         }
-        .highlight-box {
-            background: rgba(88, 166, 255, 0.1);
-            border-left: 4px solid var(--accent-color);
-            padding: 1rem;
-            border-radius: 0 4px 4px 0;
-            margin: 1rem 0;
+        .portal-card p {
+            font-size: 0.84rem;
+            color: var(--muted);
+            flex: 1;
+            margin-top: 0.3rem;
         }
-        footer {
+        .btn-launch {
+            display: block;
             text-align: center;
-            padding: 2rem;
-            color: var(--footer-text);
-            font-size: 0.9rem;
-            letter-spacing: 2px;
-            font-weight: bold;
-            border-top: 1px solid var(--border-color);
-            margin-top: 3rem;
-            background-color: var(--card-bg);
+            background: var(--teal);
+            color: #000;
+            font-weight: 700;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            padding: 0.7rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-top: 1rem;
+            transition: opacity 0.2s;
         }
-        .contact-info {
-            font-size: 0.95rem;
-            color: var(--text-color);
+        .btn-launch:hover { opacity: 0.85; }
+
+        /* ── COLOR INSPIRATION ── */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.2rem;
             margin-top: 0.5rem;
+        }
+        .color-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            text-decoration: none;
+            transition: border-color 0.2s, transform 0.2s;
+            display: block;
+        }
+        .color-card:hover { border-color: var(--teal); transform: translateY(-3px); }
+        .color-swatches {
+            display: flex;
+            height: 56px;
+        }
+        .color-swatches span { flex: 1; }
+        .color-card-body { padding: 1.2rem 1.4rem; }
+        .color-card-body h3 {
+            color: var(--white);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+        .color-card-body p { font-size: 0.84rem; color: var(--muted); }
+
+        /* ── TWO-COL LAYOUT ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+        .col-left h3 {
+            color: var(--teal);
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+        }
+        .col-left p { font-size: 0.95rem; color: var(--muted); margin-bottom: 1.5rem; }
+        .bullet-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+        .bullet-list li {
+            display: flex;
+            gap: 0.9rem;
+            align-items: flex-start;
+            font-size: 0.93rem;
+            color: var(--text);
+        }
+        .bullet-list li .ico {
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            background: var(--teal-dim);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--teal);
+            font-size: 0.9rem;
+        }
+        .bullet-list li strong { color: var(--white); }
+
+        .side-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 2rem;
+        }
+        .side-card-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            color: var(--teal);
+            margin-bottom: 0.8rem;
+        }
+        .side-card h4 { color: var(--white); font-size: 1.05rem; font-weight: 700; margin-bottom: 0.7rem; }
+        .side-card p { font-size: 0.88rem; color: var(--muted); margin-bottom: 1.5rem; }
+
+        .btn-teal {
+            display: block;
+            text-align: center;
+            background: var(--teal);
+            color: #000;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            padding: 0.9rem 1.2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+        .btn-teal:hover { opacity: 0.85; }
+
+        .btn-blue {
+            display: block;
+            text-align: center;
+            background: #2563eb;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            padding: 0.9rem 1.2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: opacity 0.2s;
+            margin-top: 0.8rem;
+        }
+        .btn-blue:hover { opacity: 0.85; }
+
+        .btn-outline {
+            display: block;
+            text-align: center;
+            background: transparent;
+            color: var(--teal);
+            border: 1.5px solid var(--teal);
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            padding: 0.9rem 1.2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.2s;
+            margin-top: 0.8rem;
+        }
+        .btn-outline:hover { background: var(--teal-dim); }
+
+        /* ── CODE BLOCK ── */
+        .code-block {
+            background: #060d1a;
+            border: 1px solid rgba(0,210,196,0.2);
+            border-radius: 8px;
+            padding: 1.2rem 1.4rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            color: #a8d8b9;
+            line-height: 1.7;
+            margin: 1rem 0 0.7rem;
+            white-space: pre;
+        }
+        .code-note { font-size: 0.8rem; color: var(--muted); }
+
+        /* ── Q&A ── */
+        .qa-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 4rem 6rem;
+            background:
+                radial-gradient(ellipse 60% 70% at 50% 50%, rgba(0,210,196,0.06) 0%, transparent 65%),
+                var(--bg);
+            position: relative;
+        }
+        .qa-section .hero-badge { margin: 0 auto 2rem; }
+        .qa-section h2 {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 900;
+            color: var(--white);
+            margin-bottom: 1rem;
+        }
+        .qa-section p { font-size: 1rem; color: var(--muted); max-width: 600px; margin: 0 auto 2.5rem; }
+        .qa-links { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
+        .qa-link {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.9rem 1.5rem;
+            text-decoration: none;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+        .qa-link:hover { border-color: var(--teal); }
+        .qa-link span { color: var(--teal); font-size: 1.1rem; }
+
+        /* ── FOOTER ── */
+        .page-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-top: auto;
+            padding-top: 2.5rem;
+        }
+        .page-footer strong { color: var(--white); font-weight: 700; letter-spacing: 0.06em; }
+
+        @media (max-width: 900px) {
+            .hero, section, .qa-section { padding: 3rem 2rem 4rem; }
+            .slide-footer { left: 2rem; right: 2rem; }
+            .portals-grid { grid-template-columns: 1fr 1fr; }
+            .color-grid { grid-template-columns: 1fr; }
+            .two-col { grid-template-columns: 1fr; }
+            .agenda-cols { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>6. GOL IBE REFRESH WEBINÁŘ</h1>
-        <p>Prezentační &amp; Informační Portál</p>
-    </header>
-    <div class="container">
-        <!-- AGENDA -->
-        <div class="section-card">
-            <h2>1. Hlavní program &amp; Agenda</h2>
-            <h3>🔄 REFRESH</h3>
-            <ul>
-                <li>Doplňující materiály, texty a produktové listy.</li>
-                <li>Statistiky využití, logy a přehledy klientských požadavků.</li>
-                <li>Optimalizace supportních ticketů a systémové podpory.</li>
-            </ul>
-            <h3>💻 GOOD TO KNOWS (LIVE SHOW)</h3>
-            <ul>
-                <li><strong>Frontend Customizace:</strong> Živá ukázka úpravy tlačítek, pozadí, barev a textových vrstev v reálném čase.</li>
-                <li><strong>AI Styling Assistant:</strong> Generování čistého produkčního CSS kódu pomocí jednoduchých textových příkazů.</li>
-            </ul>
-            <h3>🍇 TASTINGS &amp; RECOMMENDATIONS</h3>
-            <ul>
-                <li>Přímá integrace hotelového obsahu bez prostředníků.</li>
-                <li>GOL API pro pokročilé vývojáře a vlastní frontend.</li>
-                <li>Queue Processor Automation jako prevence ADM.</li>
-            </ul>
-        </div>
 
-        <!-- PRODUCTION PORTALS -->
-        <div class="section-card">
-            <h2>2. Produkční portály pro inspiraci</h2>
-            <p style="margin-bottom: 1rem;">Kliknutím otevřete reálné a aktivní implementace našich klientů přímo z databáze:</p>
-            <div class="links-grid">
-                <a href="https://flybyleela.golibe.com/" target="_blank" rel="noopener" class="link-item">
-                    <strong>Leelawade Travel (Thajsko) ↗</strong>
-                    <span>Standardní čistá implementace GOL IBE se zakázkovými barvami.</span>
-                </a>
-                <a href="https://aaztrip.golibe.com/" target="_blank" rel="noopener" class="link-item">
-                    <strong>AAZ Travel (Velká Británie) ↗</strong>
-                    <span>Globální nasazení platformy uzpůsobené pro britský trh.</span>
-                </a>
-                <a href="https://skyceylon.golibe.com/" target="_blank" rel="noopener" class="link-item">
-                    <strong>Skyceylon (Austrálie) ↗</strong>
-                    <span>Moderní vyhledávací rozhraní přizpůsobené australským standardům.</span>
-                </a>
-                <a href="https://letenky.wohol.cz/" target="_blank" rel="noopener" class="link-item">
-                    <strong>Czech Kiwis (Česká republika) ↗</strong>
-                    <span>Pokročilá, vysoce modifikovaná a customizovaná verze vzhledu.</span>
-                </a>
-                <a href="https://bo.golibe.com/" target="_blank" rel="noopener" class="link-item" style="border-color: #238636;">
-                    <strong style="color: #4ade80;">GOL IBE Backoffice Konzole ↗</strong>
-                    <span>Přímý vstup do administrace pro živé ukázky během prezentace.</span>
-                </a>
-            </div>
+<!-- ── SLIDE 1: HERO ── -->
+<div class="hero">
+    <div class="hero-badge">GOL IBE WEBINAR SERIES #6</div>
+    <h1>GOL IBE REFRESH</h1>
+    <p class="hero-sub">Interactive overview covering backend modifications, automated queues, client implementations, and operational resources.</p>
+    <div class="agenda-cols">
+        <div class="agenda-col">
+            <h3>↻ 1. REFRESH</h3>
+            <p>Supporting microcopy edits, system logs, and direct ticketing portal support.</p>
         </div>
-
-        <!-- DESIGN TOOLS -->
-        <div class="section-card">
-            <h2>3. Nástroje pro inspiraci a výběr barev</h2>
-            <p style="margin-bottom: 1rem;">Prověřené nástroje pro rychlý výběr barevných palet přímo při prezentaci:</p>
-            <div class="links-grid">
-                <a href="https://coolors.co/palettes/trending" target="_blank" rel="noopener" class="link-item">
-                    <strong>Coolors.co — Trendy Palety ↗</strong>
-                    <span>Přímý odkaz na tisíce nejpopulárnějších barevných schémat současnosti.</span>
-                </a>
-                <a href="https://color.adobe.com/" target="_blank" rel="noopener" class="link-item">
-                    <strong>Adobe Color Wheel ↗</strong>
-                    <span>Profesionální generátor komplementárních barev na základě psychologie prodeje.</span>
-                </a>
-                <a href="https://colorhunt.co/" target="_blank" rel="noopener" class="link-item">
-                    <strong>Color Hunt ↗</strong>
-                    <span>Zjednodušené čtyřbarevné sety pro okamžitý návrh moderního webu bez grafika.</span>
-                </a>
-            </div>
+        <div class="agenda-col">
+            <h3>⊞ 2. GOOD TO KNOWS</h3>
+            <p>Live walkthrough of frontend tweaks, button styling, and AI-driven custom CSS rendering.</p>
         </div>
-
-        <!-- FRONTEND & AI -->
-        <div class="section-card">
-            <h2>4. Customizace frontendu &amp; AI CSS Assistant</h2>
-            <div class="badge-ai">AI POWERED TECHNOLOGY</div>
-            <h3>⚡ Svatá trojice tlačítek (The Big 3)</h3>
-            <ul>
-                <li>Kompletní vizuální kontrola nad klíčovými konverzními prvky: <strong>Vyhledat</strong>, <strong>Vybrat</strong> a <strong>Rezervovat</strong>.</li>
-                <li>Okamžité změny barev, zaoblení hran, velikostí písem a hover efektů bez nutnosti programování.</li>
-            </ul>
-            <h3>🔔 Notifikační a marketingové bannery</h3>
-            <ul>
-                <li>Nasazení upozornění pro zákazníky během několika sekund — provozní změny, stávky aerolinek, speciální akce.</li>
-            </ul>
-            <h3>🤖 Umělá inteligence v akci</h3>
-            <ul>
-                <li>Zákazník napíše zadání lidskou řečí (např. <em>"Chci velké vyhledávací tlačítko v neonově modré barvě s jemným stínem"</em>).</li>
-                <li>AI okamžitě zkompiluje validní produkční CSS a automaticky ho injektuje do systému.</li>
-            </ul>
-            <div class="highlight-box">
-                <strong>Proč je GOL IBE napřed před konkurencí?</strong><br>
-                U starých rezervačních systémů znamená změna barvy tlačítka otevírání ticketů u vývojářů, účtování programátorských hodin a dny čekání. V GOL IBE vše změníte sami v administraci — nulové náklady, okamžitý výsledek.
-            </div>
-        </div>
-
-        <!-- HOTEL CONTENT -->
-        <div class="section-card">
-            <h2>5. Hotel Content Integration</h2>
-            <ul>
-                <li><strong>Flexibilní integrace:</strong> Napojení přes předjednané licence CEE Systems nebo využití vlastních přímých kontraktů agentury.</li>
-                <li><strong>Hotelová peněženka &amp; Depozity:</strong> Automatizované finanční toky se strháváním kreditů ihned po potvrzení ubytování.</li>
-                <li><strong>Platební brána:</strong> Nezbytná podmínka pro plnou automatizaci a okamžitou fakturaci koncovým klientům.</li>
-            </ul>
-            <div class="links-grid" style="margin-top: 1.5rem;">
-                <a href="https://demo4.golibe.com" target="_blank" rel="noopener" class="link-item">
-                    <strong>Live Hotelové Demo ↗</strong>
-                    <span>Ostré testovací prostředí se zapnutými hotely pro živou ukázku.</span>
-                </a>
-                <a href="https://cee-systems.gitbook.io/enhelp-golibe/9.-hotel-content" target="_blank" rel="noopener" class="link-item">
-                    <strong>GitBook Dokumentace: Nastavení hotelů ↗</strong>
-                    <span>Kompletní technický průvodce implementací a nastavením parametrů.</span>
-                </a>
-            </div>
-        </div>
-
-        <!-- GOL API -->
-        <div class="section-card">
-            <h2>6. GOL API pro Vývojáře</h2>
-            <ul>
-                <li><strong>Obejdení standardního rozhraní:</strong> Navrženo pro technologické agentury, velké konsolidátory a OTA, kteří nechtějí být limitováni předpřipraveným designem konzole.</li>
-                <li><strong>Absolutní svoboda:</strong> Vlastní unikátní nákupní procesy, nativní mobilní aplikace nebo interní podnikové systémy nad surovými XML/JSON daty.</li>
-                <li><strong>Chcete tvořit podle svého?</strong> Pokud vám nestačí možnosti konzole, GOL API je pravé řešení pro vás.</li>
-            </ul>
-            <div class="links-grid" style="margin-top: 1.5rem;">
-                <a href="https://www.cee-systems.com/solutions/gol-api" target="_blank" rel="noopener" class="link-item">
-                    <strong>Dokumentace GOL API ↗</strong>
-                    <span>Struktura endpointů, technické limity a vývojářská specifikace.</span>
-                </a>
-            </div>
-        </div>
-
-        <!-- QUEUE PROCESSOR -->
-        <div class="section-card">
-            <h2>7. Queue Processor — Hlídač rezervací</h2>
-            <ul>
-                <li><strong>Prevence ADM:</strong> Automatické čištění rizikových HX segmentů zrušených leteckými společnostmi dříve, než vygenerují pokutu.</li>
-                <li><strong>Chytrá distribuce PNR:</strong> Každou hodinu kontroluje, filtruje a přesouvá rezervační záznamy do správných front dle nastavených pravidel.</li>
-                <li><strong>Za málo peněz hodně peněz:</strong> Plná automatizace odstraňuje lidskou chybovost a chrání agenturu před zbytečnými náklady.</li>
-            </ul>
-            <div class="links-grid" style="margin-top: 1.5rem;">
-                <a href="https://www.cee-systems.com/solutions/queue-processor" target="_blank" rel="noopener" class="link-item">
-                    <strong>Technický přehled Queue Processoru ↗</strong>
-                    <span>Metriky úspor, procesní schémata a podmínky nasazení.</span>
-                </a>
-            </div>
-        </div>
-
-        <!-- Q&A -->
-        <div class="section-card" style="text-align: center;">
-            <h2>Otázky, odpovědi &amp; Závěr</h2>
-            <p style="font-size: 1.1rem; margin-bottom: 1.5rem;">Všechny manuály, konfigurační postupy a nápovědy jsou dostupné online:</p>
-            <a href="https://cee-systems.gitbook.io/enhelp-golibe" target="_blank" rel="noopener" class="link-item" style="text-align: left; max-width: 500px; margin: 0 auto 1.5rem auto;">
-                <strong>Oficiální GitBook Manuál GOL IBE ↗</strong>
-                <span>Kompletní uživatelská a technická báze znalostí.</span>
-            </a>
-            <div class="contact-info">
-                <strong>Dotazy a technická podpora:</strong><br>
-                <a href="mailto:daniela.vokalova@travelportgds.cz" style="color: var(--accent-color); text-decoration: none; font-weight: bold;">daniela.vokalova@travelportgds.cz</a>
-            </div>
+        <div class="agenda-col">
+            <h3>✦ 3. TASTINGS &amp; RECOMMS</h3>
+            <p>Harnessing built-in hotel searches, unified GOL API integrations, and the automated Queue Processor.</p>
         </div>
     </div>
-    <footer>
-        CEE TRAVEL SYSTEMS
-    </footer>
+    <div class="slide-footer">
+        <span>June 17, 2026 | daniela.vokalova@travelportgds.cz</span>
+        <strong>CEE TRAVEL SYSTEMS</strong>
+    </div>
+</div>
+
+<!-- ── SLIDE 2: PRODUCTION PORTALS ── -->
+<section>
+    <div class="section-tag">Clickable Active Client Portals Database</div>
+    <h2>PRODUCTION PORTALS</h2>
+    <p class="portal-intro">Explore live, active setups selected straight from our database. Click during the live demo to show custom styling in action:</p>
+    <div class="portals-grid">
+        <div class="portal-card">
+            <div class="portal-num">01</div>
+            <h3>Leelawade Travel</h3>
+            <div class="portal-tag">THAILAND</div>
+            <p>Active standard engine implementation optimized for clean searching layouts.</p>
+            <a href="https://flybyleela.golibe.com/" target="_blank" rel="noopener" class="btn-launch">LAUNCH PORTAL ↗</a>
+        </div>
+        <div class="portal-card">
+            <div class="portal-num">02</div>
+            <h3>AAZ Travel</h3>
+            <div class="portal-tag">UNITED KINGDOM</div>
+            <p>Highly structured corporate flight booking portal layout utilizing native styles.</p>
+            <a href="https://aaztrip.golibe.com/" target="_blank" rel="noopener" class="btn-launch">LAUNCH PORTAL ↗</a>
+        </div>
+        <div class="portal-card">
+            <div class="portal-num">03</div>
+            <h3>Skyceylon</h3>
+            <div class="portal-tag">AUSTRALIA</div>
+            <p>Sleek layout configured with targeted color and microcopy modifications.</p>
+            <a href="https://skyceylon.golibe.com/" target="_blank" rel="noopener" class="btn-launch">LAUNCH PORTAL ↗</a>
+        </div>
+        <div class="portal-card">
+            <div class="portal-num">04</div>
+            <h3>Czech Kiwis</h3>
+            <div class="portal-tag">CZECH REPUBLIC</div>
+            <p>Sleek enhanced layout utilizing customized color schemes and elements.</p>
+            <a href="https://letenky.wohol.cz/" target="_blank" rel="noopener" class="btn-launch">LAUNCH PORTAL ↗</a>
+        </div>
+    </div>
+    <div class="page-footer">
+        <span>Clickable Active Client Portals Database</span>
+        <strong>CEE TRAVEL SYSTEMS</strong>
+    </div>
+</section>
+
+<!-- ── SLIDE 3: COLOR INSPIRATION ── -->
+<section>
+    <div class="section-tag">Live Visual Inspiration Tools &amp; Administration Portal</div>
+    <h2>COLOR INSPIRATION</h2>
+    <p class="portal-intro">Guide your clients on branding! Show these sandbox sites during the demo to generate beautiful matches to plug into GOL IBE:</p>
+    <div class="color-grid">
+        <a href="https://coolors.co/palettes/trending" target="_blank" rel="noopener" class="color-card">
+            <div class="color-swatches">
+                <span style="background:#e63946"></span>
+                <span style="background:#f4a261"></span>
+                <span style="background:#2a9d8f"></span>
+                <span style="background:#457b9d"></span>
+                <span style="background:#6c5ce7"></span>
+            </div>
+            <div class="color-card-body">
+                <h3>Coolors.co Palettes ↗</h3>
+                <p>Superfast generator. Access thousands of trending palettes instantly during your live run.</p>
+            </div>
+        </a>
+        <a href="https://color.adobe.com/" target="_blank" rel="noopener" class="color-card">
+            <div class="color-swatches">
+                <span style="background:#ef476f"></span>
+                <span style="background:#4a4e69"></span>
+                <span style="background:#00d2c4"></span>
+                <span style="background:#f8f9fa"></span>
+                <span style="background:#d62839"></span>
+            </div>
+            <div class="color-card-body">
+                <h3>Adobe Color Wheel ↗</h3>
+                <p>Advanced color rules tool. Perfect for identifying matching color harmonies for main headers.</p>
+            </div>
+        </a>
+        <a href="https://colorhunt.co/" target="_blank" rel="noopener" class="color-card">
+            <div class="color-swatches">
+                <span style="background:#a29bfe"></span>
+                <span style="background:#b2bec3"></span>
+                <span style="background:#ffeaa7"></span>
+                <span style="background:#2d3436"></span>
+                <span style="background:#00d2c4"></span>
+            </div>
+            <div class="color-card-body">
+                <h3>Color Hunt Catalog ↗</h3>
+                <p>Curated, ready-made color schemes. Clean visual feed to help clients speed up color selections.</p>
+            </div>
+        </a>
+    </div>
+    <div style="margin-top:1.8rem;">
+        <a href="https://bo.golibe.com/" target="_blank" rel="noopener" class="btn-outline" style="max-width:340px;">⬡ Open GOL IBE Backoffice Console (bo.golibe.com) ↗</a>
+    </div>
+    <div class="page-footer">
+        <span>Live Visual Inspiration Tools &amp; Administration Portal</span>
+        <strong>CEE TRAVEL SYSTEMS</strong>
+    </div>
+</section>
+
+<!-- ── SLIDE 4: BRANDING & AI-CSS ── -->
+<section>
+    <div class="section-tag">Interactive UI Styles Walkthrough &amp; AI Script Compiler</div>
+    <h2>BRANDING &amp; AI-CSS</h2>
+    <div class="two-col">
+        <div class="col-left">
+            <h3>Uncompromised Live Controls</h3>
+            <p>Modify layouts and colors dynamically right in front of your clients. Change visual assets without waiting for IT queues.</p>
+            <ul class="bullet-list">
+                <li>
+                    <span class="ico">▶</span>
+                    <div><strong>The Big 3 Buttons:</strong> Effortlessly adjust colors, margins, and weights for search indicators.</div>
+                </li>
+                <li>
+                    <span class="ico">⊡</span>
+                    <div><strong>Background Customization:</strong> Swap background colors or images to match seasonal airline campaigns.</div>
+                </li>
+                <li>
+                    <span class="ico">🔔</span>
+                    <div><strong>Notification Banners:</strong> Enable emergency alerts or promotional marquee text strings.</div>
+                </li>
+            </ul>
+        </div>
+        <div class="side-card">
+            <div class="side-card-label">✦ AI-CSS COPILOT DEMONSTRATION</div>
+            <p>Let the integrated system AI generate correct CSS specifications straight from plain language instructions:</p>
+            <div class="code-block">/* Prompt: Pulse book button cyan */
+.book-btn {
+  background: #00d2c4;
+  animation: pulse 2s infinite;
+}</div>
+            <p class="code-note">Simply copy-paste AI compiled scripts straight into the Custom CSS area to execute live configurations instantly.</p>
+        </div>
+    </div>
+    <div class="page-footer">
+        <span>Interactive UI Styles Walkthrough &amp; AI Script Compiler</span>
+        <strong>CEE TRAVEL SYSTEMS</strong>
+    </div>
+</section>
+
+<!-- ── SLIDE 5: HOTEL CONTENT ── -->
+<section>
+    <div class="section-tag">Hotel Content Search Engine &amp; Deposit Configurations</div>
+    <h2>HOTEL CONTENT INTEGRATION</h2>
+    <div class="two-col">
+        <div class="col-left">
+            <h3>Extend Your Product Scope</h3>
+            <p>Allow passengers to search and reserve hotel rooms alongside flights. Integrate robust content easily:</p>
+            <ul class="bullet-list">
+                <li>
+                    <span class="ico">⊞</span>
+                    <div><strong>Flexible Setup Model:</strong> Connect under CEE's pre-arranged hotel license, or leverage your own agency direct provider contract options.</div>
+                </li>
+                <li>
+                    <span class="ico">⊟</span>
+                    <div><strong>Automated Financial Logic:</strong> Monitored wallet system sending automated alerts when deposit balances run low.</div>
+                </li>
+                <li>
+                    <span class="ico">⊠</span>
+                    <div><strong>Payment Gateway Rule:</strong> Requires your active payment gateway setup for instant client automated billing.</div>
+                </li>
+            </ul>
+        </div>
+        <div class="side-card" style="text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:0.8rem;">⊞</div>
+            <h4>Live Booking Demo Portal</h4>
+            <p>Launch our clean staging environment to showcase complete searches, map interfaces, and room checkouts:</p>
+            <a href="https://demo4.golibe.com" target="_blank" rel="noopener" class="btn-teal">OPEN DEMO4.GOLIBE ↗</a>
+            <a href="https://cee-systems.gitbook.io/enhelp-golibe/9.-hotel-content" target="_blank" rel="noopener" class="btn-outline">READ GITBOOK DOCS ↗</a>
+        </div>
+    </div>
+    <div class="page-footer">
+        <span>Hotel Content Search Engine &amp; Deposit Configurations</span>
+        <strong>CEE TRAVEL SYSTEMS</strong>
+    </div>
+</section>
+
+<!-- ── SLIDE 6: GOL API ── -->
+<section>
+    <div class="section-tag">Unified GOL API Developer Endpoint Guidelines</div>
+    <h2>GOL API FOR DEVELOPERS</h2>
+    <div class="two-col">
+        <div class="col-left">
+            <h3>Absolute Architectural Freedom</h3>
+            <p>If you want to construct a completely bespoke booking workflow, mobile app, or corporate system without being restricted by console layouts, GOL API is your answer.</p>
+            <ul class="bullet-list">
+                <li>
+                    <span class="ico">&gt;_</span>
+                    <div><strong>Pure, Clean Data Feeds:</strong> High-speed XML/JSON feeds connecting your developers directly to GDS travel content.</div>
+                </li>
+                <li>
+                    <span class="ico">⊛</span>
+                    <div><strong>Total UX Control:</strong> Define your own user interfaces, segment combinations, filters, and custom checkout flows.</div>
+                </li>
+                <li>
+                    <span class="ico">⊘</span>
+                    <div><strong>No Consoles, No Limits:</strong> Absolute flexibility over corporate pricing logic and custom application parameters.</div>
+                </li>
+            </ul>
+        </div>
+        <div class="side-card">
+            <div class="side-card-label">⚙ DEVELOPER SETUP HANDOVER</div>
+            <p>CEE delivers highly available endpoints, schemas, and staging credentials. You bring the developer and build your dream application on top of our solid framework.</p>
+            <a href="https://www.cee-systems.com/solutions/gol-api" target="_blank" rel="noopener" class="btn-blue">READ API SPECIFICATIONS ↗</a>
+        </div>
+    </div>
+    <div class="page-footer">
+        <span>Unified GOL API Developer Endpoint Guidelines</span>
+        <strong>CEE TRAVEL SYSTEMS</strong>
+    </div>
+</section>
+
+<!-- ── SLIDE 7: QUEUE PROCESSOR ── -->
+<section>
+    <div class="section-tag">CEE Queue Processor Background Automation Details</div>
+    <h2>QUEUE PROCESSOR</h2>
+    <div class="two-col">
+        <div class="col-left">
+            <h3>Save Big Money. Small Cost.</h3>
+            <p>An automated background watchdog for travel reservations. It handles repetitive backoffice routing so your ticketing agents don't have to:</p>
+            <ul class="bullet-list">
+                <li>
+                    <span class="ico">⊙</span>
+                    <div><strong>Automated HX Segment Removal:</strong> Purges cancelled HX segments every single hour, avoiding expensive GDS ADM fines!</div>
+                </li>
+                <li>
+                    <span class="ico">⊚</span>
+                    <div><strong>PNR Distribution:</strong> Hands-free sorting and queuing of booking files across specific PCCs, categories, and queues.</div>
+                </li>
+                <li>
+                    <span class="ico">▽</span>
+                    <div><strong>Text Remark Filtering:</strong> Classifies bookings instantly based on text remarks found in corporate NOTE elements.</div>
+                </li>
+            </ul>
+        </div>
+        <div class="side-card">
+            <div class="side-card-label">⊙ ADM PREVENTION WATCHDOG</div>
+            <p>Deploy a robust background routine custom-mapped to your travel agency's specific operations and schedule.</p>
+            <a href="https://www.cee-systems.com/solutions/queue-processor" target="_blank" rel="noopener" class="btn-teal">EXPLORE QUEUE PROCESSOR ↗</a>
+        </div>
+    </div>
+    <div class="page-footer">
+        <span>CEE Queue Processor Background Automation Details</span>
+        <strong>CEE TRAVEL SYSTEMS</strong>
+    </div>
+</section>
+
+<!-- ── SLIDE 8: Q&A ── -->
+<div class="qa-section">
+    <div class="hero-badge">SUPPORT &amp; COLLABORATION</div>
+    <h2>Questions &amp; Answers</h2>
+    <p>Let's open the test consoles live and customize layouts or test automated queues together!</p>
+    <div class="qa-links">
+        <a href="https://cee-systems.gitbook.io/enhelp-golibe" target="_blank" rel="noopener" class="qa-link">
+            <span>⊟</span> GOL IBE GitBook Help Center ↗
+        </a>
+        <a href="mailto:daniela.vokalova@travelportgds.cz" class="qa-link">
+            <span>✉</span> Email Daniela Vokalová ↗
+        </a>
+    </div>
+    <div class="page-footer" style="position:absolute;bottom:2rem;left:6rem;right:6rem;">
+        <span>CEE GOL IBE Webinar Refresh Series #6</span>
+        <strong>CEE TRAVEL SYSTEMS</strong>
+    </div>
+</div>
+
 </body>
 </html>

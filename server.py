@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Air Reservations – lokální dashboard server"""
-import os, json, datetime
+import os, json, datetime, subprocess, time
 from decimal import Decimal
 from flask import Flask, Response, send_from_directory, request
 from flask_cors import CORS
@@ -13,6 +13,7 @@ load_dotenv(override=True)
 TABLE = os.getenv("TABLE_NAME", "gol_reservations_sourcedata_3_20260311130217")
 PORT  = int(os.getenv("PORT", 8080))
 BASE  = os.path.dirname(os.path.abspath(__file__))
+SYNC_WAIT_SECONDS = int(os.getenv("SYNC_WAIT_SECONDS", "12"))
 
 app = Flask(__name__, static_folder=BASE)
 CORS(app)
@@ -164,6 +165,64 @@ def stats():
                       "by_type":by_type})
     except Exception as e:
         return jresp({"ok":False,"error":str(e)}, 500)
+
+# ── /api/health + refresh ──────────────────────────────────────────────────────
+
+def db_total():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(f'SELECT COUNT(*) FROM "{TABLE}"')
+    total = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    return total
+
+@app.route("/api/health")
+def health():
+    try:
+        total = db_total()
+        return jresp({"ok": True, "db": True, "total": total, "table": TABLE})
+    except Exception as exc:
+        return jresp({"ok": False, "db": False, "error": str(exc)}, 503)
+
+@app.route("/api/refresh-data", methods=["POST"])
+def refresh_data():
+    """Spustí sync do Postgres a počká na doplnění dat."""
+    notes = []
+    try:
+        before = db_total()
+    except Exception as exc:
+        return jresp({"ok": False, "error": f"PostgreSQL: {exc}", "notes": notes}, 500)
+
+    try:
+        proc = subprocess.run(
+            ["docker", "start", "google-sync"],
+            capture_output=True,
+            text=True,
+            timeout=20,
+            check=False,
+        )
+        if proc.returncode == 0:
+            notes.append("google-sync spuštěn")
+        else:
+            notes.append("google-sync není dostupný (pokračuji z Postgres)")
+    except Exception as exc:
+        notes.append(f"docker sync: {exc}")
+
+    after = before
+    for second in range(max(SYNC_WAIT_SECONDS, 1)):
+        time.sleep(1)
+        try:
+            after = db_total()
+            if after != before:
+                notes.append(f"postgres aktualizován ({before} → {after})")
+                break
+        except Exception as exc:
+            return jresp({"ok": False, "error": f"PostgreSQL: {exc}", "notes": notes}, 500)
+    else:
+        notes.append(f"postgres načten ({after} záznamů)")
+
+    return jresp({"ok": True, "total": after, "before": before, "notes": notes})
 
 # ── /api/filter-options ────────────────────────────────────────────────────────
 

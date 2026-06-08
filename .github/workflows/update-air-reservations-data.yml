@@ -24,10 +24,8 @@ jobs:
           INPUT_CSV_URL: ${{ inputs.csv_url }}
           DEFAULT_CSV_URL: ${{ vars.AIR_RESERVATIONS_CSV_URL }}
         run: |
-          $url = if ($env:INPUT_CSV_URL) { $env:INPUT_CSV_URL } else { $env:DEFAULT_CSV_URL }
-          if (-not $url) {
-            throw "Missing CSV URL. Add repository variable AIR_RESERVATIONS_CSV_URL or fill csv_url when running this workflow."
-          }
+          $default = "https://docs.google.com/spreadsheets/d/1PnxOaenFjIPbmEnySChbE6h13HehIsFM9VNnwytsY4k/export?format=csv&gid=413463191"
+          $url = if ($env:INPUT_CSV_URL) { $env:INPUT_CSV_URL } elseif ($env:DEFAULT_CSV_URL) { $env:DEFAULT_CSV_URL } else { $default }
           Invoke-WebRequest -Uri $url -OutFile air-reservations.csv
           $firstLine = Get-Content air-reservations.csv -TotalCount 1
           if ($firstLine -notmatch "Reservation|Connector|Locator|Status") {

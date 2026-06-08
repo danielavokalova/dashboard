@@ -45,16 +45,13 @@ if errorlevel 1 (
     exit /b 1
 )
 
-REM ── Spusť Docker kontejner google-sync (pokud je dostupný) ──────
+REM ── Spusť Postgres + sync (pokud je Docker dostupný) ──────────
+docker start metabase_projekt-postgres-1 >nul 2>&1
 docker start google-sync >nul 2>&1
-if not errorlevel 1 (
-    echo  [OK]   Docker kontejner google-sync spuštěn
-) else (
-    echo  [INFO] Docker kontejner google-sync nebyl nalezen nebo již běží
-)
+echo  [OK]   Postgres + sync kontrola dokončena
 
-REM ── Otevři prohlížeč po 2 sekundách ────────────────────────────
-start "" cmd /c "timeout /t 2 /nobreak >nul && start http://localhost:8080/air-reservations.html"
+REM ── Otevři prohlížeč po startu serveru (?refresh=1 = načti data) ─
+start "" cmd /c "timeout /t 5 /nobreak >nul && start http://localhost:8080/air-reservations.html?refresh=1"
 
 echo.
 echo  [2/2] Spouštím server → http://localhost:8080/air-reservations.html

@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 """Air Reservations – lokální dashboard server"""
-import os, json, datetime
+import os, json, datetime, subprocess, time
 from decimal import Decimal
 from flask import Flask, Response, send_from_directory, request
 from flask_cors import CORS
 import psycopg2, psycopg2.extras
 from dotenv import load_dotenv
 
-load_dotenv()
+# Prefer values from local .env over inherited shell variables.
+load_dotenv(override=True)
 
 TABLE = os.getenv("TABLE_NAME", "gol_reservations_sourcedata_3_20260311130217")
 PORT  = int(os.getenv("PORT", 8080))
 BASE  = os.path.dirname(os.path.abspath(__file__))
+SYNC_WAIT_SECONDS = int(os.getenv("SYNC_WAIT_SECONDS", "12"))
 
 app = Flask(__name__, static_folder=BASE)
 CORS(app)
@@ -58,9 +60,12 @@ def build_filter(args):
         conds.append(f"({_DATE}) >= %s::date"); params.append(args['date_from'])
     if args.get('date_to'):
         conds.append(f"({_DATE}) <= %s::date"); params.append(args['date_to'])
-    for col in ('agency','agency_country','currency','connector','status','type'):
+    for col in ('agency','dealer','agency_country','currency','connector','status','type'):
         if args.get(col):
             conds.append(f'"{col}" = %s'); params.append(args[col])
+    if args.get('search'):
+        conds.append(f"row_to_json(\"{TABLE}\")::text ILIKE %s")
+        params.append(f"%{args['search']}%")
     return ("WHERE " + " AND ".join(conds)) if conds else "", params
 
 def wand(where, extra):
@@ -161,6 +166,64 @@ def stats():
     except Exception as e:
         return jresp({"ok":False,"error":str(e)}, 500)
 
+# ── /api/health + refresh ──────────────────────────────────────────────────────
+
+def db_total():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(f'SELECT COUNT(*) FROM "{TABLE}"')
+    total = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    return total
+
+@app.route("/api/health")
+def health():
+    try:
+        total = db_total()
+        return jresp({"ok": True, "db": True, "total": total, "table": TABLE})
+    except Exception as exc:
+        return jresp({"ok": False, "db": False, "error": str(exc)}, 503)
+
+@app.route("/api/refresh-data", methods=["POST"])
+def refresh_data():
+    """Spustí sync do Postgres a počká na doplnění dat."""
+    notes = []
+    try:
+        before = db_total()
+    except Exception as exc:
+        return jresp({"ok": False, "error": f"PostgreSQL: {exc}", "notes": notes}, 500)
+
+    try:
+        proc = subprocess.run(
+            ["docker", "start", "google-sync"],
+            capture_output=True,
+            text=True,
+            timeout=20,
+            check=False,
+        )
+        if proc.returncode == 0:
+            notes.append("google-sync spuštěn")
+        else:
+            notes.append("google-sync není dostupný (pokračuji z Postgres)")
+    except Exception as exc:
+        notes.append(f"docker sync: {exc}")
+
+    after = before
+    for second in range(max(SYNC_WAIT_SECONDS, 1)):
+        time.sleep(1)
+        try:
+            after = db_total()
+            if after != before:
+                notes.append(f"postgres aktualizován ({before} → {after})")
+                break
+        except Exception as exc:
+            return jresp({"ok": False, "error": f"PostgreSQL: {exc}", "notes": notes}, 500)
+    else:
+        notes.append(f"postgres načten ({after} záznamů)")
+
+    return jresp({"ok": True, "total": after, "before": before, "notes": notes})
+
 # ── /api/filter-options ────────────────────────────────────────────────────────
 
 @app.route("/api/filter-options")
@@ -168,7 +231,7 @@ def filter_options():
     try:
         conn = get_db(); cur = conn.cursor()
         opts = {}
-        for col in ('status','agency','agency_country','currency','connector','type'):
+        for col in ('status','agency','dealer','agency_country','currency','connector','type'):
             cur.execute(f"""SELECT DISTINCT "{col}"::text FROM "{TABLE}"
                            WHERE "{col}" IS NOT NULL AND "{col}"::text != '' ORDER BY 1""")
             opts[col] = [r[0] for r in cur.fetchall()]

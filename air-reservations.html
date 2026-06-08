@@ -943,7 +943,7 @@ td.cell-empty { color: var(--muted); }
   <div class="launcher-bar" id="launcher-bar">
     <div class="launcher-bar-title">Aktuální data z PostgreSQL</div>
     <div class="launcher-bar-sub">
-      Webová verze ukazuje uložený snapshot. Pro čerstvá data jedním klikem spusť lokální server a synchronizaci.
+      1) Klikni na zelené tlačítko níže &nbsp;→&nbsp; 2) ve <strong>Stažených souborech</strong> spusť <strong>spustit-dashboard.bat</strong> &nbsp;→&nbsp; 3) počkej, až se otevře localhost a načtou se data z Postgres.
     </div>
     <div class="offline-actions">
       <a class="offline-btn launch-btn" href="#" onclick="launchDashboard(); return false;">▶ Spustit a načíst data</a>
@@ -1832,17 +1832,13 @@ function downloadLauncherBat() {
 let _launcherPoll = null;
 
 async function launchDashboard() {
-  setLauncherStatus("Kontroluji lokální server…");
-
   if (await isServerOnline()) {
-    setLauncherStatus("Server běží – načítám data…");
     location.href = LOCAL_DASHBOARD_URL;
     return;
   }
 
-  setLauncherStatus("Stahuji spouštěč… po stažení ho spusť dvojklikem.");
   downloadLauncherBat();
-  window.open(LOCAL_DASHBOARD_URL, "_blank");
+  setLauncherStatus("Soubor spustit-dashboard.bat byl stažen. Otevři Stažené soubory a spusť ho dvojklikem. Dashboard se pak sám otevře na localhost.");
 
   if (_launcherPoll) clearInterval(_launcherPoll);
   let tries = 0;
@@ -1851,17 +1847,18 @@ async function launchDashboard() {
     if (await isServerOnline()) {
       clearInterval(_launcherPoll);
       _launcherPoll = null;
-      setLauncherStatus("Server běží – přesměrovávám…");
       location.href = LOCAL_DASHBOARD_URL;
       return;
     }
-    setLauncherStatus(`Čekám na server (${tries * 2} s)… spusť stažený soubor spustit-dashboard.bat`);
-    if (tries >= 45) {
+    if (tries <= 30) {
+      setLauncherStatus(`Čekám na server (${tries * 3} s)… spusť stažený spustit-dashboard.bat ze složky Stažené soubory.`);
+    }
+    if (tries >= 30) {
       clearInterval(_launcherPoll);
       _launcherPoll = null;
-      setLauncherStatus("Server se zatím nespustil. Spusť spustit-dashboard.bat a klikni znovu na Spustit.");
+      setLauncherStatus("Server ještě neběží. Spusť spustit-dashboard.bat a pak obnov tuto stránku, nebo otevři http://localhost:8080/air-reservations.html");
     }
-  }, 2000);
+  }, 3000);
 }
 
 function initLauncherUi() {

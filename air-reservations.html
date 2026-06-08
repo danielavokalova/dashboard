@@ -266,6 +266,32 @@ body {
   display: none;
 }
 
+.launcher-bar {
+  display: none;
+  order: 0;
+  margin-bottom: 20px;
+  padding: 22px 28px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--panel);
+  box-shadow: 0 5px 20px var(--shadow);
+  text-align: center;
+}
+.launcher-bar.show { display: block; }
+.launcher-bar-title {
+  margin-bottom: 8px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.launcher-bar-sub {
+  max-width: 720px;
+  margin: 0 auto 16px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
 /* ── KPI CARDS ──────────────────────────────────────────── */
 .kpi-row {
   display: grid;
@@ -913,18 +939,26 @@ td.cell-empty { color: var(--muted); }
 <div class="main">
 
   <div class="error-box" id="error-box"></div>
-  <div id="limit-banner" style="display:none; background:rgba(79,106,108,0.1); border:1.5px solid rgba(79,106,108,0.25); border-radius:12px; padding:11px 18px; font-size:13px; color:var(--muted); margin-bottom:18px;">
-  </div>
 
-  <div class="offline-panel" id="offline-panel">
-    <div class="offline-title">Spustit Air Reservations</div>
-    <div class="offline-sub">
-      Jedním klikem spustíš Postgres, synchronizaci dat a načteš aktuální statistiky z databáze.
+  <div class="launcher-bar" id="launcher-bar">
+    <div class="launcher-bar-title">Aktuální data z PostgreSQL</div>
+    <div class="launcher-bar-sub">
+      Webová verze ukazuje uložený snapshot. Pro čerstvá data jedním klikem spusť lokální server a synchronizaci.
     </div>
     <div class="offline-actions">
       <a class="offline-btn launch-btn" href="#" onclick="launchDashboard(); return false;">▶ Spustit a načíst data</a>
     </div>
     <div class="launcher-status" id="launcher-status"></div>
+  </div>
+
+  <div id="limit-banner" style="display:none; background:rgba(79,106,108,0.1); border:1.5px solid rgba(79,106,108,0.25); border-radius:12px; padding:11px 18px; font-size:13px; color:var(--muted); margin-bottom:18px;">
+  </div>
+
+  <div class="offline-panel" id="offline-panel">
+    <div class="offline-title">Server není spuštěn</div>
+    <div class="offline-sub">
+      Spusť <strong>start-server.bat</strong> nebo použij tlačítko výše <strong>Spustit a načíst data</strong>.
+    </div>
   </div>
 
   <!-- KPI -->
@@ -1831,8 +1865,11 @@ async function launchDashboard() {
 }
 
 function initLauncherUi() {
+  const local = isLocalHost();
   const btn = document.getElementById("btn-launch");
-  if (btn) btn.style.display = isLocalHost() ? "none" : "inline-flex";
+  if (btn) btn.style.display = local ? "none" : "inline-flex";
+  const bar = document.getElementById("launcher-bar");
+  if (bar) bar.classList.toggle("show", !local);
 }
 
 async function maybeRedirectToLocal() {

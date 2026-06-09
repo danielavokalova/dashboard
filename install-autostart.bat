@@ -5,7 +5,7 @@ title Nastaveni autostartu
 REM Pokud je server.py ve stejne slozce, pokracuj
 if exist "%~dp0server.py" (
     cd /d "%~dp0"
-    goto :setup
+    goto :update
 )
 
 REM Jinak ho najdi automaticky
@@ -15,13 +15,22 @@ for /f "delims=" %%i in ('powershell -NoProfile -Command "Get-ChildItem -Path $e
 
 if not defined FOUND (
     echo.
-    echo  [CHYBA] server.py nebyl nalezen. Ujistete se, ze je repozitar stazen.
+    echo  [CHYBA] server.py nebyl nalezen.
     pause
     exit /b 1
 )
 
 echo  Nalezeno: %FOUND%
 cd /d "%FOUND%"
+
+:update
+REM Stahni nejnovejsi soubory z GitHubu
+echo  Stahuji nejnovejsi soubory...
+git pull origin main >nul 2>&1
+
+REM Stahni start-server.bat znovu primo z GitHubu (pro jistotu)
+powershell -NoProfile -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/danielavokalova/dashboard/main/start-server.bat' -OutFile 'start-server.bat'" >nul 2>&1
+powershell -NoProfile -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/danielavokalova/dashboard/main/export_csv.py' -OutFile 'export_csv.py'" >nul 2>&1
 
 :setup
 REM Vytvor .env pokud neexistuje
@@ -55,12 +64,14 @@ set "LINK=%STARTUP%\AirReservationsDashboard.lnk"
 powershell -NoProfile -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('%LINK%'); $s.TargetPath = '%HERE%\server-silent.vbs'; $s.WorkingDirectory = '%HERE%'; $s.WindowStyle = 0; $s.Description = 'Air Reservations Dashboard'; $s.Save()"
 
 REM Spust server hned ted
+echo  Spoustim server...
 start "" "%HERE%\server-silent.vbs"
 
-timeout /t 3 /nobreak >nul
+timeout /t 4 /nobreak >nul
 start http://localhost:8080/air-reservations.html
 
 echo.
 echo  Hotovo! Server se spousti automaticky s Windows.
+echo  Dashboard se otevrel v prohlizeci.
 echo.
 pause

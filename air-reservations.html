@@ -873,6 +873,14 @@ td.cell-empty { color: var(--muted); }
       <span id="server-status-text">Připojuji...</span>
     </div>
     <a class="download-server-link" id="download-server-link" href="air-reservations-server.zip" download>Stáhnout server ZIP</a>
+    <div style="position:relative">
+      <button class="btn-sm btn-outline" onclick="var m=document.getElementById('setup-menu');m.style.display=m.style.display==='block'?'none':'block'" title="Soubory pro spuštění serveru">⬇ Soubory</button>
+      <div id="setup-menu" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--paper-solid);border:1.5px solid var(--border);border-radius:10px;box-shadow:0 6px 20px var(--shadow);min-width:230px;z-index:200;padding:8px 0;">
+        <a href="install-autostart.bat" download style="display:block;padding:10px 16px;color:var(--ink);text-decoration:none;font-size:12px;font-weight:700;letter-spacing:0.04em;" onmouseover="this.style.background='var(--row-hover)'" onmouseout="this.style.background=''">⬇ install-autostart.bat<br><span style="font-weight:400;color:var(--muted)">Autostart s Windows (spustit jednou)</span></a>
+        <a href="start-server.bat" download style="display:block;padding:10px 16px;color:var(--ink);text-decoration:none;font-size:12px;font-weight:700;letter-spacing:0.04em;" onmouseover="this.style.background='var(--row-hover)'" onmouseout="this.style.background=''">⬇ start-server.bat<br><span style="font-weight:400;color:var(--muted)">Ruční spuštění serveru</span></a>
+        <a href="export_csv.py" download style="display:block;padding:10px 16px;color:var(--ink);text-decoration:none;font-size:12px;font-weight:700;letter-spacing:0.04em;" onmouseover="this.style.background='var(--row-hover)'" onmouseout="this.style.background=''">⬇ export_csv.py<br><span style="font-weight:400;color:var(--muted)">Export dat z DB na GitHub Pages</span></a>
+      </div>
+    </div>
     <a class="btn-sm btn-primary" href="https://github.com/danielavokalova/dashboard/actions/workflows/update-air-reservations-data.yml" target="_blank" rel="noopener">Aktualizovat data</a>
     <button class="btn-sm btn-outline" id="btn-refresh" onclick="loadData()">Obnovit</button>
     <div class="topbar-meta" id="topbar-meta">Načítám…</div>

@@ -1,34 +1,37 @@
 @echo off
 chcp 65001 >nul
-title Instalace automatickeho startu
+cd /d "%~dp0"
 
-set "STARTUP=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"
-set "SCRIPT_DIR=%~dp0"
-set "LINK=%STARTUP%\AirReservationsDashboard.lnk"
-
-echo.
-echo  Instaluji Air Reservations Dashboard do Startupu Windows...
-echo.
-
-powershell -NoProfile -Command ^
-  "$ws = New-Object -ComObject WScript.Shell; ^
-   $s = $ws.CreateShortcut('%LINK%'); ^
-   $s.TargetPath = '%SCRIPT_DIR%start-server.bat'; ^
-   $s.WorkingDirectory = '%SCRIPT_DIR%'; ^
-   $s.WindowStyle = 7; ^
-   $s.Description = 'Air Reservations Dashboard'; ^
-   $s.Save()"
-
-if exist "%LINK%" (
-    echo  [OK] Hotovo. Server se bude spoustet automaticky pri prihlaseni.
-    echo.
-    echo  Odkaz ulozen do:
-    echo  %LINK%
-    echo.
-    echo  Pro odinstalovani spust: remove-autostart.bat
-) else (
-    echo  [CHYBA] Nepodarilo se vytvorit zastupce.
+REM ── Vytvoř .env pokud neexistuje ──────────────────────────────────
+if not exist ".env" (
+    copy ".env.example" ".env" >nul
+    echo  Vyplň přihlašovací údaje k databázi a ulož soubor.
+    notepad .env
 )
 
+REM ── Nainstaluj závislosti ─────────────────────────────────────────
+python -c "import flask, flask_cors, psycopg2, dotenv" >nul 2>&1
+if errorlevel 1 (
+    echo  Instaluji závislosti...
+    pip install -r requirements.txt -q
+)
+
+REM ── Přidej server do Startupu Windows ────────────────────────────
+set "STARTUP=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"
+set "LINK=%STARTUP%\AirReservationsDashboard.lnk"
+
+powershell -NoProfile -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('%LINK%'); $s.TargetPath = '%~dp0server-silent.vbs'; $s.WorkingDirectory = '%~dp0'; $s.WindowStyle = 0; $s.Description = 'Air Reservations Dashboard'; $s.Save()"
+
+REM ── Spusť server hned teď (poprvé) ───────────────────────────────
+start "" "%~dp0server-silent.vbs"
+
+REM ── Otevři dashboard v prohlížeči ────────────────────────────────
+timeout /t 3 /nobreak >nul
+start http://localhost:8080/air-reservations.html
+
+echo.
+echo  Hotovo! Dashboard se otevřel v prohlížeči.
+echo  Od teď se server spouští automaticky s Windows.
+echo  Pro odebrání spusť: remove-autostart.bat
 echo.
 pause

@@ -39,10 +39,18 @@ if errorlevel 1 (
     pip install -r requirements.txt -q
 )
 
+set "HERE=%CD%"
+
+REM Vytvor server-silent.vbs pokud chybi
+if not exist "%HERE%\server-silent.vbs" (
+    echo Dim folder > "%HERE%\server-silent.vbs"
+    echo folder = Left(WScript.ScriptFullName, InStrRev(WScript.ScriptFullName, "\")) >> "%HERE%\server-silent.vbs"
+    echo CreateObject("WScript.Shell").Run "cmd /c """ ^& folder ^& "start-server.bat""", 0, False >> "%HERE%\server-silent.vbs"
+)
+
 REM Pridej do Startupu Windows
 set "STARTUP=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"
 set "LINK=%STARTUP%\AirReservationsDashboard.lnk"
-set "HERE=%CD%"
 
 powershell -NoProfile -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('%LINK%'); $s.TargetPath = '%HERE%\server-silent.vbs'; $s.WorkingDirectory = '%HERE%'; $s.WindowStyle = 0; $s.Description = 'Air Reservations Dashboard'; $s.Save()"
 

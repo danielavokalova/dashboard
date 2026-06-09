@@ -15,7 +15,7 @@ BASE  = os.path.dirname(os.path.abspath(__file__))
 SYNC_WAIT_SECONDS = int(os.getenv("SYNC_WAIT_SECONDS", "12"))
 
 def _find_latest_table():
-    """Vrátí TABLE_NAME z .env, nebo automaticky najde nejnovější tabulku gol_reservations_sourcedata_* v DB."""
+    """Vrátí TABLE_NAME z .env, nebo najde tabulku s nejnovějšími daty (max datum) mezi gol_reservations_*."""
     explicit = os.getenv("TABLE_NAME", "").strip()
     if explicit:
         return explicit
@@ -26,18 +26,35 @@ def _find_latest_table():
             password=os.getenv("DB_PASSWORD",""),
         )
         cur = conn.cursor()
+        # Najdi všechny kandidátní tabulky
         cur.execute("""
             SELECT table_name FROM information_schema.tables
             WHERE table_schema = 'public'
-              AND table_name LIKE 'gol_reservations_sourcedata_%'
+              AND table_name LIKE 'gol_reservations%'
             ORDER BY table_name DESC
-            LIMIT 1
+            LIMIT 10
         """)
-        row = cur.fetchone()
+        candidates = [r[0] for r in cur.fetchall()]
+
+        best_table, best_date = None, None
+        date_expr = """CASE
+            WHEN reservation_date ~ '^\\d{2}\\.\\d{2}\\.\\d{4}$' THEN to_date(reservation_date,'DD.MM.YYYY')
+            WHEN reservation_date ~ '^\\d{4}-\\d{2}-\\d{2}' THEN reservation_date::date
+            ELSE NULL END"""
+        for t in candidates:
+            try:
+                cur.execute(f'SELECT MAX({date_expr}) FROM "{t}"')
+                row = cur.fetchone()
+                d = row[0] if row else None
+                if d and (best_date is None or d > best_date):
+                    best_date, best_table = d, t
+            except Exception:
+                pass
+
         cur.close(); conn.close()
-        if row:
-            print(f"[server] Automaticky vybrána tabulka: {row[0]}")
-            return row[0]
+        if best_table:
+            print(f"[server] Vybrána tabulka s nejnovějšími daty: {best_table} (max datum: {best_date})")
+            return best_table
     except Exception as e:
         print(f"[server] Nelze detekovat tabulku: {e}")
     return "gol_reservations_sourcedata_3_20260311130217"

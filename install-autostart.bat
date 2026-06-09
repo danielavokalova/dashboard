@@ -67,11 +67,18 @@ REM Spust server hned ted
 echo  Spoustim server...
 start "" "%HERE%\server-silent.vbs"
 
-timeout /t 4 /nobreak >nul
-start http://localhost:8080/air-reservations.html
+REM Exportuj aktualni data z DB a pushni na GitHub Pages
+echo  Exportuji aktualni data na web (chvili potrva)...
+timeout /t 6 /nobreak >nul
+python export_csv.py
 
 echo.
-echo  Hotovo! Server se spousti automaticky s Windows.
-echo  Dashboard se otevrel v prohlizeci.
+echo  Oteviram dashboard...
+start http://localhost:8080/air-reservations.html
+start https://danielavokalova.github.io/dashboard/air-reservations.html
+
+echo.
+echo  Hotovo! Data jsou aktualni na obou adresach.
+echo  Server se spousti automaticky s Windows.
 echo.
 pause

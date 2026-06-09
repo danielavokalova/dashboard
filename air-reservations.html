@@ -888,12 +888,22 @@ td.cell-empty { color: var(--muted); }
   <div class="offline-panel" id="offline-panel">
     <div class="offline-title">Server není spuštěn</div>
     <div class="offline-sub">
-      Tahle veřejná stránka potřebuje lokální server na <strong>localhost:8080</strong>.
-      Pokud se data nenačítají, stáhni ZIP balíček, rozbal ho a spusť <strong>start-server.bat</strong>.
+      Dashboard se připojuje k lokálnímu serveru na <strong>localhost:8080</strong> — ten čte data přímo z vašeho Dockeru/PostgreSQL.<br>
+      Stáhněte potřebné soubory níže a spusťte je jednou.
     </div>
     <div class="offline-actions">
-      <a class="offline-btn primary" href="air-reservations-server.zip" download>Stáhnout server ZIP</a>
-      <a class="offline-btn" href="http://localhost:8080/air-reservations.html">Otevřít lokálně</a>
+      <a class="offline-btn primary" href="install-autostart.bat" download title="Spusťte JEDNOU — server se pak spouští automaticky s Windows">
+        ⬇ install-autostart.bat<br><small style="font-weight:400;letter-spacing:0;text-transform:none">Nastavit autostart (spustit jednou)</small>
+      </a>
+      <a class="offline-btn" href="start-server.bat" download title="Manuální spuštění serveru">
+        ⬇ start-server.bat<br><small style="font-weight:400;letter-spacing:0;text-transform:none">Spustit server ručně</small>
+      </a>
+      <a class="offline-btn" href="export_csv.py" download title="Exportuje data z DB a pushne na GitHub">
+        ⬇ export_csv.py<br><small style="font-weight:400;letter-spacing:0;text-transform:none">Aktualizovat data na webu</small>
+      </a>
+      <a class="offline-btn" href="http://localhost:8080/air-reservations.html">
+        → Otevřít lokálně<br><small style="font-weight:400;letter-spacing:0;text-transform:none">Po spuštění serveru</small>
+      </a>
     </div>
   </div>
 

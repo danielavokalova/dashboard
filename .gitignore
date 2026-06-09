@@ -1,6 +1,9 @@
 # DB credentials – nikdy necommitovat!
 .env
 
+# Data – pouze lokálně, ne na GitHub
+air-reservations.csv
+
 # Python
 __pycache__/
 *.pyc

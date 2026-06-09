@@ -1723,30 +1723,36 @@ async function loadData() {
   const btn = document.getElementById("btn-refresh");
   btn.disabled = true; btn.textContent = "...";
   _statsLoaded = false;
-  showLoadingState();
+  showLoadingState("Připojuji se k serveru…");
   hideError();
 
   try {
-    dataMode = "static";
-    await loadStaticStreaming();
-    updateServerStatus(true, dataMode);
-  } catch(staticError) {
+    // 1. Zkus API server (PostgreSQL) — primární zdroj
     try {
+      setLoadingMsg("Načítám z databáze…");
       const data = await loadApiReservations();
       dataMode = "api";
       hydrateRows(data);
-      buildControls();
+      buildControls(true);
       await loadFilterOptions();
       computeKPIs();
       applyFilters();
-      reloadStats();
+      await reloadStats();
       updateDataMeta(data);
       updateServerStatus(true, dataMode);
-    } catch(e) {
-      showError(e.message);
-      showErrorState();
-      updateServerStatus(false, dataMode);
+      return;
+    } catch(apiErr) {
+      // Server není spuštěn — přepni na streaming CSV zálohu
     }
+
+    // 2. Záloha: streaming z CSV (GitHub Pages)
+    dataMode = "static";
+    await loadStaticStreaming();
+    updateServerStatus(true, dataMode);
+  } catch(e) {
+    showError(e.message);
+    showErrorState();
+    updateServerStatus(false, dataMode);
   } finally {
     btn.disabled = false; btn.textContent = "Obnovit";
   }
@@ -2192,9 +2198,32 @@ function setRange(months, btn) {
   reloadStats();
 }
 
-// Načte stats z backendu dle aktivních filtrů
-function reloadStats() {
+// Načte stats — z API serveru nebo client-side z načtených řádků
+async function reloadStats() {
+  if (dataMode === "api") {
+    try {
+      const params = buildApiFilterParams();
+      const res = await fetch(`${API}/api/stats?${params}`);
+      const data = await res.json();
+      if (data.ok) { applyStats(data); return; }
+    } catch(e) { /* fallback na client-side */ }
+  }
   applyStats(buildStatsFromRows(filteredRows), { local: true });
+}
+
+function buildApiFilterParams() {
+  const p = new URLSearchParams();
+  const v = id => document.getElementById(id)?.value || "";
+  if (v("f-date-from")) p.set("date_from", v("f-date-from"));
+  if (v("f-date-to"))   p.set("date_to",   v("f-date-to"));
+  if (v("f-agency"))    p.set("agency",     v("f-agency"));
+  if (v("f-dealer"))    p.set("dealer",     v("f-dealer"));
+  if (v("f-country"))   p.set("agency_country", v("f-country"));
+  if (v("f-status"))    p.set("status",     v("f-status"));
+  if (v("f-connector")) p.set("connector",  v("f-connector"));
+  if (v("f-currency"))  p.set("currency",   v("f-currency"));
+  if (v("f-search"))    p.set("search",     v("f-search"));
+  return p.toString();
 }
 
 function buildStatsFromRows(rows) {

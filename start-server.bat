@@ -30,6 +30,10 @@ REM ── Spusť Docker kontejnery (pokud jsou dostupné) ───────
 docker start metabase_projekt-postgres-1 >nul 2>&1
 docker start google-sync >nul 2>&1
 
+REM ── Exportuj aktuální data z DB do CSV a pushni na GitHub ─────────
+echo  [DATA] Exportuji aktuální data z databáze…
+start "" cmd /c "timeout /t 5 /nobreak >nul && python export_csv.py"
+
 REM ── Otevři prohlížeč za 2 sekundy ────────────────────────────────
 start "" cmd /c "timeout /t 2 /nobreak >nul && start http://localhost:8080/air-reservations.html"
 

@@ -10,10 +10,39 @@ from dotenv import load_dotenv
 # Prefer values from local .env over inherited shell variables.
 load_dotenv(override=True)
 
-TABLE = os.getenv("TABLE_NAME", "gol_reservations_sourcedata_3_20260311130217")
 PORT  = int(os.getenv("PORT", 8080))
 BASE  = os.path.dirname(os.path.abspath(__file__))
 SYNC_WAIT_SECONDS = int(os.getenv("SYNC_WAIT_SECONDS", "12"))
+
+def _find_latest_table():
+    """Vrátí TABLE_NAME z .env, nebo automaticky najde nejnovější tabulku gol_reservations_sourcedata_* v DB."""
+    explicit = os.getenv("TABLE_NAME", "").strip()
+    if explicit:
+        return explicit
+    try:
+        conn = psycopg2.connect(
+            host=os.getenv("DB_HOST","localhost"), port=int(os.getenv("DB_PORT","5432")),
+            dbname=os.getenv("DB_NAME","postgres"), user=os.getenv("DB_USER","postgres"),
+            password=os.getenv("DB_PASSWORD",""),
+        )
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT table_name FROM information_schema.tables
+            WHERE table_schema = 'public'
+              AND table_name LIKE 'gol_reservations_sourcedata_%'
+            ORDER BY table_name DESC
+            LIMIT 1
+        """)
+        row = cur.fetchone()
+        cur.close(); conn.close()
+        if row:
+            print(f"[server] Automaticky vybrána tabulka: {row[0]}")
+            return row[0]
+    except Exception as e:
+        print(f"[server] Nelze detekovat tabulku: {e}")
+    return "gol_reservations_sourcedata_3_20260311130217"
+
+TABLE = _find_latest_table()
 
 app = Flask(__name__, static_folder=BASE)
 CORS(app)

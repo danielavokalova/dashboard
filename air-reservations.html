@@ -1794,7 +1794,6 @@ async function loadStaticStreaming() {
 
     if (rowCount >= FIRST_RENDER_AT && !_firstRenderDone) {
       _firstRenderDone = true;
-      buildControls();
       loadFilterOptionsFromRows();
       computeKPIs();
       applyFilters();
@@ -1822,8 +1821,8 @@ async function loadStaticStreaming() {
     }
   }
 
-  // Finální render po načtení všech dat
-  buildControls();
+  // Finální render po načtení všech dat — force přepíše datum na správný rozsah
+  buildControls(true);
   loadFilterOptionsFromRows();
   computeKPIs();
   applyFilters();
@@ -1951,18 +1950,18 @@ function updateDataMeta(data) {
     `${label}: ${t}<br>${allRows.length.toLocaleString("cs-CZ")} z ${realTotal.toLocaleString("cs-CZ")} zaznamu`;
 }
 
-function buildControls() {
+function buildControls(force) {
   const {date, agency} = specialCols;
 
-  // Nastav výchozí časový rozsah podle dat v tabulce
+  // Nastav výchozí časový rozsah: od 1. 1. 2025 do posledního data v datech
   if (date) {
     const dates = allRows.map(r => parseDate(r[date])).filter(Boolean).sort((a,b)=>a-b);
     if (dates.length) {
-      const last  = dates[dates.length-1];
-      const from3 = new Date(last); from3.setMonth(from3.getMonth()-3);
-      if (!document.getElementById("f-date-from").value)
-        document.getElementById("f-date-from").value = toISO(from3);
-      if (!document.getElementById("f-date-to").value)
+      const last = dates[dates.length-1];
+      const defaultFrom = "2025-01-01";
+      if (force || !document.getElementById("f-date-from").value)
+        document.getElementById("f-date-from").value = defaultFrom;
+      if (force || !document.getElementById("f-date-to").value)
         document.getElementById("f-date-to").value   = toISO(last);
     }
   }
@@ -2154,8 +2153,7 @@ function handleSearchInput() {
 
 function clearFilters() {
   document.getElementById("f-search").value    = "";
-  document.getElementById("f-date-from").value = "";
-  document.getElementById("f-date-to").value   = "";
+  buildControls(true); // reset datum na 2025-01-01 → poslední datum
   document.getElementById("f-agency").value    = "";
   document.getElementById("f-dealer").value    = "";
   document.getElementById("f-country").value   = "";

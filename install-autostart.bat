@@ -26,6 +26,7 @@ cd /d "%FOUND%"
 :update
 REM Stahni nejnovejsi soubory z GitHubu
 echo  Stahuji nejnovejsi soubory...
+git branch --set-upstream-to=origin/main main >nul 2>&1
 git pull origin main >nul 2>&1
 
 REM Stahni start-server.bat znovu primo z GitHubu (pro jistotu)

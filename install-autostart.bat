@@ -1,22 +1,33 @@
 @echo off
 chcp 65001 >nul
-cd /d "%~dp0"
+title Nastaveni autostartu
 
-REM Zkontroluj ze jsme ve spravne slozce
-if not exist "server.py" (
+REM Pokud je server.py ve stejne slozce, pokracuj
+if exist "%~dp0server.py" (
+    cd /d "%~dp0"
+    goto :setup
+)
+
+REM Jinak ho najdi automaticky
+echo  Hledam server.py...
+set "FOUND="
+for /f "delims=" %%i in ('powershell -NoProfile -Command "Get-ChildItem -Path $env:USERPROFILE -Filter server.py -Recurse -ErrorAction SilentlyContinue | Where-Object { Test-Path (Join-Path $_.DirectoryName \".env.example\") } | Select-Object -First 1 -ExpandProperty DirectoryName"') do set "FOUND=%%i"
+
+if not defined FOUND (
     echo.
-    echo  [CHYBA] Soubor server.py nebyl nalezen.
-    echo  Tento soubor musi byt ve stejne slozce jako server.py a ostatni soubory.
-    echo  Stahni cely repozitar z GitHubu nebo presun soubory do spravne slozky.
-    echo.
+    echo  [CHYBA] server.py nebyl nalezen. Ujistete se, ze je repozitar stazen.
     pause
     exit /b 1
 )
 
+echo  Nalezeno: %FOUND%
+cd /d "%FOUND%"
+
+:setup
 REM Vytvor .env pokud neexistuje
 if not exist ".env" (
     copy ".env.example" ".env" >nul
-    echo  Vyplnte prihlasovaci udaje k databazi a ulozit soubor.
+    echo  Vyplnte udaje k databazi a ulozit.
     notepad .env
     pause
 )
@@ -28,21 +39,20 @@ if errorlevel 1 (
     pip install -r requirements.txt -q
 )
 
-REM Pridej server do Startupu Windows
+REM Pridej do Startupu Windows
 set "STARTUP=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"
 set "LINK=%STARTUP%\AirReservationsDashboard.lnk"
+set "HERE=%CD%"
 
-powershell -NoProfile -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('%LINK%'); $s.TargetPath = '%~dp0server-silent.vbs'; $s.WorkingDirectory = '%~dp0'; $s.WindowStyle = 0; $s.Description = 'Air Reservations Dashboard'; $s.Save()"
+powershell -NoProfile -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('%LINK%'); $s.TargetPath = '%HERE%\server-silent.vbs'; $s.WorkingDirectory = '%HERE%'; $s.WindowStyle = 0; $s.Description = 'Air Reservations Dashboard'; $s.Save()"
 
 REM Spust server hned ted
-start "" "%~dp0server-silent.vbs"
+start "" "%HERE%\server-silent.vbs"
 
-REM Otevri dashboard v prohlizeci
 timeout /t 3 /nobreak >nul
 start http://localhost:8080/air-reservations.html
 
 echo.
-echo  Hotovo! Dashboard se otevrel v prohlizeci.
-echo  Od ted se server spousti automaticky s Windows.
+echo  Hotovo! Server se spousti automaticky s Windows.
 echo.
 pause

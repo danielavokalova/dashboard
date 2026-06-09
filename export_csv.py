@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
-"""
-Exportuje celou tabulku z PostgreSQL do air-reservations.csv
-a pushne změnu na GitHub, aby byla data aktuální na GitHub Pages.
-"""
-import os, sys, csv, subprocess
+"""Exportuje celou tabulku z PostgreSQL do air-reservations.csv (pouze lokálně)."""
+import os, sys, csv
 import psycopg2, psycopg2.extras
 from dotenv import load_dotenv
 
@@ -34,7 +31,7 @@ def export():
     if not rows:
         print("[export] Tabulka je prázdná, přeskakuji.")
         cur.close(); conn.close()
-        return False
+        return
 
     cols = list(rows[0].keys())
     with open(OUT, "w", newline="", encoding="utf-8") as f:
@@ -44,35 +41,11 @@ def export():
             w.writerow({k: ("" if v is None else str(v)) for k, v in row.items()})
 
     cur.close(); conn.close()
-    print(f"[export] Uloženo do {OUT}")
-    return True
-
-def git_push():
-    base = os.path.dirname(os.path.abspath(__file__))
-    def run(cmd):
-        r = subprocess.run(cmd, cwd=base, capture_output=True, text=True)
-        return r.returncode == 0, r.stdout.strip(), r.stderr.strip()
-
-    ok, out, err = run(["git", "diff", "--quiet", "air-reservations.csv"])
-    if ok:
-        print("[git] CSV se nezměnilo, push přeskočen.")
-        return
-
-    print("[git] Commituju a pushuji aktualizaci CSV…")
-    run(["git", "add", "air-reservations.csv"])
-    run(["git", "commit", "-m", "Auto-update air-reservations.csv from PostgreSQL"])
-    ok, out, err = run(["git", "push"])
-    if ok:
-        print("[git] Hotovo — GitHub Pages bude aktuální za ~1 minutu.")
-    else:
-        print(f"[git] Push selhal: {err}")
-        print("[git] Tip: zkontroluj 'git remote -v' a přihlašovací údaje.")
+    print(f"[export] Hotovo — uloženo do {OUT}")
 
 if __name__ == "__main__":
     try:
-        changed = export()
-        if changed:
-            git_push()
+        export()
     except Exception as e:
         print(f"[export] Chyba: {e}", file=sys.stderr)
         sys.exit(1)

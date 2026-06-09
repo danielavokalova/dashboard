@@ -1,25 +1,33 @@
 @echo off
 chcp 65001 >nul
 title Air Reservations Dashboard
-cd /d "%~dp0"
 
-REM Zkontroluj ze jsme ve spravne slozce
-if not exist "server.py" (
+REM Pokud je server.py ve stejne slozce, spust rovnou
+if exist "%~dp0server.py" (
+    cd /d "%~dp0"
+    goto :run
+)
+
+REM Jinak ho najdi automaticky v uzivatelskem profilu
+echo  Hledam server.py...
+set "FOUND="
+for /f "delims=" %%i in ('powershell -NoProfile -Command "Get-ChildItem -Path $env:USERPROFILE -Filter server.py -Recurse -ErrorAction SilentlyContinue | Where-Object { Test-Path (Join-Path $_.DirectoryName \".env.example\") } | Select-Object -First 1 -ExpandProperty DirectoryName"') do set "FOUND=%%i"
+
+if not defined FOUND (
     echo.
-    echo  [CHYBA] Soubor server.py nebyl nalezen v teto slozce.
-    echo  Uloz vsechny soubory do jedne spolecne slozky a spust bat znovu.
-    echo  Stazene soubory: start-server.bat, install-autostart.bat, export_csv.py
-    echo  Ostatni soubory jsou v repozitari na GitHubu.
-    echo.
+    echo  [CHYBA] server.py nebyl nalezen. Ujistete se, ze je repozitar stazen.
     pause
     exit /b 1
 )
 
+echo  Nalezeno: %FOUND%
+cd /d "%FOUND%"
+
+:run
 REM Zkontroluj Python
 python --version >nul 2>&1
 if errorlevel 1 (
-    echo  [CHYBA] Python nebyl nalezen.
-    echo  Nainstaluj Python z https://www.python.org/downloads/
+    echo  [CHYBA] Python nebyl nalezen. Nainstaluj z https://www.python.org/downloads/
     pause
     exit /b 1
 )
@@ -27,7 +35,7 @@ if errorlevel 1 (
 REM Vytvor .env pokud neexistuje
 if not exist ".env" (
     copy ".env.example" ".env" >nul
-    echo  [PRVNI SPUSTENI] Vyplnte prihlasovaci udaje k databazi a ulozit soubor.
+    echo  [PRVNI SPUSTENI] Vyplnte udaje k databazi a ulozit.
     notepad .env
     pause
 )
@@ -35,7 +43,7 @@ if not exist ".env" (
 REM Nainstaluj zavislosti jen pokud jeste nejsou
 python -c "import flask, flask_cors, psycopg2, dotenv" >nul 2>&1
 if errorlevel 1 (
-    echo  [INFO] Instaluji zavislosti...
+    echo  Instaluji zavislosti...
     pip install -r requirements.txt -q
 )
 
@@ -43,11 +51,10 @@ REM Spust Docker kontejnery
 docker start metabase_projekt-postgres-1 >nul 2>&1
 docker start google-sync >nul 2>&1
 
-REM Exportuj aktualni data z DB do CSV a pushni na GitHub
-echo  [DATA] Exportuji aktualni data z databaze...
+REM Exportuj aktualni data na GitHub Pages
 start "" cmd /c "timeout /t 5 /nobreak >nul && python export_csv.py"
 
-REM Otevri prohlizec za 2 sekundy
+REM Otevri prohlizec
 start "" cmd /c "timeout /t 2 /nobreak >nul && start http://localhost:8080/air-reservations.html"
 
 REM Spust server

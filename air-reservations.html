@@ -1931,10 +1931,12 @@ async function loadData(options = {}) {
 }
 
 async function loadStaticSnapshot() {
-  const res = await fetch(`${STATIC_DATA_URL}?v=${Date.now()}`, { cache: "no-store" });
+  setLoadingMsg("Stahuji CSV…");
+  const res = await fetch(STATIC_DATA_URL);
   if (!res.ok) throw new Error(`Static data ${res.status}`);
   const text = await res.text();
-  const parsed = parseCsv(text);
+  setLoadingMsg(`Zpracovávám ${Math.round(text.length / 1024)} kB dat…`);
+  const parsed = await parseCsvAsync(text);
   return {
     ok: true,
     source: "csv-web",
@@ -1957,50 +1959,62 @@ function findCol(name) {
   return allColumns.find(col => normName(col) === wanted) || null;
 }
 
-function parseCsv(text) {
-  const rows = [];
-  let row = [];
+function parseCsvRow(line, delimiter) {
+  const fields = [];
   let field = "";
-  let inQuotes = false;
-  const firstLine = text.slice(0, text.indexOf("\n") > -1 ? text.indexOf("\n") : text.length);
-  const delimiter = (firstLine.match(/;/g) || []).length > (firstLine.match(/,/g) || []).length ? ";" : ",";
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    const next = text[i + 1];
-    if (inQuotes) {
-      if (ch === '"' && next === '"') {
-        field += '"';
-        i++;
-      } else if (ch === '"') {
-        inQuotes = false;
-      } else {
-        field += ch;
-      }
+  let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQ) {
+      if (ch === '"' && line[i + 1] === '"') { field += '"'; i++; }
+      else if (ch === '"') { inQ = false; }
+      else { field += ch; }
     } else if (ch === '"') {
-      inQuotes = true;
+      inQ = true;
     } else if (ch === delimiter) {
-      row.push(field);
-      field = "";
-    } else if (ch === "\n") {
-      row.push(field);
-      rows.push(row);
-      row = [];
-      field = "";
+      fields.push(field); field = "";
     } else if (ch !== "\r") {
       field += ch;
     }
   }
-  if (field || row.length) {
-    row.push(field);
-    rows.push(row);
+  fields.push(field);
+  return fields;
+}
+
+async function parseCsvAsync(text) {
+  const nl = text.indexOf("\n");
+  const firstLine = nl > -1 ? text.slice(0, nl) : text;
+  const delimiter = (firstLine.match(/;/g) || []).length > (firstLine.match(/,/g) || []).length ? ";" : ",";
+  const lines = text.split("\n");
+  const columns = parseCsvRow(lines[0], delimiter);
+  const rows = [];
+  const CHUNK = 5000;
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line || line === "\r") continue;
+    const values = parseCsvRow(line, delimiter);
+    if (!values.some(v => v !== "")) continue;
+    rows.push(Object.fromEntries(columns.map((col, j) => [col, values[j] === "" ? null : values[j] ?? null])));
+    if (i % CHUNK === 0) await new Promise(r => setTimeout(r, 0));
   }
-  const columns = rows.shift() || [];
-  return {
-    columns,
-    rows: rows
-      .filter(values => values.some(v => v !== ""))
-      .map(values => Object.fromEntries(columns.map((col, i) => [col, values[i] === "" ? null : values[i] ?? null])))
-  };
+  return { columns, rows };
+}
+
+function parseCsv(text) {
+  const nl = text.indexOf("\n");
+  const firstLine = nl > -1 ? text.slice(0, nl) : text;
+  const delimiter = (firstLine.match(/;/g) || []).length > (firstLine.match(/,/g) || []).length ? ";" : ",";
+  const lines = text.split("\n");
+  const columns = parseCsvRow(lines[0], delimiter);
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line || line === "\r") continue;
+    const values = parseCsvRow(line, delimiter);
+    if (!values.some(v => v !== "")) continue;
+    rows.push(Object.fromEntries(columns.map((col, j) => [col, values[j] === "" ? null : values[j] ?? null])));
+  }
+  return { columns, rows };
 }
 
 async function loadApiReservations() {
@@ -2478,14 +2492,19 @@ function exportCSV() {
 
 // ── States ────────────────────────────────────────────────────────
 
-function showLoadingState() {
+function showLoadingState(msg) {
   document.getElementById("table-container").innerHTML = `
     <div class="state">
       <div class="spinner"></div>
-      <div class="state-title">Nacitam data...</div>
-      <div class="state-sub">Stahuji data z webu</div>
+      <div class="state-title">Načítám data…</div>
+      <div class="state-sub" id="loading-sub">${msg || "Stahuji data z webu"}</div>
     </div>`;
-  document.getElementById("topbar-meta").textContent = "Nacitam...";
+  document.getElementById("topbar-meta").textContent = "Načítám…";
+}
+
+function setLoadingMsg(msg) {
+  const el = document.getElementById("loading-sub");
+  if (el) el.textContent = msg;
 }
 
 function showErrorState() {

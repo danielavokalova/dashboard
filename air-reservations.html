@@ -236,62 +236,6 @@ body {
   background: rgba(79,106,108,0.12);
 }
 
-.offline-btn.launch-btn {
-  min-width: 280px;
-  min-height: 54px;
-  padding: 14px 28px;
-  border: none;
-  border-radius: 12px;
-  background: var(--muted);
-  color: #fff;
-  font-size: 13px;
-  letter-spacing: 0.1em;
-  cursor: pointer;
-  transition: opacity 0.15s, transform 0.15s;
-}
-.offline-btn.launch-btn:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.launcher-status {
-  margin-top: 16px;
-  min-height: 20px;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.btn-launch-top {
-  display: none;
-}
-
-.launcher-bar {
-  display: none;
-  order: 0;
-  margin-bottom: 20px;
-  padding: 22px 28px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: var(--panel);
-  box-shadow: 0 5px 20px var(--shadow);
-  text-align: center;
-}
-.launcher-bar.show { display: block; }
-.launcher-bar-title {
-  margin-bottom: 8px;
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--ink);
-}
-.launcher-bar-sub {
-  max-width: 720px;
-  margin: 0 auto 16px;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.6;
-}
-
 /* ── KPI CARDS ──────────────────────────────────────────── */
 .kpi-row {
   display: grid;
@@ -929,8 +873,7 @@ td.cell-empty { color: var(--muted); }
       <span id="server-status-text">Připojuji...</span>
     </div>
     <a class="download-server-link" id="download-server-link" href="air-reservations-server.zip" download>Stáhnout server ZIP</a>
-    <a class="btn-sm btn-primary btn-launch-top" href="#" id="btn-launch" onclick="launchDashboard(); return false;">▶ Spustit lokálně</a>
-    <a class="btn-sm btn-primary" href="#" id="btn-update" onclick="updateData(); return false;">Aktualizovat data</a>
+    <a class="btn-sm btn-primary" href="https://github.com/danielavokalova/dashboard/actions/workflows/update-air-reservations-data.yml" target="_blank" rel="noopener">Aktualizovat data</a>
     <button class="btn-sm btn-outline" id="btn-refresh" onclick="loadData()">Obnovit</button>
     <div class="topbar-meta" id="topbar-meta">Načítám…</div>
   </div>
@@ -939,25 +882,18 @@ td.cell-empty { color: var(--muted); }
 <div class="main">
 
   <div class="error-box" id="error-box"></div>
-
-  <div class="launcher-bar" id="launcher-bar">
-    <div class="launcher-bar-title">Aktuální data z PostgreSQL</div>
-    <div class="launcher-bar-sub">
-      1) Klikni na zelené tlačítko níže &nbsp;→&nbsp; 2) ve <strong>Stažených souborech</strong> spusť <strong>spustit-dashboard.bat</strong> &nbsp;→&nbsp; 3) počkej, až se otevře localhost a načtou se data z Postgres.
-    </div>
-    <div class="offline-actions">
-      <a class="offline-btn launch-btn" href="#" onclick="launchDashboard(); return false;">▶ Spustit a načíst data</a>
-    </div>
-    <div class="launcher-status" id="launcher-status"></div>
-  </div>
-
   <div id="limit-banner" style="display:none; background:rgba(79,106,108,0.1); border:1.5px solid rgba(79,106,108,0.25); border-radius:12px; padding:11px 18px; font-size:13px; color:var(--muted); margin-bottom:18px;">
   </div>
 
   <div class="offline-panel" id="offline-panel">
     <div class="offline-title">Server není spuštěn</div>
     <div class="offline-sub">
-      Spusť <strong>start-server.bat</strong> nebo použij tlačítko výše <strong>Spustit a načíst data</strong>.
+      Tahle veřejná stránka potřebuje lokální server na <strong>localhost:8080</strong>.
+      Pokud se data nenačítají, stáhni ZIP balíček, rozbal ho a spusť <strong>start-server.bat</strong>.
+    </div>
+    <div class="offline-actions">
+      <a class="offline-btn primary" href="air-reservations-server.zip" download>Stáhnout server ZIP</a>
+      <a class="offline-btn" href="http://localhost:8080/air-reservations.html">Otevřít lokálně</a>
     </div>
   </div>
 
@@ -1191,8 +1127,6 @@ td.cell-empty { color: var(--muted); }
 
 <script>
 const API = "http://localhost:8080";
-const LOCAL_DASHBOARD_URL = `${API}/air-reservations.html?refresh=1`;
-const LAUNCHER_BAT = "spustit-dashboard.bat";
 const STATIC_DATA_URL = "air-reservations.csv";
 const TABLE_RENDER_LIMIT = 500;
 
@@ -1785,149 +1719,116 @@ function buildBreakdownCharts(stats) {
 // Stats (agregované query) obvykle dorazí dřív → KPI + graf se zobrazí okamžitě.
 // Tabulka se zobrazí, jakmile dorazí záznamy.
 
-async function isServerOnline() {
-  try {
-    const res = await fetch(`${API}/api/health`, { signal: AbortSignal.timeout(2500) });
-    const data = await res.json();
-    return !!(data.ok && data.db);
-  } catch {
-    return false;
-  }
-}
-
-async function triggerApiRefresh() {
-  const res = await fetch(`${API}/api/refresh-data`, { method: "POST" });
-  const data = await res.json();
-  if (!data.ok) throw new Error(data.error || "Aktualizace dat selhala");
-}
-
-async function updateData() {
-  const btn = document.getElementById("btn-update");
-  if (btn) btn.style.pointerEvents = "none";
-  try {
-    await loadData({ refresh: true });
-  } finally {
-    if (btn) btn.style.pointerEvents = "";
-  }
-}
-
-function isLocalHost() {
-  return location.hostname === "localhost" || location.hostname === "127.0.0.1";
-}
-
-function setLauncherStatus(text) {
-  const el = document.getElementById("launcher-status");
-  if (el) el.textContent = text || "";
-}
-
-function downloadLauncherBat() {
-  const a = document.createElement("a");
-  a.href = LAUNCHER_BAT;
-  a.download = "spustit-dashboard.bat";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-}
-
-let _launcherPoll = null;
-
-async function launchDashboard() {
-  if (await isServerOnline()) {
-    location.href = LOCAL_DASHBOARD_URL;
-    return;
-  }
-
-  downloadLauncherBat();
-  setLauncherStatus("Soubor spustit-dashboard.bat byl stažen. Otevři Stažené soubory a spusť ho dvojklikem. Dashboard se pak sám otevře na localhost.");
-
-  if (_launcherPoll) clearInterval(_launcherPoll);
-  let tries = 0;
-  _launcherPoll = setInterval(async () => {
-    tries++;
-    if (await isServerOnline()) {
-      clearInterval(_launcherPoll);
-      _launcherPoll = null;
-      location.href = LOCAL_DASHBOARD_URL;
-      return;
-    }
-    if (tries <= 30) {
-      setLauncherStatus(`Čekám na server (${tries * 3} s)… spusť stažený spustit-dashboard.bat ze složky Stažené soubory.`);
-    }
-    if (tries >= 30) {
-      clearInterval(_launcherPoll);
-      _launcherPoll = null;
-      setLauncherStatus("Server ještě neběží. Spusť spustit-dashboard.bat a pak obnov tuto stránku, nebo otevři http://localhost:8080/air-reservations.html");
-    }
-  }, 3000);
-}
-
-function initLauncherUi() {
-  const local = isLocalHost();
-  const btn = document.getElementById("btn-launch");
-  if (btn) btn.style.display = local ? "none" : "inline-flex";
-  const bar = document.getElementById("launcher-bar");
-  if (bar) bar.classList.toggle("show", !local);
-}
-
-async function maybeRedirectToLocal() {
-  if (isLocalHost()) return;
-  try {
-    const res = await fetch(`${API}/api/health`, { signal: AbortSignal.timeout(2000) });
-    const data = await res.json();
-    if (data.ok && data.db) location.replace(LOCAL_DASHBOARD_URL);
-  } catch {
-    /* ponechat veřejnou stránku */
-  }
-}
-
-async function loadData(options = {}) {
+async function loadData() {
   const btn = document.getElementById("btn-refresh");
-  const refresh = options.refresh === true;
-  if (!refresh) {
-    btn.disabled = true;
-    btn.textContent = "...";
-  }
+  btn.disabled = true; btn.textContent = "...";
   _statsLoaded = false;
   showLoadingState();
   hideError();
 
   try {
-    let data;
-    const serverUp = await isServerOnline();
-
-    if (serverUp) {
-      if (refresh) await triggerApiRefresh();
-      data = await loadApiReservations();
+    dataMode = "static";
+    await loadStaticStreaming();
+    updateServerStatus(true, dataMode);
+  } catch(staticError) {
+    try {
+      const data = await loadApiReservations();
       dataMode = "api";
-    } else {
-      try {
-        data = await loadStaticSnapshot();
-        dataMode = "static";
-      } catch (staticError) {
-        data = await loadApiReservations();
-        dataMode = "api";
+      hydrateRows(data);
+      buildControls();
+      await loadFilterOptions();
+      computeKPIs();
+      applyFilters();
+      reloadStats();
+      updateDataMeta(data);
+      updateServerStatus(true, dataMode);
+    } catch(e) {
+      showError(e.message);
+      showErrorState();
+      updateServerStatus(false, dataMode);
+    }
+  } finally {
+    btn.disabled = false; btn.textContent = "Obnovit";
+  }
+}
+
+// Streamuje CSV řádek po řádku — první dávka se zobrazí hned jak přijde,
+// zbytek se donačte na pozadí bez blokování UI.
+async function loadStaticStreaming() {
+  setLoadingMsg("Připojuji se…");
+  const res = await fetch(STATIC_DATA_URL);
+  if (!res.ok) throw new Error(`Static data ${res.status}`);
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder("utf-8");
+  let buffer = "";
+  let columns = null;
+  let delimiter = null;
+  let rowCount = 0;
+  const FIRST_RENDER_AT = 3000; // zobraz první data po N řádcích
+
+  const flush = (final) => {
+    const lines = buffer.split("\n");
+    buffer = final ? "" : (lines.pop() ?? "");
+
+    for (const line of lines) {
+      if (!line || line === "\r") continue;
+      const values = parseCsvRow(line, delimiter);
+
+      if (!columns) {
+        // první řádek = hlavička
+        const raw = line.endsWith("\r") ? line.slice(0, -1) : line;
+        delimiter = (raw.match(/;/g) || []).length >= (raw.match(/,/g) || []).length ? ";" : ",";
+        columns = parseCsvRow(raw, delimiter);
+        allColumns = columns;
+        specialCols = detectCols(columns);
+        continue;
       }
+
+      if (!values.some(v => v !== "")) continue;
+      allRows.push(Object.fromEntries(
+        columns.map((col, j) => [col, values[j] === "" ? null : values[j] ?? null])
+      ));
+      rowCount++;
     }
 
-    hydrateRows(data);
-    buildControls();
-    if (dataMode === "api") await loadFilterOptions();
-    else loadFilterOptionsFromRows();
-    computeKPIs();
-    applyFilters();
-    reloadStats();
-    updateDataMeta(data);
-    updateServerStatus(true, dataMode);
-  } catch(e) {
-    showError(e.message);
-    showErrorState();
-    updateServerStatus(false, dataMode);
-  } finally {
-    if (!refresh) {
-      btn.disabled = false;
-      btn.textContent = "Obnovit";
+    if (rowCount >= FIRST_RENDER_AT && !_firstRenderDone) {
+      _firstRenderDone = true;
+      buildControls();
+      loadFilterOptionsFromRows();
+      computeKPIs();
+      applyFilters();
+      reloadStats();
+      updateDataMeta({ total: rowCount, count: rowCount });
+      setLoadingMsg(`Načteno ${rowCount.toLocaleString("cs-CZ")} záznamů, donačítám…`);
+    }
+  };
+
+  allRows = [];
+  allColumns = [];
+  window._firstRenderDone = false;
+  setLoadingMsg("Stahuji data…");
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (value) buffer += decoder.decode(value, { stream: !done });
+    flush(done);
+    if (done) break;
+
+    const loaded = allRows.length;
+    if (loaded % 5000 === 0 && loaded > 0) {
+      setLoadingMsg(`Načteno ${loaded.toLocaleString("cs-CZ")} záznamů…`);
+      await new Promise(r => setTimeout(r, 0));
     }
   }
+
+  // Finální render po načtení všech dat
+  buildControls();
+  loadFilterOptionsFromRows();
+  computeKPIs();
+  applyFilters();
+  reloadStats();
+  updateDataMeta({ total: allRows.length, count: allRows.length });
 }
 
 async function loadStaticSnapshot() {
@@ -2035,9 +1936,9 @@ function hydrateRows(data) {
 
 function updateDataMeta(data) {
   const t = new Date().toLocaleTimeString("cs-CZ",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-  const realTotal = Number(data.total || data.count || allRows.length);
+  const realTotal = Number(data?.total || data?.count || allRows.length);
   const limitBanner = document.getElementById("limit-banner");
-  if (dataMode === "api" && data.limited) {
+  if (dataMode === "api" && data?.limited) {
     limitBanner.style.display = "";
     limitBanner.innerHTML = `Zobrazeno <strong>${data.count.toLocaleString("cs-CZ")}</strong> nejnovejsich zaznamu`
       + ` z celkovych <strong>${realTotal.toLocaleString("cs-CZ")}</strong>.`
@@ -2562,16 +2463,8 @@ document.addEventListener("mousemove", handleChartTooltip);
 document.addEventListener("mouseleave", hideChartTooltip);
 document.addEventListener("scroll", hideChartTooltip, true);
 
-initLauncherUi();
 syncChartControls();
-if (new URLSearchParams(location.search).get("launch") === "1" && !isLocalHost()) {
-  launchDashboard();
-} else {
-  maybeRedirectToLocal().finally(() => {
-    if (new URLSearchParams(location.search).get("refresh") === "1") updateData();
-    else loadData();
-  });
-}
+loadData();
 </script>
 </body>
 </html>

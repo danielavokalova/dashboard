@@ -1923,9 +1923,22 @@ function parseCsv(text) {
   return { columns, rows };
 }
 
+async function fetchWithTimeout(url, ms = 1500) {
+  const ctrl = new AbortController();
+  const tid = setTimeout(() => ctrl.abort(), ms);
+  try {
+    const res = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(tid);
+    return res;
+  } catch(e) {
+    clearTimeout(tid);
+    throw e;
+  }
+}
+
 async function loadApiReservations() {
   const limit = window._loadAll ? 0 : 200;
-  const res = await fetch(`${API}/api/reservations?limit=${limit}`);
+  const res = await fetchWithTimeout(`${API}/api/reservations?limit=${limit}`);
   const data = await res.json();
   if (!data.ok) throw new Error(data.error || "Neznama chyba");
   return data;
@@ -2203,7 +2216,7 @@ async function reloadStats() {
   if (dataMode === "api") {
     try {
       const params = buildApiFilterParams();
-      const res = await fetch(`${API}/api/stats?${params}`);
+      const res = await fetchWithTimeout(`${API}/api/stats?${params}`);
       const data = await res.json();
       if (data.ok) { applyStats(data); return; }
     } catch(e) { /* fallback na client-side */ }

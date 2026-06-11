@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Release Note Agent – Dashboard</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --border: #e5e7eb;
+      --green: #16a34a;
+      --red: #dc2626;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      padding: 0;
+    }
+
+    .card {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    h1 { margin: 0; font-size: 1.7rem; }
+    .sub { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .panel h2 { margin: 0; font-size: 1rem; font-weight: 700; }
+
+    label { display: flex; flex-direction: column; gap: 4px; font-size: 0.93rem; font-weight: 600; }
+
+    select, input, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 11px;
+      font: inherit;
+      font-size: 0.95rem;
+      color: var(--text);
+      background: #fff;
+      outline: none;
+    }
+
+    select:focus, input:focus, textarea:focus { border-color: var(--accent); }
+
+    textarea { min-height: 260px; resize: vertical; line-height: 1.5; }
+
+    .output-box {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      background: #f9fafb;
+      min-height: 260px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text);
+    }
+
+    .output-box.empty { color: var(--muted); font-style: italic; }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.93rem;
+      line-height: 1;
+      min-height: 38px;
+      transition: opacity 0.15s;
+    }
+
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .primary { background: var(--accent); color: #fff; }
+    .secondary { background: #e5e7eb; color: #111827; }
+    .success { background: var(--green); color: #fff; }
+
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .settings-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.82rem;
+      padding: 5px 10px;
+      min-height: auto;
+      border-radius: 6px;
+    }
+
+    .settings-box {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fffbeb;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .settings-box label { font-size: 0.88rem; }
+
+    .settings-box input {
+      font-size: 0.88rem;
+      padding: 7px 10px;
+      font-family: monospace;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 2px 7px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .badge-skip { background: #fef3c7; color: #92400e; }
+    .badge-sent { background: #dcfce7; color: #166534; }
+    .badge-error { background: #fee2e2; color: #991b1b; }
+    .badge-preview { background: #dbeafe; color: #1e40af; }
+
+    .status-row { display: flex; align-items: center; gap: 8px; min-height: 22px; }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    .spinner.active { display: inline-block; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .copy-btn {
+      background: #f3f4f6;
+      border: 1px solid var(--border);
+      color: #111827;
+      font-size: 0.82rem;
+      padding: 5px 10px;
+      min-height: auto;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    a.back { display: inline-block; color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+<main class="card">
+  <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+    <h1>🚀 Release Note Agent</h1>
+    <a class="back" href="index.html">← Dashboard</a>
+    <button class="settings-toggle" id="settingsToggleBtn" type="button">⚙ Nastavení API</button>
+  </div>
+  <p class="sub">Vlož zprávu ze Slacku nebo e-mail, agent ji zpracuje a odešle do <strong>#daniela-release-notes</strong>.</p>
+
+  <!-- SETTINGS -->
+  <div class="settings-box" id="settingsBox" style="display:none;">
+    <label>
+      Anthropic API Key
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off" />
+    </label>
+    <label>
+      Slack Incoming Webhook URL
+      <input type="text" id="webhookInput" placeholder="https://hooks.slack.com/services/..." autocomplete="off" />
+    </label>
+    <button class="secondary" id="saveSettingsBtn" type="button" style="align-self:flex-start;">Uložit do prohlížeče</button>
+    <p style="margin:0; font-size:0.8rem; color:var(--muted);">Klíče jsou uloženy jen v localStorage tohoto prohlížeče.</p>
+  </div>
+
+  <div class="layout">
+    <!-- LEFT: INPUT -->
+    <div class="panel">
+      <h2>Vstupní zpráva</h2>
+
+      <label>
+        Zdroj zprávy
+        <select id="sourceSelect">
+          <option value="Slack #d4 (Mobile release notification)">Slack #d4 – Mobile release notification</option>
+          <option value="Slack #gol-release-notes (Z Bots)">Slack #gol-release-notes – Z Bots</option>
+          <option value="Slack #podpora (gitlab-support)">Slack #podpora – gitlab-support</option>
+          <option value="Slack #tripmanager (Automation for Jira)">Slack #tripmanager – Automation for Jira</option>
+          <option value="E-mail od martin.brandysky@travelportgds.cz (GOL/TG Family Release update)">E-mail Martin Brandyský – GOL/TG Family Release update</option>
+          <option value="E-mail od libor.simo@travelportgds.cz (What is new in GOL IBE family)">E-mail Libor Šimo – What is new in GOL IBE family</option>
+        </select>
+      </label>
+
+      <label>
+        Text zprávy / e-mailu
+        <textarea id="inputText" placeholder="Sem vlož text zprávy ze Slacku nebo obsah e-mailu…"></textarea>
+      </label>
+
+      <div class="actions">
+        <button class="primary" id="processBtn" type="button">Zpracovat &amp; Odeslat do Slacku</button>
+        <button class="secondary" id="previewBtn" type="button">Pouze náhled</button>
+        <button class="secondary" id="clearBtn" type="button">Smazat</button>
+      </div>
+
+      <div class="status-row">
+        <div class="spinner" id="spinner"></div>
+        <span id="statusText" style="font-size:0.88rem; color:var(--muted);"></span>
+      </div>
+    </div>
+
+    <!-- RIGHT: OUTPUT -->
+    <div class="panel">
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <h2>Výsledek agenta</h2>
+        <span id="resultBadge" class="badge" style="display:none;"></span>
+        <button class="copy-btn" id="copyBtn" type="button" style="display:none; margin-left:auto;">Kopírovat</button>
+      </div>
+      <div class="output-box empty" id="outputBox">Výsledek se zobrazí zde…</div>
+    </div>
+  </div>
+</main>
+
+<script>
+  // ── Storage ──────────────────────────────────────────────────────────────
+  const LS_KEY = 'rna_settings';
+
+  function loadSettings() {
+    try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch { return {}; }
+  }
+
+  function saveSettings(s) {
+    localStorage.setItem(LS_KEY, JSON.stringify(s));
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  const cfg = loadSettings();
+  document.getElementById('apiKeyInput').value = cfg.apiKey || '';
+  document.getElementById('webhookInput').value = cfg.webhook || '';
+
+  document.getElementById('settingsToggleBtn').addEventListener('click', () => {
+    const box = document.getElementById('settingsBox');
+    box.style.display = box.style.display === 'none' ? '' : 'none';
+  });
+
+  document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+    saveSettings({
+      apiKey: document.getElementById('apiKeyInput').value.trim(),
+      webhook: document.getElementById('webhookInput').value.trim(),
+    });
+    document.getElementById('settingsBox').style.display = 'none';
+    setStatus('Nastavení uloženo.', false);
+  });
+
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    document.getElementById('inputText').value = '';
+    setOutput('', 'empty');
+    setStatus('');
+    document.getElementById('resultBadge').style.display = 'none';
+    document.getElementById('copyBtn').style.display = 'none';
+  });
+
+  document.getElementById('copyBtn').addEventListener('click', () => {
+    const text = document.getElementById('outputBox').textContent;
+    navigator.clipboard.writeText(text).then(() => setStatus('Zkopírováno!', false));
+  });
+
+  // ── UI helpers ────────────────────────────────────────────────────────────
+  function setStatus(msg, loading = false) {
+    document.getElementById('statusText').textContent = msg;
+    document.getElementById('spinner').classList.toggle('active', loading);
+  }
+
+  function setOutput(text, state) {
+    const box = document.getElementById('outputBox');
+    box.textContent = text || 'Výsledek se zobrazí zde…';
+    box.className = 'output-box' + (state === 'empty' ? ' empty' : '');
+  }
+
+  function setBadge(type) {
+    const b = document.getElementById('resultBadge');
+    const map = {
+      skip: ['badge-skip', 'PROTLAČIT NIC'],
+      sent: ['badge-sent', 'ODESLÁNO'],
+      error: ['badge-error', 'CHYBA'],
+      preview: ['badge-preview', 'NÁHLED'],
+    };
+    const [cls, label] = map[type] || ['', ''];
+    b.className = 'badge ' + cls;
+    b.textContent = label;
+    b.style.display = label ? '' : 'none';
+  }
+
+  // ── Claude API ────────────────────────────────────────────────────────────
+  const SYSTEM_PROMPT = `Jsi "Daniela Release Agent" – specializovaný asistent pro filtraci, lidský překlad a konsolidaci produktových novinek z komunikačních kanálů.
+
+Tvým úkolem je zpracovat příchozí text, vybrat z něj podstatné věci, lidsky a srozumitelně je přeložit do češtiny a rozdělit dopady pro B2C a B2B klienty. Výstup posíláš do kanálu #daniela-release-notes.
+
+ZÁJMOVÉ OBLASTI:
+- Změny v backendové logice, API, integracích a rezervačních systémech
+- Nové funkce, vylepšení designu nebo toku nákupu pro koncové uživatele
+- Bezpečnostní záplaty a kritické opravy chyb (hotfixy)
+(Ignoruj čistě interní refaktoring kódu a provozní hlášky bez dopadu na klienty.)
+
+INSTRUKCE:
+1. Analyzuj vstupní text. Pokud neobsahuje žádné relevantní změny, odpověz POUZE slovem "PROTLAČIT_NIC".
+2. Pokud obsahuje důležité změny, přelož je do ČEŠTINY.
+3. Piš LIDSKY a SROZUMITELNĚ. Vyhni se krkolomným doslovným překladům technických frází.
+4. Kategorizuj změny na dopady pro B2C (koncoví zákazníci / cestující) a B2B (agentury / firmy / administrátoři). Pokud se změna týká jen jedné skupiny, druhou vynechej.
+
+FORMÁT VÝSTUPU (přesně):
+🚀 *Nový Release: [Identifikovaný zdroj]*
+_Lidské shrnutí jednou větou._
+
+👥 *Dopad na B2C klienty (Koncoví uživatelé):*
+• [Změna lidsky] – _Co to pro ně znamená v praxi._
+• [Další změna…]
+
+🏢 *Dopad na B2B klienty (Agentury / Partneři):*
+• [Změna lidsky] – _Co to pro ně znamená v praxi._
+• [Další změna…]`;
+
+  async function callClaude(apiKey, source, inputText) {
+    const userMsg = `Zdroj zprávy: ${source}\n\nVstupní text ke zpracování:\n${inputText}`;
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: userMsg }],
+      }),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err?.error?.message || `HTTP ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    return data.content?.[0]?.text?.trim() || '';
+  }
+
+  // ── Slack Webhook ─────────────────────────────────────────────────────────
+  async function sendToSlack(webhookUrl, text) {
+    const resp = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    });
+    if (!resp.ok) throw new Error(`Slack odpověděl: HTTP ${resp.status}`);
+  }
+
+  // ── Main handler ──────────────────────────────────────────────────────────
+  async function run(sendToSlackFlag) {
+    const s = loadSettings();
+    const apiKey = s.apiKey || '';
+    const webhook = s.webhook || '';
+    const inputText = document.getElementById('inputText').value.trim();
+    const source = document.getElementById('sourceSelect').value;
+
+    if (!apiKey) {
+      alert('Chybí Anthropic API Key – otevři Nastavení API a vlož ho.');
+      return;
+    }
+    if (!inputText) {
+      alert('Vlož prosím text zprávy.');
+      return;
+    }
+    if (sendToSlackFlag && !webhook) {
+      alert('Chybí Slack Webhook URL – otevři Nastavení API a vlož ho.');
+      return;
+    }
+
+    document.getElementById('processBtn').disabled = true;
+    document.getElementById('previewBtn').disabled = true;
+    setStatus('Volám Claude…', true);
+    document.getElementById('resultBadge').style.display = 'none';
+    document.getElementById('copyBtn').style.display = 'none';
+    setOutput('', 'empty');
+
+    try {
+      const result = await callClaude(apiKey, source, inputText);
+
+      if (result === 'PROTLAČIT_NIC') {
+        setOutput('Agent vyhodnotil, že zpráva neobsahuje relevantní změny pro klienty.', '');
+        setBadge('skip');
+        setStatus('Hotovo – nic k odeslání.');
+      } else {
+        setOutput(result, '');
+        document.getElementById('copyBtn').style.display = '';
+
+        if (sendToSlackFlag) {
+          setStatus('Odesílám do Slacku…', true);
+          await sendToSlack(webhook, result);
+          setBadge('sent');
+          setStatus('Úspěšně odesláno do #daniela-release-notes.');
+        } else {
+          setBadge('preview');
+          setStatus('Náhled vygenerován – nebylo odesláno do Slacku.');
+        }
+      }
+    } catch (err) {
+      setBadge('error');
+      setOutput(`Chyba: ${err.message}`, '');
+      setStatus('Nastala chyba.');
+    } finally {
+      document.getElementById('processBtn').disabled = false;
+      document.getElementById('previewBtn').disabled = false;
+    }
+  }
+
+  document.getElementById('processBtn').addEventListener('click', () => run(true));
+  document.getElementById('previewBtn').addEventListener('click', () => run(false));
+</script>
+</body>
+</html>

@@ -1,2528 +1,500 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Air Reservations</title>
+<title>Air Reservations Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root {
-  --ink:       #1f2a2a;
-  --muted:     #4f6a6c;
-  --line:      #425c5e;
-  --paper:     rgba(245,246,244,0.95);
-  --paper-solid:#f7f7f2;
-  --panel:     rgba(250,250,246,0.97);
-  --shadow:    rgba(90,115,115,0.26);
-  --border:    rgba(66,92,94,0.17);
-  --row-hover: rgba(79,106,108,0.07);
-  --row-alt:   rgba(245,246,244,0.55);
-  --bar-fill:  #4f6a6c;
-  --issued:    #8f3e4a;
-  --bar-bg:    rgba(79,106,108,0.12);
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  min-height: 100vh;
-  font-family: "Segoe UI", system-ui, sans-serif;
-  background:
-    linear-gradient(rgba(245,246,244,0.15), rgba(245,246,244,0.15)),
-    url("botanicus.png") repeat;
-  color: var(--ink);
-}
-
-/* ── TOPBAR ─────────────────────────────────────────────── */
-.topbar {
-  background: var(--paper);
-  border-bottom: 2px solid var(--line);
-  padding: 12px 40px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(6px);
-}
-
-.btn-back {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border: 1.5px solid var(--line);
-  border-radius: 10px;
-  background: transparent;
-  color: var(--muted);
-  font: 700 11px/1 inherit;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  text-decoration: none;
-  transition: background 0.18s, color 0.18s;
-}
-.btn-back:hover { background: var(--muted); color: #fff; }
-
-.topbar-title {
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: 0.22em;
-}
-
-.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
-
-.topbar-meta {
-  font-size: 11px;
-  color: var(--muted);
-  text-align: right;
-  line-height: 1.55;
-}
-
-.btn-sm {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 14px;
-  border: none;
-  border-radius: 9px;
-  font: 700 11px/1 inherit;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  text-decoration: none;
-  cursor: pointer;
-  transition: opacity 0.15s, transform 0.15s;
-}
-.btn-sm:hover    { opacity: 0.82; transform: translateY(-1px); }
-.btn-sm:disabled { opacity: 0.38; cursor: wait; transform: none; }
-.btn-primary { background: var(--muted); color: #fff; }
-.btn-outline  {
-  background: transparent;
-  color: var(--muted);
-  border: 1.5px solid var(--border);
-}
-.btn-outline:hover { background: rgba(79,106,108,0.1); }
-
-.server-status {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: var(--muted);
-  font-size: 11px;
-  white-space: nowrap;
-}
-
-.server-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #b9c0bd;
-}
-
-.server-dot.online {
-  background: #5a8a6a;
-  box-shadow: 0 0 0 3px rgba(90,138,106,0.18);
-}
-
-.server-dot.offline {
-  background: #b94f5d;
-  box-shadow: 0 0 0 3px rgba(185,79,93,0.18);
-}
-
-.download-server-link {
-  display: none;
-  padding: 6px 12px;
-  border: 1.5px solid rgba(185,79,93,0.32);
-  border-radius: 9px;
-  background: rgba(185,79,93,0.08);
-  color: #7a2630;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-decoration: none;
-  text-transform: uppercase;
-}
-
-.download-server-link.show { display: inline-flex; }
-
-/* ── MAIN ───────────────────────────────────────────────── */
-.main {
-  padding: 18px 32px 52px;
-  max-width: 1720px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.error-box {
-  display: none;
-  background: rgba(160,30,30,0.07);
-  border: 1.5px solid rgba(160,30,30,0.22);
-  border-radius: 12px;
-  padding: 13px 18px;
-  color: #7a1a1a;
-  font-size: 13px;
-  margin-bottom: 20px;
-  order: 0;
-}
-.error-box.show { display: block; }
-#limit-banner { order: 2; }
-
-.table-limit-note {
-  position: sticky;
-  left: 0;
-  padding: 10px 14px;
-  background: rgba(245,246,244,0.96);
-  border-bottom: 1px solid var(--border);
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.offline-panel {
-  display: none;
-  order: 2;
-  padding: 34px 30px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--panel);
-  box-shadow: 0 5px 20px var(--shadow);
-  text-align: center;
-}
-
-.offline-panel.show { display: block; }
-
-.offline-title {
-  margin-bottom: 8px;
-  color: var(--ink);
-  font-size: 22px;
-  font-weight: 800;
-}
-
-.offline-sub {
-  max-width: 680px;
-  margin: 0 auto 22px;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.65;
-}
-
-.offline-actions {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.offline-btn {
-  display: inline-flex;
-  min-height: 46px;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 18px;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  background: rgba(255,255,252,0.76);
-  color: var(--ink);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-decoration: none;
-  text-transform: uppercase;
-}
-
-.offline-btn.primary {
-  border-color: rgba(79,106,108,0.42);
-  background: rgba(79,106,108,0.12);
-}
-
-/* ── KPI CARDS ──────────────────────────────────────────── */
-.kpi-row {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 14px;
-  margin-bottom: 0;
-  order: 1;
-}
-@media (max-width: 1100px) { .kpi-row { grid-template-columns: repeat(3, 1fr); } }
-
-.kpi {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px 18px;
-  box-shadow: 0 5px 20px var(--shadow);
-}
-.kpi.kpi-accent { border-left: 3px solid var(--bar-fill); }
-
-.kpi-label {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 8px;
-}
-.kpi-value { font-size: 26px; font-weight: 800; line-height: 1; }
-.kpi-sub   { font-size: 11px; color: var(--muted); margin-top: 5px; }
-
-/* ── DATE RANGE QUICK BUTTONS ────────────────────────────── */
-.date-range-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 0;
-  flex-wrap: wrap;
-  order: 4;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 10px 14px;
-  box-shadow: 0 5px 20px rgba(90,115,115,0.15);
-}
-.range-label {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-right: 4px;
-}
-.btn-range {
-  padding: 5px 13px;
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--muted);
-  font: 700 11px/1 inherit;
-  letter-spacing: 0.07em;
-  cursor: pointer;
-  transition: background 0.14s, border-color 0.14s, color 0.14s;
-}
-.btn-range:hover   { background: rgba(79,106,108,0.08); }
-.btn-range.active  { background: var(--muted); color: #fff; border-color: var(--muted); }
-
-/* ── CHART LEGEND ────────────────────────────────────────── */
-.chart-legend {
-  display: flex;
-  gap: 16px;
-  margin-left: auto;
-}
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10px;
-  color: var(--muted);
-}
-.legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
-  flex-shrink: 0;
-}
-
-/* ── CHART SECTION ──────────────────────────────────────── */
-.chart-section {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 18px 20px;
-  box-shadow: 0 5px 20px var(--shadow);
-  margin-bottom: 0;
-  display: none;
-  overflow: hidden;
-}
-
-.chart-section.visible { display: block; }
-#monthly-section { order: 5; }
-#chart-section { order: 6; }
-#breakdown-section { order: 7; }
-
-.chart-header {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 16px;
-  min-height: 34px;
-}
-
-.chart-title {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.chart-toggle {
-  font-size: 11px;
-  color: var(--muted);
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-  padding: 2px 8px;
-  border-radius: 6px;
-  transition: background 0.15s;
-}
-.chart-toggle:hover { background: rgba(79,106,108,0.1); }
-
-.chart-actions {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.chart-view-select {
-  min-width: 126px;
-  height: 34px;
-  padding: 6px 10px;
-  border: 1.5px solid var(--border);
-  border-radius: 9px;
-  background: rgba(255,255,252,0.92);
-  color: var(--ink);
-  font: 700 11px/1 inherit;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.chart-body { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 32px; }
-@media (max-width: 900px) { .chart-body { grid-template-columns: 1fr; } }
-
-/* ── MONTHLY TREND ──────────────────────────────────────── */
-.monthly-wrap {
-  overflow-x: auto;
-  padding-bottom: 10px;
-}
-.monthly-visual {
-  width: 100%;
-  min-height: 230px;
-}
-.monthly-visual .pie-wrap {
-  justify-content: center;
-  padding: 18px 0 10px;
-}
-.monthly-line-wrap {
-  width: 100%;
-  min-width: 1020px;
-}
-.monthly-line-svg {
-  width: 100%;
-  height: 300px;
-  display: block;
-}
-.monthly-line-axis {
-  stroke: #d9e2e2;
-  stroke-width: 1;
-}
-.monthly-line-total {
-  fill: none;
-  stroke: #4f6a6c;
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.monthly-line-issued {
-  fill: none;
-  stroke: var(--issued);
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.monthly-line-point-total { fill: #4f6a6c; }
-.monthly-line-point-issued { fill: #8f3e4a; }
-.monthly-line-label {
-  font-size: 10px;
-  fill: #627676;
-}
-.monthly-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-  height: 220px;
-  min-width: 1020px;
-  padding-bottom: 24px;
-  box-sizing: content-box;
-}
-.month-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-  min-width: 38px;
-}
-.month-pair {
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-}
-.month-bar {
-  width: 18px;
-  border-radius: 3px 3px 0 0;
-  transition: height 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.15s;
-  position: relative;
-  cursor: default;
-  flex-shrink: 0;
-}
-.month-bar.total  { background: var(--bar-fill); }
-.month-bar.issued { background: #8f3e4a; }
-.month-bar:hover  { opacity: 0.75; }
-.month-lbl {
-  font-size: 9px;
-  color: var(--muted);
-  white-space: nowrap;
-  text-align: center;
-  margin-top: 5px;
-  line-height: 1;
-}
-
-/* ── REVENUE BAR ─────────────────────────────────────────── */
-.bar-revenue {
-  font-size: 10px;
-  color: var(--muted);
-  text-align: right;
-  white-space: nowrap;
-}
-
-/* ── BREAKDOWN ──────────────────────────────────────────── */
-.breakdown-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(260px, 1fr));
-  gap: 14px;
-}
-@media (max-width: 900px) { .breakdown-grid { grid-template-columns: 1fr; } }
-.breakdown-panel {
-  min-height: 240px;
-  border: 1px solid rgba(66,92,94,0.13);
-  border-radius: 12px;
-  padding: 14px;
-  background: rgba(255,255,252,0.58);
-  overflow: hidden;
-}
-.breakdown-col-title {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 10px;
-  padding-left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-.btn-chart-type {
-  font-size: 10px;
-  font-family: inherit;
-  padding: 2px 7px;
-  border: 1.5px solid var(--border);
-  border-radius: 5px;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  transition: background 0.12s;
-  margin-left: auto;
-  line-height: 1.4;
-}
-.btn-chart-type:hover { background: rgba(79,106,108,0.1); }
-
-/* ── PIE CHART ───────────────────────────────────────────── */
-.pie-wrap {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  flex-wrap: wrap;
-  min-height: 174px;
-}
-.donut-chart {
-  width: 132px;
-  height: 132px;
-  flex-shrink: 0;
-}
-.pie-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  flex: 1;
-  min-width: 120px;
-}
-.pie-leg {
-  display: grid;
-  grid-template-columns: 10px 1fr auto auto;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-}
-.pie-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
-  flex-shrink: 0;
-}
-.pie-leg-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--ink);
-}
-.pie-leg-pct  { color: var(--muted); font-weight: 700; min-width: 32px; text-align: right; }
-.pie-leg-cnt  { color: var(--muted); font-size: 10px; min-width: 44px; text-align: right; }
-
-.mini-line-wrap {
-  width: 100%;
-  overflow-x: auto;
-  padding-bottom: 4px;
-}
-.mini-line-svg {
-  width: 100%;
-  min-width: 420px;
-  height: 224px;
-}
-.mini-line-axis {
-  stroke: #d9e2e2;
-  stroke-width: 1;
-}
-.mini-line-total {
-  fill: none;
-  stroke: #4f6a6c;
-  stroke-width: 2.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.mini-line-issued {
-  fill: none;
-  stroke: var(--issued);
-  stroke-width: 2.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.mini-line-point-total { fill: #4f6a6c; }
-.mini-line-point-issued { fill: #8f3e4a; }
-.mini-line-label {
-  font-size: 10px;
-  fill: #627676;
-}
-
-.bar-row {
-  display: grid;
-  grid-template-columns: minmax(150px, 210px) minmax(180px, 1fr) 74px;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  border-radius: 7px;
-  padding: 3px 6px;
-  transition: background 0.12s;
-}
-.bar-row:hover { background: rgba(79,106,108,0.08); }
-.bar-row.active { background: rgba(79,106,108,0.15); }
-
-.chart-empty {
-  min-height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px dashed var(--border);
-  border-radius: 10px;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.chart-tooltip {
-  position: fixed;
-  z-index: 500;
-  max-width: 280px;
-  padding: 7px 10px;
-  border-radius: 8px;
-  background: rgba(31,42,42,0.94);
-  color: #fff;
-  box-shadow: 0 10px 24px rgba(31,42,42,0.22);
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.35;
-  pointer-events: none;
-  opacity: 0;
-  transform: translate(-50%, calc(-100% - 12px));
-  transition: opacity 90ms ease;
-}
-
-.chart-tooltip.show { opacity: 1; }
-
-.chart-section [data-tip] { cursor: help; }
-
-.bar-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--ink);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.bar-track {
-  min-width: 0;
-  height: 22px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 4px;
-}
-
-.bar-fill {
-  height: 8px;
-  min-width: 2px;
-  background: var(--bar-fill);
-  border-radius: 4px;
-  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
-}
-
-.bar-count {
-  font-size: 11px;
-  font-variant-numeric: tabular-nums;
-  color: var(--muted);
-  text-align: right;
-  white-space: nowrap;
-}
-
-/* ── FILTER BAR ─────────────────────────────────────────── */
-.filter-bar {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px 20px;
-  box-shadow: 0 5px 20px var(--shadow);
-  margin-bottom: 0;
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  order: 3;
-  position: sticky;
-  top: 58px;
-  z-index: 90;
-}
-
-.fg { display: flex; flex-direction: column; gap: 4px; }
-
-.fg-label {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.fg-input {
-  padding: 7px 11px;
-  border: 1.5px solid var(--border);
-  border-radius: 9px;
-  background: rgba(245,246,244,0.85);
-  font-family: inherit;
-  font-size: 13px;
-  color: var(--ink);
-  outline: none;
-  height: 34px;
-  transition: border-color 0.15s;
-}
-.fg-input:focus { border-color: var(--muted); }
-.fg-input.wide   { min-width: 220px; }
-.fg-input.narrow { min-width: 136px; }
-
-.filter-right { margin-left: auto; display: flex; align-items: flex-end; gap: 8px; }
-
-.filter-count { font-size: 11px; color: var(--muted); padding-bottom: 7px; white-space: nowrap; }
-
-@media (max-width: 1100px) {
-  .filter-bar {
-    position: static;
+  :root {
+    --bg:       #f5f0e8;
+    --bg2:      #ede8df;
+    --surface:  #faf7f2;
+    --surface2: #f0ebe0;
+    --border:   rgba(160,140,110,0.18);
+    --shadow:   rgba(120,100,70,0.12);
+    --text:     #2c2416;
+    --muted:    #8a7a62;
+    --teal:     #2a8c7a;
+    --teal-dim: rgba(42,140,122,0.1);
+    --rose:     #b84c5a;
+    --rose-dim: rgba(184,76,90,0.1);
+    --amber:    #c07a20;
+    --amber-dim:rgba(192,122,32,0.1);
+    --blue:     #3a6fa8;
+    --blue-dim: rgba(58,111,168,0.1);
+    --purple:   #6d52a8;
+    --purple-dim:rgba(109,82,168,0.1);
+    --green:    #3a8a50;
+    --green-dim:rgba(58,138,80,0.1);
   }
-  .main {
-    padding: 14px 18px 42px;
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 28px;
+    font-size: 14px;
   }
-  .chart-actions {
-    margin-left: 0;
-    width: 100%;
-    justify-content: flex-start;
+
+  /* subtle linen texture overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: -1;
+    background-image:
+      radial-gradient(ellipse 70% 50% at 15% 10%, rgba(42,140,122,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 50% at 85% 85%, rgba(58,111,168,0.06) 0%, transparent 70%);
+    pointer-events: none;
   }
-}
 
-@media (max-width: 720px) {
-  .topbar,
-  .topbar-right,
-  .filter-right {
-    align-items: stretch;
-    flex-direction: column;
+  /* ── Header ── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 26px;
+    box-shadow: 0 2px 16px var(--shadow);
   }
-  .topbar {
-    padding: 10px 14px;
+
+  .header-left { display: flex; align-items: center; gap: 14px; }
+
+  .header-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--teal), var(--blue));
+    border-radius: 13px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 14px rgba(42,140,122,0.3);
   }
-  .kpi-row {
-    grid-template-columns: 1fr;
+
+  .header h1 {
+    font-size: 1.4rem; font-weight: 800;
+    letter-spacing: -0.02em; color: var(--text);
   }
-  .fg,
-  .fg-input,
-  .fg-input.narrow,
-  .fg-input.wide,
-  .chart-view-select {
-    width: 100%;
-    min-width: 0;
+  .header p { font-size: 0.8rem; color: var(--muted); margin-top: 3px; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: rgba(184,76,90,0.1);
+    border: 1px solid rgba(184,76,90,0.25);
+    color: var(--rose);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 0.73rem; font-weight: 600;
   }
-  .bar-row {
-    grid-template-columns: minmax(118px, 38%) minmax(120px, 1fr) 68px;
+
+  .badge::before {
+    content: ''; width: 6px; height: 6px;
+    border-radius: 50%; background: var(--rose);
+    animation: pulse 2s infinite;
   }
-}
 
-/* ── TABLE ──────────────────────────────────────────────── */
-.table-card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 5px 20px var(--shadow);
-  overflow: hidden;
-  order: 8;
-}
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-.table-scroll {
-  overflow-x: auto;
-  overflow-y: auto;
-  max-height: min(560px, calc(100vh - 260px));
-  min-height: 260px;
-}
+  /* ── KPI grid ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+  }
 
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:650px) {.kpi-grid{grid-template-columns:repeat(2,1fr)}}
 
-thead { position: sticky; top: 0; z-index: 10; }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 18px 16px;
+    position: relative; overflow: hidden;
+    box-shadow: 0 2px 10px var(--shadow);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px var(--shadow); }
 
-thead th {
-  background: rgba(50,76,78,0.93);
-  color: #fff;
-  padding: 10px 13px;
-  text-align: left;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  cursor: pointer;
-  user-select: none;
-  transition: background 0.13s;
-}
-thead th:hover { background: var(--ink); }
+  .kpi-card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    border-radius: 14px 14px 0 0;
+  }
+  .kpi-card.teal::before   { background: var(--teal); }
+  .kpi-card.rose::before   { background: var(--rose); }
+  .kpi-card.amber::before  { background: var(--amber); }
+  .kpi-card.blue::before   { background: var(--blue); }
+  .kpi-card.purple::before { background: var(--purple); }
+  .kpi-card.green::before  { background: var(--green); }
 
-.sort-icon { display: inline-block; margin-left: 4px; opacity: 0.4; font-size: 9px; }
-th.sort-asc  .sort-icon::after { content: "▲"; opacity: 1; color: #aee6e0; }
-th.sort-desc .sort-icon::after { content: "▼"; opacity: 1; color: #aee6e0; }
-th:not(.sort-asc):not(.sort-desc) .sort-icon::after { content: "⇅"; }
+  .kpi-icon {
+    width: 34px; height: 34px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; margin-bottom: 12px;
+  }
+  .teal   .kpi-icon { background: var(--teal-dim); }
+  .rose   .kpi-icon { background: var(--rose-dim); }
+  .amber  .kpi-icon { background: var(--amber-dim); }
+  .blue   .kpi-icon { background: var(--blue-dim); }
+  .purple .kpi-icon { background: var(--purple-dim); }
+  .green  .kpi-icon { background: var(--green-dim); }
 
-tbody tr { border-bottom: 1px solid var(--border); transition: background 0.09s; }
-tbody tr:nth-child(even) { background: var(--row-alt); }
-tbody tr:hover { background: var(--row-hover); }
+  .kpi-value {
+    font-size: 1.7rem; font-weight: 800;
+    letter-spacing: -0.03em; line-height: 1;
+  }
+  .teal   .kpi-value { color: var(--teal); }
+  .rose   .kpi-value { color: var(--rose); }
+  .amber  .kpi-value { color: var(--amber); }
+  .blue   .kpi-value { color: var(--blue); }
+  .purple .kpi-value { color: var(--purple); }
+  .green  .kpi-value { color: var(--green); }
 
-tbody td { padding: 8px 13px; white-space: nowrap; max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
-td.cell-date  { font-variant-numeric: tabular-nums; font-weight: 600; }
-td.cell-num   { font-variant-numeric: tabular-nums; text-align: right; }
-td.cell-empty { color: var(--muted); }
+  .kpi-label {
+    font-size: 0.7rem; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.07em;
+    margin-top: 5px; font-weight: 500;
+  }
 
-.table-footer {
-  padding: 10px 18px;
-  font-size: 11px;
-  color: var(--muted);
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    box-shadow: 0 2px 10px var(--shadow);
+  }
 
-/* ── STATE PLACEHOLDERS ─────────────────────────────────── */
-.state { padding: 54px 20px; text-align: center; color: var(--muted); }
-.state-icon  { font-size: 34px; margin-bottom: 11px; }
-.state-title { font-size: 15px; font-weight: 700; margin-bottom: 5px; color: var(--ink); }
-.state-sub   { font-size: 12px; line-height: 1.7; }
-.state-sub code {
-  background: rgba(0,0,0,0.06);
-  padding: 2px 7px;
-  border-radius: 5px;
-  font-size: 12px;
-}
+  .card-title {
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); margin-bottom: 16px;
+  }
 
-@keyframes spin { to { transform: rotate(360deg); } }
-.spinner {
-  width: 26px; height: 26px;
-  border: 3px solid rgba(79,106,108,0.18);
-  border-top-color: var(--muted);
-  border-radius: 50%;
-  animation: spin 0.75s linear infinite;
-  margin: 0 auto 11px;
-}
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 14px; margin-bottom: 14px;
+  }
+
+  .chart-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+  }
+
+  @media(max-width:900px){
+    .chart-grid,.chart-row{grid-template-columns:1fr}
+  }
+
+  .chart-wrap { position: relative; height: 220px; }
+  .chart-wrap.sm { height: 185px; }
+
+  /* ── Route list ── */
+  .route-list { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+
+  .route-list li { display: flex; align-items: center; gap: 10px; }
+
+  .route-rank {
+    width: 20px; height: 20px; border-radius: 6px;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: 700; color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .route-name {
+    font-size: 0.85rem; font-weight: 600;
+    color: var(--text); min-width: 100px;
+  }
+
+  .route-bar-bg {
+    flex: 1; height: 7px;
+    background: var(--surface2); border-radius: 99px; overflow: hidden;
+  }
+
+  .route-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--teal), var(--blue));
+    border-radius: 99px;
+    transition: width 1s cubic-bezier(.4,0,.2,1);
+  }
+
+  .route-count {
+    font-size: 0.8rem; font-weight: 700;
+    color: var(--teal); min-width: 18px; text-align: right;
+  }
+
+  footer {
+    margin-top: 22px; text-align: center;
+    font-size: 0.72rem; color: var(--muted); opacity: 0.7;
+  }
 </style>
 </head>
 <body>
 
-<!-- TOPBAR -->
-<div class="topbar">
-  <a class="btn-back" href="index.html">← Dashboard</a>
-  <div class="topbar-title">AIR RESERVATIONS</div>
-  <div class="topbar-right">
-    <div class="server-status">
-      <span class="server-dot" id="server-dot"></span>
-      <span id="server-status-text">Připojuji...</span>
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <div class="header-icon">✈️</div>
+    <div>
+      <h1>Air Reservations</h1>
+      <p>Jan 2025 – May 2026 &nbsp;·&nbsp; Demo Agentura &nbsp;·&nbsp; All values in CZK</p>
     </div>
-    <a class="download-server-link" id="download-server-link" href="air-reservations-server.zip" download>Stáhnout server ZIP</a>
-    <div style="position:relative">
-      <button class="btn-sm btn-outline" onclick="var m=document.getElementById('setup-menu');m.style.display=m.style.display==='block'?'none':'block'" title="Soubory pro spuštění serveru">⬇ Soubory</button>
-      <div id="setup-menu" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--paper-solid);border:1.5px solid var(--border);border-radius:10px;box-shadow:0 6px 20px var(--shadow);min-width:230px;z-index:200;padding:8px 0;">
-        <a href="install-autostart.bat" download style="display:block;padding:10px 16px;color:var(--ink);text-decoration:none;font-size:12px;font-weight:700;letter-spacing:0.04em;" onmouseover="this.style.background='var(--row-hover)'" onmouseout="this.style.background=''">⬇ install-autostart.bat<br><span style="font-weight:400;color:var(--muted)">Autostart s Windows (spustit jednou)</span></a>
-        <a href="start-server.bat" download style="display:block;padding:10px 16px;color:var(--ink);text-decoration:none;font-size:12px;font-weight:700;letter-spacing:0.04em;" onmouseover="this.style.background='var(--row-hover)'" onmouseout="this.style.background=''">⬇ start-server.bat<br><span style="font-weight:400;color:var(--muted)">Ruční spuštění serveru</span></a>
-        <a href="export_csv.py" download style="display:block;padding:10px 16px;color:var(--ink);text-decoration:none;font-size:12px;font-weight:700;letter-spacing:0.04em;" onmouseover="this.style.background='var(--row-hover)'" onmouseout="this.style.background=''">⬇ export_csv.py<br><span style="font-weight:400;color:var(--muted)">Export dat z DB na GitHub Pages</span></a>
-      </div>
-    </div>
-    <a class="btn-sm btn-primary" href="https://github.com/danielavokalova/dashboard/actions/workflows/update-air-reservations-data.yml" target="_blank" rel="noopener">Aktualizovat data</a>
-    <button class="btn-sm btn-outline" id="btn-refresh" onclick="loadData()">Obnovit</button>
-    <div class="topbar-meta" id="topbar-meta">Načítám…</div>
+  </div>
+  <div class="badge">DEMO DATA — All Canceled</div>
+</div>
+
+<!-- KPIs -->
+<div class="kpi-grid">
+  <div class="kpi-card teal">
+    <div class="kpi-icon">🗓️</div>
+    <div class="kpi-value" data-target="118" data-suffix="">0</div>
+    <div class="kpi-label">Total Reservations</div>
+  </div>
+  <div class="kpi-card blue">
+    <div class="kpi-icon">👥</div>
+    <div class="kpi-value" data-target="157" data-suffix="">0</div>
+    <div class="kpi-label">Travelers</div>
+  </div>
+  <div class="kpi-card purple">
+    <div class="kpi-icon">👶</div>
+    <div class="kpi-value" data-target="18" data-suffix="">0</div>
+    <div class="kpi-label">Infants</div>
+  </div>
+  <div class="kpi-card amber">
+    <div class="kpi-icon">💰</div>
+    <div class="kpi-value" data-target="1421263" data-suffix=" CZK" data-format="thousands">0</div>
+    <div class="kpi-label">Total Revenue</div>
+  </div>
+  <div class="kpi-card rose">
+    <div class="kpi-icon">🎟️</div>
+    <div class="kpi-value" data-target="12044" data-suffix=" CZK" data-format="thousands">0</div>
+    <div class="kpi-label">Avg Ticket Price</div>
+  </div>
+  <div class="kpi-card green">
+    <div class="kpi-icon">🛡️</div>
+    <div class="kpi-value" data-target="27" data-suffix="%">0</div>
+    <div class="kpi-label">Insurance Attach</div>
   </div>
 </div>
 
-<div class="main">
-
-  <div class="error-box" id="error-box"></div>
-  <div id="limit-banner" style="display:none; background:rgba(79,106,108,0.1); border:1.5px solid rgba(79,106,108,0.25); border-radius:12px; padding:11px 18px; font-size:13px; color:var(--muted); margin-bottom:18px;">
+<!-- Row 1: volume + donut -->
+<div class="chart-grid">
+  <div class="card">
+    <div class="card-title">Monthly Booking Volume</div>
+    <div class="chart-wrap"><canvas id="cVolume"></canvas></div>
   </div>
-
-  <div class="offline-panel" id="offline-panel">
-    <div class="offline-title">Server není spuštěn</div>
-    <div class="offline-sub">
-      Dashboard se připojuje k lokálnímu serveru na <strong>localhost:8080</strong> — ten čte data přímo z vašeho Dockeru/PostgreSQL.<br>
-      Stáhněte potřebné soubory níže a spusťte je jednou.
-    </div>
-    <div class="offline-actions">
-      <a class="offline-btn primary" href="install-autostart.bat" download title="Spusťte JEDNOU — server se pak spouští automaticky s Windows">
-        ⬇ install-autostart.bat<br><small style="font-weight:400;letter-spacing:0;text-transform:none">Nastavit autostart (spustit jednou)</small>
-      </a>
-      <a class="offline-btn" href="start-server.bat" download title="Manuální spuštění serveru">
-        ⬇ start-server.bat<br><small style="font-weight:400;letter-spacing:0;text-transform:none">Spustit server ručně</small>
-      </a>
-      <a class="offline-btn" href="export_csv.py" download title="Exportuje data z DB a pushne na GitHub">
-        ⬇ export_csv.py<br><small style="font-weight:400;letter-spacing:0;text-transform:none">Aktualizovat data na webu</small>
-      </a>
-      <a class="offline-btn" href="http://localhost:8080/air-reservations.html">
-        → Otevřít lokálně<br><small style="font-weight:400;letter-spacing:0;text-transform:none">Po spuštění serveru</small>
-      </a>
-    </div>
+  <div class="card">
+    <div class="card-title">Trip Type</div>
+    <div class="chart-wrap"><canvas id="cTripType"></canvas></div>
   </div>
-
-  <!-- KPI -->
-  <div class="kpi-row">
-    <div class="kpi">
-      <div class="kpi-label">Celkem rezervací</div>
-      <div class="kpi-value" id="kpi-total">—</div>
-    </div>
-    <div class="kpi kpi-accent">
-      <div class="kpi-label">Vystaveno</div>
-      <div class="kpi-value" id="kpi-issued">—</div>
-      <div class="kpi-sub" id="kpi-issued-pct"></div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label" id="kpi-agency-label">Agentury</div>
-      <div class="kpi-value" id="kpi-agencies">—</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">Zemí</div>
-      <div class="kpi-value" id="kpi-countries">—</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">Poslední rezervace</div>
-      <div class="kpi-value" id="kpi-last">—</div>
-      <div class="kpi-sub" id="kpi-last-sub"></div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">Data od</div>
-      <div class="kpi-value" id="kpi-from">—</div>
-    </div>
-  </div>
-
-  <!-- QUICK DATE RANGE -->
-  <div class="date-range-row">
-    <span class="range-label">Pohled:</span>
-    <button class="btn-range" onclick="setRange(1,this)">1M</button>
-    <button class="btn-range active" onclick="setRange(3,this)">3M</button>
-    <button class="btn-range" onclick="setRange(6,this)">6M</button>
-    <button class="btn-range" onclick="setRange(12,this)">1R</button>
-    <button class="btn-range" onclick="setRange(0,this)">Vše</button>
-  </div>
-
-  <!-- FILTERS -->
-  <div class="filter-bar">
-    <div class="fg">
-      <label class="fg-label" id="fg-agency-label">Agentura</label>
-      <select class="fg-input narrow" id="f-agency" onchange="applyFilters();reloadStats()">
-        <option value="">Vše</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label class="fg-label">Dealer</label>
-      <select class="fg-input narrow" id="f-dealer" onchange="applyFilters();reloadStats()">
-        <option value="">Vše</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label class="fg-label">Země</label>
-      <select class="fg-input narrow" id="f-country" onchange="applyFilters();reloadStats()">
-        <option value="">Vše</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label class="fg-label">Status</label>
-      <select class="fg-input narrow" id="f-status" onchange="applyFilters();reloadStats()">
-        <option value="">Vše</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label class="fg-label">Connector</label>
-      <select class="fg-input narrow" id="f-connector" onchange="applyFilters();reloadStats()">
-        <option value="">Vše</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label class="fg-label">Měna</label>
-      <select class="fg-input narrow" id="f-currency" onchange="applyFilters();reloadStats()">
-        <option value="">Vše</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label class="fg-label">Datum od</label>
-      <input class="fg-input narrow" type="date" id="f-date-from" onchange="applyFilters();reloadStats()">
-    </div>
-    <div class="fg">
-      <label class="fg-label">Datum do</label>
-      <input class="fg-input narrow" type="date" id="f-date-to" onchange="applyFilters();reloadStats()">
-    </div>
-    <div class="fg" style="flex:1;min-width:180px">
-      <label class="fg-label">Hledat</label>
-      <input class="fg-input wide" type="text" id="f-search"
-             placeholder="Hledat ve všech sloupcích…" oninput="handleSearchInput()">
-    </div>
-    <div class="filter-right">
-      <span class="filter-count" id="filter-count"></span>
-      <button class="btn-sm btn-outline" onclick="clearFilters()">Vymazat filtry</button>
-      <button class="btn-sm btn-outline" id="btn-export" onclick="exportCSV()">Export CSV</button>
-    </div>
-  </div>
-
-  <!-- MONTHLY TREND -->
-  <div class="chart-section" id="monthly-section">
-    <div class="chart-header">
-      <div class="chart-title">Měsíční trend</div>
-      <div class="chart-actions">
-        <div class="chart-legend">
-          <div class="legend-item"><div class="legend-dot" style="background:var(--bar-fill)"></div>Rezervace</div>
-          <div class="legend-item"><div class="legend-dot" style="background:var(--issued)"></div>Vystaveno</div>
-        </div>
-        <select class="chart-view-select" id="monthly-view" onchange="setMonthlyType(this.value)" aria-label="Typ grafu pro měsíční trend">
-          <option value="line">Liniový</option>
-          <option value="bar">Sloupcový</option>
-          <option value="pie">Koláčový</option>
-        </select>
-        <button class="chart-toggle" id="monthly-toggle" onclick="toggleSection('monthly')">Skrýt ▲</button>
-      </div>
-    </div>
-    <div class="monthly-wrap"><div class="monthly-bars" id="monthly-body"></div></div>
-  </div>
-
-  <!-- COMBINED TOP CHART -->
-  <div class="chart-section" id="chart-section">
-    <div class="chart-header">
-      <div class="chart-title" id="chart-title">Přehled podle</div>
-      <div class="chart-actions">
-        <div class="chart-legend">
-          <div class="legend-item"><div class="legend-dot" style="background:var(--bar-fill)"></div>Celkem</div>
-          <div class="legend-item"><div class="legend-dot" style="background:var(--issued)"></div>Vystaveno</div>
-        </div>
-        <select class="fg-input narrow" id="top-groupby" onchange="setTopGroupBy(this.value)" style="min-width:140px">
-          <option value="agency">Agentura</option>
-          <option value="dealer">Dealer</option>
-          <option value="country">Země</option>
-        </select>
-        <select class="chart-view-select" id="top-view" onchange="setTopType(this.value)" aria-label="Typ grafu pro hlavní přehled">
-          <option value="bar">Sloupcový</option>
-          <option value="line">Liniový</option>
-          <option value="pie">Koláčový</option>
-        </select>
-        <button class="chart-toggle" id="chart-toggle" onclick="toggleChart()">Skrýt ▲</button>
-      </div>
-    </div>
-    <div class="breakdown-col-title" id="chart-group-title" style="margin-top:6px">Agentura – celkem / vystaveno</div>
-    <div id="chart-top-body"></div>
-  </div>
-
-  <!-- BREAKDOWN: 6 panelů -->
-  <div class="chart-section" id="breakdown-section">
-    <div class="chart-header">
-      <div class="chart-title">Přehled</div>
-      <button class="chart-toggle" id="breakdown-toggle" onclick="toggleSection('breakdown')">Skrýt ▲</button>
-    </div>
-    <div class="breakdown-grid">
-      <div class="breakdown-panel">
-        <div class="breakdown-col-title">Status
-          <select class="chart-view-select" data-panel-view="status" onchange="setPanelType('status', this.value)">
-            <option value="pie">Koláčový</option>
-            <option value="bar">Sloupcový</option>
-            <option value="line">Liniový</option>
-          </select>
-        </div>
-        <div id="status-body"></div>
-      </div>
-      <div class="breakdown-panel">
-        <div class="breakdown-col-title">Poslední status
-          <select class="chart-view-select" data-panel-view="last-status" onchange="setPanelType('last-status', this.value)">
-            <option value="pie">Koláčový</option>
-            <option value="bar">Sloupcový</option>
-            <option value="line">Liniový</option>
-          </select>
-        </div>
-        <div id="last-status-body"></div>
-      </div>
-      <div class="breakdown-panel">
-        <div class="breakdown-col-title">Země
-          <select class="chart-view-select" data-panel-view="country" onchange="setPanelType('country', this.value)">
-            <option value="pie">Koláčový</option>
-            <option value="bar">Sloupcový</option>
-            <option value="line">Liniový</option>
-          </select>
-        </div>
-        <div id="country-body"></div>
-      </div>
-      <div class="breakdown-panel">
-        <div class="breakdown-col-title">Měna &amp; Tržby
-          <select class="chart-view-select" data-panel-view="currency" onchange="setPanelType('currency', this.value)">
-            <option value="bar">Sloupcový</option>
-            <option value="line">Liniový</option>
-            <option value="pie">Koláčový</option>
-          </select>
-        </div>
-        <div id="currency-body"></div>
-      </div>
-      <div class="breakdown-panel">
-        <div class="breakdown-col-title">Connector
-          <select class="chart-view-select" data-panel-view="connector" onchange="setPanelType('connector', this.value)">
-            <option value="pie">Koláčový</option>
-            <option value="bar">Sloupcový</option>
-            <option value="line">Liniový</option>
-          </select>
-        </div>
-        <div id="connector-body"></div>
-      </div>
-      <div class="breakdown-panel">
-        <div class="breakdown-col-title">Typ letu
-          <select class="chart-view-select" data-panel-view="type" onchange="setPanelType('type', this.value)">
-            <option value="pie">Koláčový</option>
-            <option value="bar">Sloupcový</option>
-            <option value="line">Liniový</option>
-          </select>
-        </div>
-        <div id="type-body"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TABLE -->
-  <div class="table-card">
-    <div class="table-scroll" id="table-container">
-      <div class="state">
-        <div class="spinner"></div>
-        <div class="state-title">Načítám data…</div>
-        <div class="state-sub">Připojuji se k databázi</div>
-      </div>
-    </div>
-    <div class="table-footer" id="table-footer"></div>
-  </div>
-
 </div>
+
+<!-- Row 2: avg price -->
+<div style="margin-bottom:14px">
+  <div class="card">
+    <div class="card-title">Average Ticket Price per Month (CZK)</div>
+    <div class="chart-wrap"><canvas id="cAvgPrice"></canvas></div>
+  </div>
+</div>
+
+<!-- Row 3: destinations + price dist + routes -->
+<div class="chart-row">
+  <div class="card">
+    <div class="card-title">Top Destination Countries</div>
+    <div class="chart-wrap sm"><canvas id="cDest"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Price Distribution (CZK)</div>
+    <div class="chart-wrap sm"><canvas id="cPriceDist"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Top Routes</div>
+    <ul class="route-list" id="routeList"></ul>
+  </div>
+</div>
+
+<footer>Generated from airreservations.xlsx &nbsp;·&nbsp; Dashboard</footer>
 
 <script>
-const API = "http://localhost:8080";
-const STATIC_DATA_URL = "air-reservations.csv";
-const TABLE_RENDER_LIMIT = 500;
-
-let allRows      = [];
-let allColumns   = [];
-let filteredRows = [];
-let specialCols  = { date: null, agency: null };
-let sortState    = { col: null, dir: "asc" };
-let chartCollapsed  = false;
-let activeBarAgency = null;
-let activeBarDealer = null;
-let activeBarCountry = null;
-let _statsLoaded    = false; // true once /api/stats populated KPIs
-let _lastStats      = null;  // cached stats for chart rebuilds
-let monthlyType     = "line";
-let topGroupBy      = "agency";
-let topChartType    = "bar";
-let _searchStatsTimer = null;
-let dataMode = "static";
-
-// ── Column detection ────────────────────────────────────────────
-
-function detectCols(cols) {
-  const lc = s => s.toLowerCase();
-  return {
-    date: cols.find(c =>
-      lc(c).includes("date") || lc(c) === "datum" || lc(c).includes("datum")
-    ) || null,
-    agency: cols.find(c =>
-      lc(c).includes("agency") || lc(c).includes("agentur") ||
-      lc(c).includes("agent")  || lc(c).includes("iata")    ||
-      lc(c).includes("client") || lc(c).includes("customer")
-    ) || null,
-  };
-}
-
-// ── Date helpers ────────────────────────────────────────────────
-
-function parseDate(v) {
-  if (!v) return null;
-  const s = String(v);
-  if (/^\d{2}\.\d{2}\.\d{4}$/.test(s)) {
-    const [d,m,y] = s.split(".");
-    return new Date(+y, +m-1, +d);
+// Animated counters
+document.querySelectorAll('[data-target]').forEach(el => {
+  const target = +el.dataset.target;
+  const suffix = el.dataset.suffix || '';
+  const fmt = el.dataset.format;
+  const dur = 1300;
+  const start = performance.now();
+  function tick(now) {
+    const p = Math.min((now - start) / dur, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    const val = Math.round(ease * target);
+    el.textContent = (fmt === 'thousands' ? val.toLocaleString('cs-CZ') : val) + suffix;
+    if (p < 1) requestAnimationFrame(tick);
   }
-  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return new Date(s.slice(0,10));
-  return null;
-}
+  requestAnimationFrame(tick);
+});
 
-function fmtDate(v) {
-  const d = parseDate(v);
-  return d ? d.toLocaleDateString("cs-CZ",{day:"2-digit",month:"2-digit",year:"numeric"}) : String(v??"");
-}
+Chart.defaults.font = { family: "'Inter', system-ui, sans-serif", size: 11 };
+Chart.defaults.color = '#8a7a62';
 
-function toISO(d) { return d.toISOString().slice(0,10); }
+const GRID = 'rgba(160,140,110,0.12)';
+const MONTHS = ["Jan 25","Feb 25","Mar 25","Apr 25","May 25","Jun 25","Jul 25","Aug 25","Sep 25","Oct 25","Nov 25","Dec 25","Jan 26","Feb 26","Mar 26","Apr 26","May 26"];
 
-// ── Stats: rychlé KPI + grafy hned při načtení ─────────────────
-
-function applyStats(stats, options = {}) {
-  _statsLoaded = true;
-  _lastStats   = stats;
-  if (!options.local) updateServerStatus(true);
-  const t = stats.totals || {};
-
-  if (t.total    != null) document.getElementById("kpi-total").textContent     = fmt(t.total);
-  if (t.agencies != null) document.getElementById("kpi-agencies").textContent  = fmt(t.agencies);
-  if (t.countries!= null) document.getElementById("kpi-countries").textContent = fmt(t.countries);
-  if (t.issued   != null) {
-    document.getElementById("kpi-issued").textContent = fmt(t.issued);
-    const pct = t.total > 0 ? Math.round(t.issued / t.total * 100) : 0;
-    document.getElementById("kpi-issued-pct").textContent = `${pct} % z celku`;
+// Volume bars
+new Chart(document.getElementById('cVolume'), {
+  type: 'bar',
+  data: {
+    labels: MONTHS,
+    datasets: [{
+      data: [9,8,19,5,12,8,6,7,7,1,3,2,1,14,2,8,6],
+      backgroundColor: (ctx) => {
+        const g = ctx.chart.ctx.createLinearGradient(0,0,0,220);
+        g.addColorStop(0,'rgba(42,140,122,0.85)');
+        g.addColorStop(1,'rgba(42,140,122,0.15)');
+        return g;
+      },
+      borderRadius: 6, borderSkipped: false
+    }]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false} },
+    scales:{
+      x:{grid:{display:false}, border:{display:false}},
+      y:{grid:{color:GRID}, border:{display:false}, ticks:{stepSize:5}}
+    }
   }
+});
 
-  const monthly = stats.monthly || [];
-  if (monthly.length) {
-    document.getElementById("kpi-from").textContent = fmtMonth(monthly[0].month);
-    document.getElementById("kpi-last").textContent = fmtMonth(monthly[monthly.length - 1].month);
-    document.getElementById("kpi-last-sub").textContent = "";
+// Trip type donut
+new Chart(document.getElementById('cTripType'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Return','One-way'],
+    datasets: [{
+      data: [60,58],
+      backgroundColor: ['#2a8c7a','#b84c5a'],
+      borderWidth: 3, borderColor: '#faf7f2',
+      hoverOffset: 6
+    }]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false, cutout:'65%',
+    plugins:{
+      legend:{ position:'bottom', labels:{ padding:16, usePointStyle:true, pointStyleWidth:10 } },
+      tooltip:{ callbacks:{ label:(i) => ` ${i.label}: ${i.raw} (${Math.round(i.raw/118*100)}%)` }}
+    }
   }
+});
 
-  buildMonthlyChart(stats.monthly || []);
-  buildChartFromStats(stats.by_agency || [], stats.by_dealer || [], stats.by_country || []);
-  buildBreakdownCharts(stats);
-}
-
-function fmt(n)      { return Number(n).toLocaleString("cs-CZ"); }
-function fmtMonth(ym) {
-  if (!ym) return "—";
-  const [y, m] = ym.split("-");
-  return `${m}/${y}`;
-}
-
-// Měsíční trend — dvě série: rezervace vs vystaveno
-function buildMonthlyChart(monthly) {
-  const items   = (monthly || []).filter(x => x.month);
-  const section = document.getElementById("monthly-section");
-  const bodyEl  = document.getElementById("monthly-body");
-  if (!items.length) {
-    section.classList.add("visible");
-    bodyEl.className = "monthly-visual";
-    bodyEl.innerHTML = `<div class="chart-empty">No monthly data for current filters</div>`;
-    return;
+// Avg price line
+new Chart(document.getElementById('cAvgPrice'), {
+  type: 'line',
+  data: {
+    labels: MONTHS,
+    datasets: [{
+      data: [4061,16309,27556,3910,21662,5352,8090,3494,12976,3140,12418,15360,7144,5977,8387,4908,4427],
+      borderColor: '#b84c5a',
+      backgroundColor: (ctx) => {
+        const g = ctx.chart.ctx.createLinearGradient(0,0,0,220);
+        g.addColorStop(0,'rgba(184,76,90,0.18)');
+        g.addColorStop(1,'rgba(184,76,90,0.0)');
+        return g;
+      },
+      borderWidth: 2.5, pointRadius: 4,
+      pointBackgroundColor: '#b84c5a',
+      pointBorderColor: '#faf7f2', pointBorderWidth: 2,
+      fill: true, tension: 0.4
+    }]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false}, tooltip:{ callbacks:{
+      label:(i) => ` ${i.raw.toLocaleString('cs-CZ')} CZK`
+    }}},
+    scales:{
+      x:{grid:{display:false}, border:{display:false}},
+      y:{grid:{color:GRID}, border:{display:false}, ticks:{
+        callback: v => v>=1000 ? (v/1000).toFixed(0)+'K' : v
+      }}
+    }
   }
-  section.classList.add("visible");
+});
 
-  const maxTotal = Math.max(...items.map(x => Number(x.total))) || 1;
-  const H = 190;
-
-  if (monthlyType === "line") {
-    bodyEl.className = "monthly-visual";
-    const W = Math.max(780, items.length * 58);
-    const top = 26;
-    const bottom = 34;
-    const left = 22;
-    const right = 14;
-    const h = 290;
-    const innerW = W - left - right;
-    const innerH = h - top - bottom;
-    const step = items.length > 1 ? innerW / (items.length - 1) : innerW;
-    const y = (v) => top + (innerH - (Number(v) / maxTotal) * innerH);
-    const x = (i) => left + i * step;
-
-    const totalPts = items.map((it, i) => `${x(i).toFixed(1)},${y(it.total).toFixed(1)}`).join(" ");
-    const issuedPts = items.map((it, i) => `${x(i).toFixed(1)},${y(it.issued || 0).toFixed(1)}`).join(" ");
-
-    const labels = items.map((it, i) => {
-      const xx = x(i).toFixed(1);
-      const lbl = it.month.slice(2).replace("-", "/");
-      return `<text class="monthly-line-label" x="${xx}" y="${h - 8}" text-anchor="middle">${esc(lbl)}</text>`;
-    }).join("");
-
-    const grid = [0, 0.25, 0.5, 0.75, 1].map(part => {
-      const yy = (top + innerH * part).toFixed(1);
-      return `<line class="monthly-line-axis" x1="${left}" y1="${yy}" x2="${W-right}" y2="${yy}"></line>`;
-    }).join("");
-
-    const dots = items.map((it, i) => {
-      const xx = x(i).toFixed(1);
-      const yt = y(it.total).toFixed(1);
-      const yi = y(it.issued || 0).toFixed(1);
-      const pct = Number(it.total) > 0 ? Math.round(Number(it.issued || 0) / Number(it.total) * 100) : 0;
-      return `
-      <circle class="monthly-line-point-total" cx="${xx}" cy="${yt}" r="4.2"
-        data-tip="${esc(it.month)}: ${fmt(it.total)} rezervací">
-        <title>${esc(it.month)}: ${fmt(it.total)} rezervací</title>
-      </circle>
-      <circle class="monthly-line-point-issued" cx="${xx}" cy="${yi}" r="4.2"
-        data-tip="${esc(it.month)}: ${fmt(it.issued || 0)} vystaveno (${pct} %)">
-        <title>${esc(it.month)}: ${fmt(it.issued || 0)} vystaveno (${pct} %)</title>
-      </circle>`;
-    }).join("");
-
-    bodyEl.innerHTML = `<div class="monthly-line-wrap">
-      <svg class="monthly-line-svg" viewBox="0 0 ${W} ${h}">
-        ${grid}
-        <polyline class="monthly-line-total" points="${totalPts}"></polyline>
-        <polyline class="monthly-line-issued" points="${issuedPts}"></polyline>
-        ${dots}
-        ${labels}
-      </svg>
-    </div>`;
-    return;
+// Destinations
+new Chart(document.getElementById('cDest'), {
+  type: 'bar',
+  data: {
+    labels: ['Spain','Germany','UK','Indonesia','France','Japan','Singapore','Poland'],
+    datasets: [{
+      data: [12,9,8,6,6,5,5,4],
+      backgroundColor: ['#2a8c7a','#3a6fa8','#6d52a8','#b84c5a','#c07a20','#3a8a50','#2a8c7a','#3a6fa8'],
+      borderRadius: 5, borderSkipped: false
+    }]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false, indexAxis:'y',
+    plugins:{ legend:{display:false} },
+    scales:{
+      x:{grid:{color:GRID}, border:{display:false}, ticks:{stepSize:2}},
+      y:{grid:{display:false}, border:{display:false}}
+    }
   }
+});
 
-  if (monthlyType === "pie") {
-    bodyEl.className = "monthly-visual";
-    bodyEl.innerHTML = svgPie(
-      items.map(({ month, total, issued }) => ({
-        label: fmtMonth(month),
-        cnt: Number(total || 0),
-        issued: Number(issued || 0),
-      })),
-      CHART_COLORS,
-    );
-    return;
+// Price distribution
+new Chart(document.getElementById('cPriceDist'), {
+  type: 'bar',
+  data: {
+    labels: ['< 3K','3–6K','6–12K','12–25K','> 25K'],
+    datasets: [{
+      data: [25,34,27,17,15],
+      backgroundColor: (ctx) => {
+        const g = ctx.chart.ctx.createLinearGradient(0,0,0,180);
+        g.addColorStop(0,'rgba(109,82,168,0.9)');
+        g.addColorStop(1,'rgba(109,82,168,0.2)');
+        return g;
+      },
+      borderRadius: 6, borderSkipped: false
+    }]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false} },
+    scales:{
+      x:{grid:{display:false}, border:{display:false}},
+      y:{grid:{color:GRID}, border:{display:false}}
+    }
   }
+});
 
-  bodyEl.className = "monthly-bars";
-  bodyEl.innerHTML = items.map(({month, total, issued}) => {
-    const tot = Number(total), iss = Number(issued || 0);
-    const hT  = Math.max(2, Math.round(tot / maxTotal * H));
-    const hI  = Math.max(0, Math.round(iss / maxTotal * H));
-    const lbl = month.slice(2).replace("-", "/");
-    const pct = tot > 0 ? Math.round(iss / tot * 100) : 0;
-    return `<div class="month-col">
-      <div class="month-pair">
-        <div class="month-bar total"  style="height:${hT}px"
-             data-tip="${esc(month)}: ${fmt(tot)} rezervací"></div>
-        <div class="month-bar issued" style="height:${hI}px"
-             data-tip="${esc(month)}: ${fmt(iss)} vystaveno (${pct} %)"></div>
-      </div>
-      <div class="month-lbl">${esc(lbl)}</div>
-    </div>`;
-  }).join("");
-}
-
-function setMonthlyType(type) {
-  monthlyType = ["line", "bar", "pie"].includes(type) ? type : "line";
-  const control = document.getElementById("monthly-view");
-  if (control) control.value = monthlyType;
-  if (_lastStats) buildMonthlyChart(_lastStats.monthly || []);
-}
-
-function toggleMonthlyType() {
-  const order = ["line", "bar", "pie"];
-  setMonthlyType(order[(order.indexOf(monthlyType) + 1) % order.length]);
-}
-
-// Kombinovaný top graf — group by Agentura/Dealer/Země
-function buildChartFromStats(byAgency, byDealer, byCountry) {
-  const itemsAgency = (byAgency || []).filter(x => x.label && x.label !== "(prázdné)");
-  const itemsDealer = (byDealer || []).filter(x => x.label && x.label !== "(prázdné)");
-  const itemsCountry = (byCountry || []).filter(x => x.label && x.label !== "(prázdné)");
-  const section = document.getElementById("chart-section");
-  if (!itemsAgency.length && !itemsDealer.length && !itemsCountry.length) {
-    section.classList.add("visible");
-    const el = document.getElementById("chart-top-body");
-    if (el) el.innerHTML = `<div class="chart-empty">No grouped data for current filters</div>`;
-    return;
-  }
-  section.classList.add("visible");
-  if (chartCollapsed) return;
-
-  let active = activeBarAgency;
-  let items = itemsAgency;
-  let title = "Agentura – celkem / vystaveno";
-  if (topGroupBy === "dealer") {
-    active = activeBarDealer;
-    items = itemsDealer;
-    title = "Dealer – celkem / vystaveno";
-  } else if (topGroupBy === "country") {
-    active = activeBarCountry;
-    items = itemsCountry;
-    title = "Země – celkem / vystaveno";
-  }
-  const titleEl = document.getElementById("chart-group-title");
-  if (titleEl) titleEl.textContent = title;
-  const el = document.getElementById("chart-top-body");
-  if (!el) return;
-  if (!items.length) { el.innerHTML = `<div class="chart-empty">No data for selected group</div>`; return; }
-
-  if (topChartType === "line") {
-    el.innerHTML = svgLine(items, { limit: 15, mainKey: "cnt", secondKey: "issued" });
-    return;
-  }
-
-  if (topChartType === "pie") {
-    el.innerHTML = svgPie(items.map(item => ({
-      label: item.label,
-      cnt: Number(item.cnt || 0),
-      issued: Number(item.issued || 0),
-    })), CHART_COLORS);
-    return;
-  }
-
-  const maxCnt = items[0]?.cnt || 1;
-  el.innerHTML = items.slice(0, 15).map(({label, cnt, issued}) => {
-    const w   = Math.round(Number(cnt) / maxCnt * 100);
-    const wi  = Math.round(Number(issued || 0) / maxCnt * 100);
-    const pct = cnt > 0 ? Math.round((issued || 0) / cnt * 100) : 0;
-    const act = active === label ? "active" : "";
-    return `<div class="bar-row ${act}" onclick="clickTopBar('${esc(label)}')"
-       title="${esc(label)}: ${fmt(cnt)} rezervací, ${fmt(issued||0)} vystaveno (${pct} %)"
-       data-tip="${esc(label)}: ${fmt(cnt)} rezervací, ${fmt(issued||0)} vystaveno (${pct} %)">
-    <div class="bar-label">${esc(label)}</div>
-    <div class="bar-track">
-      <div class="bar-fill" style="width:${w}%"></div>
-      <div class="bar-fill" style="width:${wi}%;background:#8f3e4a;margin-top:2px"></div>
-    </div>
-    <div class="bar-count">${fmt(cnt)}<br><small style="color:#8f3e4a">${fmt(issued||0)} (${pct}%)</small></div>
-  </div>`;
-  }).join("");
-}
-
-function setTopGroupBy(group) {
-  topGroupBy = group || "agency";
-  if (_lastStats) buildChartFromStats(_lastStats.by_agency || [], _lastStats.by_dealer || [], _lastStats.by_country || []);
-}
-
-function setTopType(type) {
-  topChartType = ["bar", "line", "pie"].includes(type) ? type : "bar";
-  const control = document.getElementById("top-view");
-  if (control) control.value = topChartType;
-  if (_lastStats) buildChartFromStats(_lastStats.by_agency || [], _lastStats.by_dealer || [], _lastStats.by_country || []);
-}
-
-function clickTopBar(name) {
-  if (topGroupBy === "agency") {
-    const sel = document.getElementById("f-agency");
-    if (activeBarAgency === name) { activeBarAgency = null; sel.value = ""; }
-    else { activeBarAgency = name; sel.value = name; }
-  } else if (topGroupBy === "dealer") {
-    const sel = document.getElementById("f-dealer");
-    if (activeBarDealer === name) { activeBarDealer = null; sel.value = ""; }
-    else { activeBarDealer = name; sel.value = name; }
-  } else {
-    const sel = document.getElementById("f-country");
-    if (activeBarCountry === name) { activeBarCountry = null; sel.value = ""; }
-    else { activeBarCountry = name; sel.value = name; }
-  }
-  applyFilters();
-  reloadStats();
-}
-
-function toggleTopType() {
-  const order = ["bar", "line", "pie"];
-  setTopType(order[(order.indexOf(topChartType) + 1) % order.length]);
-}
-
-// ── Koláčové grafy ───────────────────────────────────────────────
-
-const CHART_COLORS = [
-  "#4f6a6c","#c47a5a","#6b95b0","#8a7050",
-  "#5a8a6a","#9a6088","#b8a040","#708090"
+// Routes
+const routes = [
+  ['PRG → FRA',7],['PRG → LON',6],['PRG → PAR',6],
+  ['PRG → MAD',5],['BUD → MEL',4],['PRG → AMS',3]
 ];
-
-// Stav přepínačů — výchozí: pruhy (bar)
-const _panelType = {
-  "status": "pie", "last-status": "pie",
-  "country": "pie", "connector": "pie", "type": "pie", "currency": "bar"
-};
-
-function setPanelType(key, type) {
-  const allowed = ["pie", "bar", "line"];
-  _panelType[key] = allowed.includes(type) ? type : (_panelType[key] || "pie");
-  const control = document.querySelector(`[data-panel-view="${key}"]`);
-  if (control) control.value = _panelType[key];
-  if (_lastStats) buildBreakdownCharts(_lastStats);
-}
-
-function togglePanelType(key) {
-  const order = ["pie", "bar", "line"];
-  const next = order[(order.indexOf(_panelType[key]) + 1) % order.length];
-  setPanelType(key, next);
-}
-
-function syncChartControls() {
-  const monthly = document.getElementById("monthly-view");
-  const top = document.getElementById("top-view");
-  if (monthly) monthly.value = monthlyType;
-  if (top) top.value = topChartType;
-  document.querySelectorAll("[data-panel-view]").forEach(control => {
-    const key = control.getAttribute("data-panel-view");
-    if (key && _panelType[key]) control.value = _panelType[key];
-  });
-}
-
-function getChartTooltip() {
-  let tooltip = document.getElementById("chart-tooltip");
-  if (!tooltip) {
-    tooltip = document.createElement("div");
-    tooltip.id = "chart-tooltip";
-    tooltip.className = "chart-tooltip";
-    document.body.appendChild(tooltip);
-  }
-  return tooltip;
-}
-
-function showChartTooltip(event, text) {
-  const tooltip = getChartTooltip();
-  tooltip.textContent = text;
-  const margin = 14;
-  const x = Math.min(Math.max(event.clientX, margin), window.innerWidth - margin);
-  const y = Math.max(event.clientY, 48);
-  tooltip.style.left = `${x}px`;
-  tooltip.style.top = `${y}px`;
-  tooltip.classList.add("show");
-}
-
-function hideChartTooltip() {
-  const tooltip = document.getElementById("chart-tooltip");
-  if (tooltip) tooltip.classList.remove("show");
-}
-
-function handleChartTooltip(event) {
-  const target = event.target.closest?.("[data-tip]");
-  if (!target || !target.closest?.(".chart-section")) {
-    hideChartTooltip();
-    return;
-  }
-  const text = target.getAttribute("data-tip");
-  if (text) showChartTooltip(event, text);
-}
-
-function svgPie(items, colors) {
-  const top   = items.filter(x => x.label && x.label !== "(prázdné)").slice(0, 8);
-  const total = top.reduce((s, x) => s + Number(x.cnt), 0);
-  if (!total) return "";
-
-  const R  = 46, cx = 60, cy = 60, stroke = 22;
-  const C  = 2 * Math.PI * R;
-  let offset = 0;
-
-  const circles = top.map((item, i) => {
-    const pct  = Number(item.cnt) / total;
-    const arc  = pct * C;
-    const dashOffset = -offset;
-    offset += arc;
-    const label = `${item.label}: ${fmt(item.cnt)} (${Math.round(pct * 100)} %)`;
-    return `<circle r="${R}" cx="${cx}" cy="${cy}" fill="none"
-      stroke="${colors[i % colors.length]}" stroke-width="${stroke}"
-      stroke-dasharray="${arc.toFixed(3)} ${(C - arc).toFixed(3)}"
-      stroke-dashoffset="${dashOffset.toFixed(3)}"
-      transform="rotate(-90 ${cx} ${cy})"
-      data-tip="${esc(label)}">
-        <title>${esc(label)}</title>
-      </circle>`;
-  }).join("");
-
-  const legend = top.map((item, i) => {
-    const pct = Math.round(Number(item.cnt) / total * 100);
-    return `<div class="pie-leg" data-tip="${esc(item.label)}: ${fmt(item.cnt)} (${pct} %)">
-      <div class="pie-dot" style="background:${colors[i % colors.length]}"></div>
-      <div class="pie-leg-label" title="${esc(item.label)}">${esc(item.label)}</div>
-      <div class="pie-leg-pct">${pct}%</div>
-      <div class="pie-leg-cnt">${fmt(item.cnt)}</div>
-    </div>`;
-  }).join("");
-
-  return `<div class="pie-wrap">
-    <svg class="donut-chart" viewBox="0 0 120 120" aria-hidden="true">
-      <circle r="${R}" cx="${cx}" cy="${cy}" fill="none" stroke="rgba(79,106,108,0.11)" stroke-width="${stroke}"></circle>
-      ${circles}
-      <circle r="26" cx="${cx}" cy="${cy}" fill="rgba(250,250,246,0.98)"></circle>
-    </svg>
-    <div class="pie-legend">${legend}</div>
-  </div>`;
-}
-
-function svgLine(items, options = {}) {
-  const top = (items || []).filter(x => x.label && x.label !== "(prázdné)").slice(0, options.limit || 10);
-  if (!top.length) return "";
-  const W = Math.max(420, top.length * 60);
-  const H = 224;
-  const topPad = 24, bottom = 32, left = 22, right = 12;
-  const innerW = W - left - right;
-  const innerH = H - topPad - bottom;
-  const step = top.length > 1 ? innerW / (top.length - 1) : innerW;
-  const maxMain = Math.max(...top.map(x => Number(x[options.mainKey || "cnt"] || 0)), 1);
-  const maxSecond = Math.max(...top.map(x => Number(x[options.secondKey || "issued"] || 0)), 1);
-  const x = (i) => left + i * step;
-  const yMain = (v) => topPad + (innerH - (Number(v || 0) / maxMain) * innerH);
-  const ySecond = (v) => topPad + (innerH - (Number(v || 0) / maxSecond) * innerH);
-  const mainPts = top.map((it, i) => `${x(i).toFixed(1)},${yMain(it[options.mainKey || "cnt"]).toFixed(1)}`).join(" ");
-  const secondPts = top.map((it, i) => `${x(i).toFixed(1)},${ySecond(it[options.secondKey || "issued"]).toFixed(1)}`).join(" ");
-  const labels = top.map((it, i) => {
-    const lbl = String(it.label).slice(0, 8);
-    return `<text class="mini-line-label" x="${x(i).toFixed(1)}" y="${H-8}" text-anchor="middle">${esc(lbl)}</text>`;
-  }).join("");
-  const grid = [0, 0.25, 0.5, 0.75, 1].map(part => {
-    const yy = (topPad + innerH * part).toFixed(1);
-    return `<line class="mini-line-axis" x1="${left}" y1="${yy}" x2="${W-right}" y2="${yy}"></line>`;
-  }).join("");
-  const mainKey = options.mainKey || "cnt";
-  const secondKey = options.secondKey || "issued";
-  const mainLabel = mainKey === "revenue" ? "Tržby" : "Celkem";
-  const secondLabel = secondKey === "issued" ? "Vystaveno" : secondKey;
-  const dots = top.map((it, i) => {
-    const mainValue = Number(it[mainKey] || 0);
-    const secondValue = Number(it[secondKey] || 0);
-    return `
-    <circle class="mini-line-point-total" cx="${x(i).toFixed(1)}" cy="${yMain(mainValue).toFixed(1)}" r="3.8"
-      data-tip="${esc(it.label)}: ${mainLabel} ${fmt(Math.round(mainValue))}"></circle>
-    <circle class="mini-line-point-issued" cx="${x(i).toFixed(1)}" cy="${ySecond(secondValue).toFixed(1)}" r="3.8"
-      data-tip="${esc(it.label)}: ${secondLabel} ${fmt(Math.round(secondValue))}"></circle>
-  `;
-  }).join("");
-  return `<div class="mini-line-wrap">
-    <svg class="mini-line-svg" viewBox="0 0 ${W} ${H}">
-      ${grid}
-      <polyline class="mini-line-total" points="${mainPts}"></polyline>
-      <polyline class="mini-line-issued" points="${secondPts}"></polyline>
-      ${dots}
-      ${labels}
-    </svg>
-  </div>`;
-}
-
-// Breakdown — 6 panelů
-function buildBreakdownCharts(stats) {
-  const section = document.getElementById("breakdown-section");
-  const allItems = [
-    stats.by_status, stats.by_last_status, stats.by_country,
-    stats.by_currency, stats.by_connector, stats.by_type
-  ];
-  if (!allItems.some(a => (a||[]).length > 0)) {
-    section.classList.add("visible");
-    ["status-body","last-status-body","country-body","currency-body","connector-body","type-body"]
-      .forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = `<div class="chart-empty">No data</div>`;
-      });
-    return;
-  }
-  section.classList.add("visible");
-
-  const renderBars = (items, n) => {
-    if (!items?.length) return "";
-    const maxCnt = Math.max(...items.map(x => Number(x.cnt))) || 1;
-    return items.slice(0, n).map(({label, cnt, issued}) => {
-      const w = Math.round(Number(cnt) / maxCnt * 100);
-      const wi = Math.round(Number(issued || 0) / maxCnt * 100);
-      const pct = Number(cnt) > 0 ? Math.round(Number(issued || 0) / Number(cnt) * 100) : 0;
-      return `<div class="bar-row" style="cursor:default"
-        data-tip="${esc(label)}: ${fmt(cnt)} celkem, ${fmt(issued||0)} vystaveno (${pct} %)">
-        <div class="bar-label">${esc(label)}</div>
-        <div class="bar-track">
-          <div class="bar-fill" style="width:${w}%"></div>
-          <div class="bar-fill" style="width:${wi}%;background:#8f3e4a;margin-top:2px"></div>
-        </div>
-        <div class="bar-count">${fmt(cnt)}<br><small style="color:#8f3e4a">${fmt(issued||0)} (${pct}%)</small></div>
-      </div>`;
-    }).join("");
-  };
-
-  const renderPanel = (id, items, key, n) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (!items?.length) { el.innerHTML = `<div class="chart-empty">No data</div>`; return; }
-    if (_panelType[key] === "pie") {
-      el.innerHTML = svgPie(items, CHART_COLORS);
-    } else if (_panelType[key] === "line") {
-      el.innerHTML = svgLine(items, { limit: n, mainKey: "cnt", secondKey: "issued" });
-      el.className = "";
-      el.style.gridTemplateColumns = "";
-    } else {
-      el.className = "chart-body";
-      el.style.gridTemplateColumns = "1fr";
-      el.innerHTML = renderBars(items, n);
-    }
-    // Pokud přepínáme z pie na bar, je třeba obnovit třídu
-    if (_panelType[key] !== "pie") {
-      el.className = "chart-body";
-      el.style.gridTemplateColumns = "1fr";
-    } else {
-      el.className = "";
-      el.style.gridTemplateColumns = "";
-    }
-  };
-
-  renderPanel("status-body",      stats.by_status,      "status",      10);
-  renderPanel("last-status-body", stats.by_last_status, "last-status", 10);
-  renderPanel("country-body",     stats.by_country,     "country",     12);
-  renderPanel("connector-body",   stats.by_connector,   "connector",   10);
-  renderPanel("type-body",        stats.by_type,        "type",        10);
-
-  // Měna + tržby (speciální layout s revenue)
-  const currencies = stats.by_currency || [];
-  if (currencies.length) {
-    const currencyEl = document.getElementById("currency-body");
-    currencyEl.className = _panelType.currency === "pie" ? "" : "chart-body";
-    currencyEl.style.gridTemplateColumns = _panelType.currency === "pie" ? "" : "1fr";
-    if (_panelType.currency === "pie") {
-      currencyEl.innerHTML = svgPie(currencies.map(({ label, cnt, issued }) => ({
-        label,
-        cnt: Number(cnt || 0),
-        issued: Number(issued || 0),
-      })), CHART_COLORS);
-    } else if (_panelType.currency === "line") {
-      currencyEl.innerHTML = svgLine(currencies, { limit: 8, mainKey: "revenue", secondKey: "issued" });
-    } else {
-      const maxRev = Math.max(...currencies.map(x => Number(x.revenue||0))) || 1;
-      const maxCnt = Math.max(...currencies.map(x => Number(x.cnt||0))) || 1;
-      currencyEl.innerHTML = currencies.slice(0, 8).map(({label, cnt, issued, revenue}) => {
-        const rev = Number(revenue || 0);
-        const w   = Math.round(rev / maxRev * 100);
-        const wi  = Math.round(Number(issued || 0) / maxCnt * 100);
-        const pct = Number(cnt) > 0 ? Math.round(Number(issued || 0) / Number(cnt) * 100) : 0;
-        return `<div class="bar-row" style="cursor:default;grid-template-columns:60px 1fr 90px"
-          data-tip="${esc(label)}: ${rev > 0 ? fmt(Math.round(rev)) + ' tržby' : fmt(cnt) + ' ks'}, ${fmt(issued||0)} vystaveno (${pct} %)">
-          <div class="bar-label" style="font-weight:800">${esc(label)}</div>
-          <div class="bar-track">
-            <div class="bar-fill" style="width:${w}%"></div>
-            <div class="bar-fill" style="width:${wi}%;background:#8f3e4a;margin-top:2px"></div>
-          </div>
-          <div class="bar-count" style="font-size:10px">
-            ${rev > 0 ? fmt(Math.round(rev)) : fmt(cnt)+" ks"}<br><small style="color:#8f3e4a">${fmt(issued||0)} (${pct}%)</small>
-          </div>
-        </div>`;
-      }).join("");
-    }
-  } else {
-    const currencyEl = document.getElementById("currency-body");
-    if (currencyEl) currencyEl.innerHTML = `<div class="chart-empty">No data</div>`;
-  }
-}
-
-// ── Načtení dat ─────────────────────────────────────────────────
-// Stats a záznamy se spouštějí paralelně.
-// Stats (agregované query) obvykle dorazí dřív → KPI + graf se zobrazí okamžitě.
-// Tabulka se zobrazí, jakmile dorazí záznamy.
-
-async function loadData() {
-  const btn = document.getElementById("btn-refresh");
-  btn.disabled = true; btn.textContent = "...";
-  _statsLoaded = false;
-  showLoadingState("Připojuji se k serveru…");
-  hideError();
-
-  try {
-    // 1. Zkus API server (PostgreSQL) — primární zdroj
-    try {
-      setLoadingMsg("Načítám z databáze…");
-      const data = await loadApiReservations();
-      dataMode = "api";
-      hydrateRows(data);
-      buildControls(true);
-      await loadFilterOptions();
-      computeKPIs();
-      applyFilters();
-      await reloadStats();
-      updateDataMeta(data);
-      updateServerStatus(true, dataMode);
-      return;
-    } catch(apiErr) {
-      // Server není spuštěn — přepni na streaming CSV zálohu
-    }
-
-    // 2. Záloha: streaming z CSV (GitHub Pages)
-    dataMode = "static";
-    await loadStaticStreaming();
-    updateServerStatus(true, dataMode);
-  } catch(e) {
-    showError(e.message);
-    showErrorState();
-    updateServerStatus(false, dataMode);
-  } finally {
-    btn.disabled = false; btn.textContent = "Obnovit";
-  }
-}
-
-// Streamuje CSV řádek po řádku — první dávka se zobrazí hned jak přijde,
-// zbytek se donačte na pozadí bez blokování UI.
-async function loadStaticStreaming() {
-  setLoadingMsg("Připojuji se…");
-  const res = await fetch(STATIC_DATA_URL);
-  if (!res.ok) throw new Error(`Static data ${res.status}`);
-
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder("utf-8");
-  let buffer = "";
-  let columns = null;
-  let delimiter = null;
-  let rowCount = 0;
-  const FIRST_RENDER_AT = 3000; // zobraz první data po N řádcích
-
-  const flush = (final) => {
-    const lines = buffer.split("\n");
-    buffer = final ? "" : (lines.pop() ?? "");
-
-    for (const line of lines) {
-      if (!line || line === "\r") continue;
-      const values = parseCsvRow(line, delimiter);
-
-      if (!columns) {
-        // první řádek = hlavička
-        const raw = line.endsWith("\r") ? line.slice(0, -1) : line;
-        delimiter = (raw.match(/;/g) || []).length >= (raw.match(/,/g) || []).length ? ";" : ",";
-        columns = parseCsvRow(raw, delimiter);
-        allColumns = columns;
-        specialCols = detectCols(columns);
-        continue;
-      }
-
-      if (!values.some(v => v !== "")) continue;
-      allRows.push(Object.fromEntries(
-        columns.map((col, j) => [col, values[j] === "" ? null : values[j] ?? null])
-      ));
-      rowCount++;
-    }
-
-    if (rowCount >= FIRST_RENDER_AT && !_firstRenderDone) {
-      _firstRenderDone = true;
-      loadFilterOptionsFromRows();
-      computeKPIs();
-      applyFilters();
-      reloadStats();
-      updateDataMeta({ total: rowCount, count: rowCount });
-      setLoadingMsg(`Načteno ${rowCount.toLocaleString("cs-CZ")} záznamů, donačítám…`);
-    }
-  };
-
-  allRows = [];
-  allColumns = [];
-  window._firstRenderDone = false;
-  setLoadingMsg("Stahuji data…");
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (value) buffer += decoder.decode(value, { stream: !done });
-    flush(done);
-    if (done) break;
-
-    const loaded = allRows.length;
-    if (loaded % 5000 === 0 && loaded > 0) {
-      setLoadingMsg(`Načteno ${loaded.toLocaleString("cs-CZ")} záznamů…`);
-      await new Promise(r => setTimeout(r, 0));
-    }
-  }
-
-  // Finální render po načtení všech dat — force přepíše datum na správný rozsah
-  buildControls(true);
-  loadFilterOptionsFromRows();
-  computeKPIs();
-  applyFilters();
-  reloadStats();
-  updateDataMeta({ total: allRows.length, count: allRows.length });
-}
-
-async function loadStaticSnapshot() {
-  setLoadingMsg("Stahuji CSV…");
-  const res = await fetch(STATIC_DATA_URL);
-  if (!res.ok) throw new Error(`Static data ${res.status}`);
-  const text = await res.text();
-  setLoadingMsg(`Zpracovávám ${Math.round(text.length / 1024)} kB dat…`);
-  const parsed = await parseCsvAsync(text);
-  return {
-    ok: true,
-    source: "csv-web",
-    columns: parsed.columns,
-    rows: parsed.rows,
-    count: parsed.rows.length,
-    total: parsed.rows.length
-  };
-}
-
-function normName(name) {
-  return String(name || "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "");
-}
-
-function findCol(name) {
-  const wanted = normName(name);
-  return allColumns.find(col => normName(col) === wanted) || null;
-}
-
-function parseCsvRow(line, delimiter) {
-  const fields = [];
-  let field = "";
-  let inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (inQ) {
-      if (ch === '"' && line[i + 1] === '"') { field += '"'; i++; }
-      else if (ch === '"') { inQ = false; }
-      else { field += ch; }
-    } else if (ch === '"') {
-      inQ = true;
-    } else if (ch === delimiter) {
-      fields.push(field); field = "";
-    } else if (ch !== "\r") {
-      field += ch;
-    }
-  }
-  fields.push(field);
-  return fields;
-}
-
-async function parseCsvAsync(text) {
-  const nl = text.indexOf("\n");
-  const firstLine = nl > -1 ? text.slice(0, nl) : text;
-  const delimiter = (firstLine.match(/;/g) || []).length > (firstLine.match(/,/g) || []).length ? ";" : ",";
-  const lines = text.split("\n");
-  const columns = parseCsvRow(lines[0], delimiter);
-  const rows = [];
-  const CHUNK = 5000;
-  for (let i = 1; i < lines.length; i++) {
-    const line = lines[i];
-    if (!line || line === "\r") continue;
-    const values = parseCsvRow(line, delimiter);
-    if (!values.some(v => v !== "")) continue;
-    rows.push(Object.fromEntries(columns.map((col, j) => [col, values[j] === "" ? null : values[j] ?? null])));
-    if (i % CHUNK === 0) await new Promise(r => setTimeout(r, 0));
-  }
-  return { columns, rows };
-}
-
-function parseCsv(text) {
-  const nl = text.indexOf("\n");
-  const firstLine = nl > -1 ? text.slice(0, nl) : text;
-  const delimiter = (firstLine.match(/;/g) || []).length > (firstLine.match(/,/g) || []).length ? ";" : ",";
-  const lines = text.split("\n");
-  const columns = parseCsvRow(lines[0], delimiter);
-  const rows = [];
-  for (let i = 1; i < lines.length; i++) {
-    const line = lines[i];
-    if (!line || line === "\r") continue;
-    const values = parseCsvRow(line, delimiter);
-    if (!values.some(v => v !== "")) continue;
-    rows.push(Object.fromEntries(columns.map((col, j) => [col, values[j] === "" ? null : values[j] ?? null])));
-  }
-  return { columns, rows };
-}
-
-async function fetchWithTimeout(url, ms = 1500) {
-  const ctrl = new AbortController();
-  const tid = setTimeout(() => ctrl.abort(), ms);
-  try {
-    const res = await fetch(url, { signal: ctrl.signal });
-    clearTimeout(tid);
-    return res;
-  } catch(e) {
-    clearTimeout(tid);
-    throw e;
-  }
-}
-
-async function loadApiReservations() {
-  const limit = window._loadAll ? 0 : 200;
-  const res = await fetchWithTimeout(`${API}/api/reservations?limit=${limit}`);
-  const data = await res.json();
-  if (!data.ok) throw new Error(data.error || "Neznama chyba");
-  return data;
-}
-
-function hydrateRows(data) {
-  allRows = data.rows || [];
-  allColumns = data.columns && data.columns.length
-    ? data.columns
-    : (allRows[0] ? Object.keys(allRows[0]) : []);
-  specialCols = detectCols(allColumns);
-}
-
-function updateDataMeta(data) {
-  const t = new Date().toLocaleTimeString("cs-CZ",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-  const realTotal = Number(data?.total || data?.count || allRows.length);
-  const limitBanner = document.getElementById("limit-banner");
-  if (dataMode === "api" && data?.limited) {
-    limitBanner.style.display = "";
-    limitBanner.innerHTML = `Zobrazeno <strong>${data.count.toLocaleString("cs-CZ")}</strong> nejnovejsich zaznamu`
-      + ` z celkovych <strong>${realTotal.toLocaleString("cs-CZ")}</strong>.`
-      + ` <a href="#" onclick="loadAll(event)">Nacist vse</a> (muze trvat dele)`;
-  } else {
-    limitBanner.style.display = "none";
-  }
-  const label = dataMode === "static" ? "Data z webu" : "Server";
-  document.getElementById("topbar-meta").innerHTML =
-    `${label}: ${t}<br>${allRows.length.toLocaleString("cs-CZ")} z ${realTotal.toLocaleString("cs-CZ")} zaznamu`;
-}
-
-function buildControls(force) {
-  const {date, agency} = specialCols;
-
-  // Nastav výchozí časový rozsah: od 1. 1. 2025 do posledního data v datech
-  if (date) {
-    const dates = allRows.map(r => parseDate(r[date])).filter(Boolean).sort((a,b)=>a-b);
-    if (dates.length) {
-      const last = dates[dates.length-1];
-      const defaultFrom = "2025-01-01";
-      if (force || !document.getElementById("f-date-from").value)
-        document.getElementById("f-date-from").value = defaultFrom;
-      if (force || !document.getElementById("f-date-to").value)
-        document.getElementById("f-date-to").value   = toISO(last);
-    }
-  }
-
-  // Aktualizuj popisky podle detekovaného sloupce agentury
-  if (agency) {
-    const lbl = agency.replace(/_/g," ");
-    document.getElementById("fg-agency-label").textContent  = lbl;
-    document.getElementById("kpi-agency-label").textContent = lbl;
-    if (topGroupBy === "agency") {
-      document.getElementById("chart-group-title").textContent = lbl.charAt(0).toUpperCase()+lbl.slice(1)+" – celkem / vystaveno";
-    }
-  }
-}
-
-// ── Načte možnosti filtrů z celé DB ──────────────────────────────
-
-function populateFilterSelect(id, values) {
-  const sel = document.getElementById(id);
-  if (!sel) return;
-  const cur = sel.value;
-  sel.innerHTML = `<option value="">Vse</option>` +
-    values.map(v => `<option value="${esc(v)}"${v === cur ? " selected" : ""}>${esc(v)}</option>`).join("");
-}
-
-function uniqueColumnValues(colName) {
-  const col = findCol(colName);
-  if (!col) return [];
-  return [...new Set(allRows.map(row => row[col]).filter(v => v != null && String(v).trim() !== "").map(String))]
-    .sort((a, b) => a.localeCompare(b, "cs"));
-}
-
-function loadFilterOptionsFromRows() {
-  populateFilterSelect("f-agency", uniqueColumnValues("agency"));
-  populateFilterSelect("f-dealer", uniqueColumnValues("dealer"));
-  populateFilterSelect("f-country", uniqueColumnValues("agency_country"));
-  populateFilterSelect("f-status", uniqueColumnValues("status"));
-  populateFilterSelect("f-connector", uniqueColumnValues("connector"));
-  populateFilterSelect("f-currency", uniqueColumnValues("currency"));
-}
-
-async function loadFilterOptions() {
-  try {
-    const res  = await fetch(`${API}/api/filter-options`);
-    const data = await res.json();
-    if (!data.ok) {
-      loadFilterOptionsFromRows();
-      return;
-    }
-    populateFilterSelect("f-agency", data.agency || []);
-    populateFilterSelect("f-dealer", data.dealer || []);
-    populateFilterSelect("f-country", data.agency_country || []);
-    populateFilterSelect("f-status", data.status || []);
-    populateFilterSelect("f-connector", data.connector || []);
-    populateFilterSelect("f-currency", data.currency || []);
-  } catch(e) {
-    loadFilterOptionsFromRows();
-  }
-}
-
-function computeKPIs() {
-  if (!_statsLoaded)
-    document.getElementById("kpi-total").textContent = allRows.length.toLocaleString("cs-CZ");
-
-  const {date, agency} = specialCols;
-
-  if (date) {
-    const sorted = allRows
-      .map(r => ({raw: r[date], d: parseDate(r[date])}))
-      .filter(x => x.d)
-      .sort((a,b) => a.d - b.d);
-    if (sorted.length) {
-      const first = sorted[0], last = sorted[sorted.length-1];
-      document.getElementById("kpi-from").textContent = fmtDate(first.raw);
-      document.getElementById("kpi-last").textContent = fmtDate(last.raw);
-      const diff = Math.round((new Date() - last.d) / 86400000);
-      document.getElementById("kpi-last-sub").textContent =
-        diff === 0 ? "dnes" : diff === 1 ? "včera" : `před ${diff} dny`;
-    }
-  }
-
-  if (agency && !_statsLoaded) {
-    const n = new Set(allRows.map(r=>r[agency]).filter(v=>v!=null)).size;
-    document.getElementById("kpi-agencies").textContent = n;
-  }
-}
-
-// ── Chart ────────────────────────────────────────────────────────
-
-function buildChart(rows) {
-  const section = document.getElementById("chart-section");
-  const hasDealer = !!findCol("dealer");
-  const hasCountry = !!findCol("agency_country");
-  if (!specialCols.agency && !hasDealer && !hasCountry) { section.classList.remove("visible"); return; }
-  if (!_statsLoaded) return;
-  document.querySelectorAll("#chart-top-body .bar-row").forEach(row => {
-    const lbl = row.querySelector(".bar-label")?.textContent ?? "";
-    const isActive = topGroupBy === "agency"
-      ? lbl === activeBarAgency
-      : topGroupBy === "dealer"
-        ? lbl === activeBarDealer
-        : lbl === activeBarCountry;
-    row.classList.toggle("active", isActive);
-  });
-}
-
-function toggleChart() {
-  chartCollapsed = !chartCollapsed;
-  const body = document.getElementById("chart-section").querySelector(":scope > :not(.chart-header)");
-  const btn  = document.getElementById("chart-toggle");
-  body.style.display = chartCollapsed ? "none" : "";
-  btn.textContent    = chartCollapsed ? "Zobrazit ▼" : "Skrýt ▲";
-}
-
-function toggleSection(id) {
-  const section = document.getElementById(id + "-section");
-  const btn     = document.getElementById(id + "-toggle");
-  const content = section.querySelector(":scope > :not(.chart-header)");
-  const hidden  = content.style.display === "none";
-  content.style.display = hidden ? "" : "none";
-  btn.textContent       = hidden ? "Skrýt ▲" : "Zobrazit ▼";
-}
-
-// ── Filters ──────────────────────────────────────────────────────
-
-function applyFilters() {
-  const search    = document.getElementById("f-search").value.toLowerCase().trim();
-  const dateFrom  = document.getElementById("f-date-from").value;
-  const dateTo    = document.getElementById("f-date-to").value;
-  const agency    = document.getElementById("f-agency").value;
-  const dealer    = document.getElementById("f-dealer").value;
-  const country   = document.getElementById("f-country").value;
-  const status    = document.getElementById("f-status").value;
-  const connector = document.getElementById("f-connector").value;
-  const currency  = document.getElementById("f-currency").value;
-
-  if (activeBarAgency && agency !== activeBarAgency) activeBarAgency = null;
-  if (activeBarDealer && dealer !== activeBarDealer) activeBarDealer = null;
-  if (activeBarCountry && country !== activeBarCountry) activeBarCountry = null;
-
-  const {date: dc, agency: ac} = specialCols;
-  const dealerCol    = findCol("dealer");
-  const countryCol   = findCol("agency_country");
-  const statusCol    = findCol("status");
-  const connectorCol = findCol("connector");
-  const currencyCol  = findCol("currency");
-
-  filteredRows = allRows.filter(row => {
-    if (search) {
-      if (!Object.values(row).map(v=>String(v??"")).join(" ").toLowerCase().includes(search))
-        return false;
-    }
-    if (dc && (dateFrom || dateTo)) {
-      const d = parseDate(row[dc]);
-      if (d) {
-        if (dateFrom && d < new Date(dateFrom)) return false;
-        if (dateTo   && d > new Date(dateTo+"T23:59:59")) return false;
-      }
-    }
-    if (ac          && agency    && String(row[ac])           !== agency)    return false;
-    if (dealerCol   && dealer    && String(row[dealerCol])    !== dealer)    return false;
-    if (countryCol  && country   && String(row[countryCol])   !== country)   return false;
-    if (statusCol   && status    && String(row[statusCol])    !== status)    return false;
-    if (connectorCol && connector && String(row[connectorCol]) !== connector) return false;
-    if (currencyCol && currency  && String(row[currencyCol])  !== currency)  return false;
-    return true;
-  });
-
-  if (sortState.col !== null) filteredRows = doSort(filteredRows);
-
-  renderTable(filteredRows);
-  applyStats(buildStatsFromRows(filteredRows), { local: true });
-  buildChart(filteredRows);
-
-  const n   = filteredRows.length;
-  const tot = allRows.length;
-  const txt = n < tot
-    ? `Zobrazeno ${n.toLocaleString("cs-CZ")} z ${tot.toLocaleString("cs-CZ")}`
-    : `${tot.toLocaleString("cs-CZ")} záznamů`;
-  document.getElementById("filter-count").textContent = txt;
-  document.getElementById("table-footer").textContent = txt;
-}
-
-function handleSearchInput() {
-  applyFilters();
-  clearTimeout(_searchStatsTimer);
-  _searchStatsTimer = setTimeout(reloadStats, 250);
-}
-
-function clearFilters() {
-  document.getElementById("f-search").value    = "";
-  buildControls(true); // reset datum na 2025-01-01 → poslední datum
-  document.getElementById("f-agency").value    = "";
-  document.getElementById("f-dealer").value    = "";
-  document.getElementById("f-country").value   = "";
-  document.getElementById("f-status").value    = "";
-  document.getElementById("f-connector").value = "";
-  document.getElementById("f-currency").value  = "";
-  activeBarAgency = null;
-  activeBarDealer = null;
-  activeBarCountry = null;
-  document.querySelectorAll(".btn-range").forEach(b => b.classList.remove("active"));
-  document.querySelectorAll(".btn-range").forEach(b => {
-    if (b.textContent.trim() === "3M") b.classList.add("active");
-  });
-  applyFilters();
-  reloadStats();
-}
-
-// Rychlé filtry pohledu
-function setRange(months, btn) {
-  document.querySelectorAll(".btn-range").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
-
-  if (months === 0) {
-    document.getElementById("f-date-from").value = "";
-    document.getElementById("f-date-to").value   = "";
-  } else {
-    const dc = specialCols.date;
-    const datasetDates = dc ? allRows.map(r => parseDate(r[dc])).filter(Boolean).sort((a,b) => a-b) : [];
-    const to = datasetDates.length ? datasetDates[datasetDates.length - 1] : new Date();
-    const from = new Date(to);
-    from.setMonth(from.getMonth() - months);
-    document.getElementById("f-date-from").value = toISO(from);
-    document.getElementById("f-date-to").value   = toISO(to);
-  }
-  applyFilters();
-  reloadStats();
-}
-
-// Načte stats — z API serveru nebo client-side z načtených řádků
-async function reloadStats() {
-  if (dataMode === "api") {
-    try {
-      const params = buildApiFilterParams();
-      const res = await fetchWithTimeout(`${API}/api/stats?${params}`);
-      const data = await res.json();
-      if (data.ok) { applyStats(data); return; }
-    } catch(e) { /* fallback na client-side */ }
-  }
-  applyStats(buildStatsFromRows(filteredRows), { local: true });
-}
-
-function buildApiFilterParams() {
-  const p = new URLSearchParams();
-  const v = id => document.getElementById(id)?.value || "";
-  if (v("f-date-from")) p.set("date_from", v("f-date-from"));
-  if (v("f-date-to"))   p.set("date_to",   v("f-date-to"));
-  if (v("f-agency"))    p.set("agency",     v("f-agency"));
-  if (v("f-dealer"))    p.set("dealer",     v("f-dealer"));
-  if (v("f-country"))   p.set("agency_country", v("f-country"));
-  if (v("f-status"))    p.set("status",     v("f-status"));
-  if (v("f-connector")) p.set("connector",  v("f-connector"));
-  if (v("f-currency"))  p.set("currency",   v("f-currency"));
-  if (v("f-search"))    p.set("search",     v("f-search"));
-  return p.toString();
-}
-
-function buildStatsFromRows(rows) {
-  const items = rows || [];
-  const byLc = (name) => findCol(name);
-  const colDate = byLc("reservation_date") || specialCols.date;
-  const colAgency = byLc("agency") || specialCols.agency;
-  const colDealer = byLc("dealer");
-  const colCountry = byLc("agency_country");
-  const colStatus = byLc("status");
-  const colLastStatus = byLc("last_status");
-  const colCurrency = byLc("currency");
-  const colConnector = byLc("connector");
-  const colType = byLc("type");
-  const colIssuance = byLc("issuance_date");
-  const colPrice = byLc("total_price");
-
-  const toNum = (v) => {
-    if (v === null || v === undefined || v === "") return 0;
-    const n = Number(String(v).replace(",", "."));
-    return Number.isFinite(n) ? n : 0;
-  };
-  const issuedFlag = (row) => {
-    const st = String(colStatus ? (row[colStatus] ?? "") : "").toUpperCase();
-    if (st.includes("ISSUE")) return 1;
-    const iss = colIssuance ? row[colIssuance] : null;
-    return (iss !== null && iss !== undefined && String(iss).trim() !== "" && String(iss) !== "null" && String(iss) !== "None") ? 1 : 0;
-  };
-  const groupCount = (col, limit) => {
-    if (!col) return [];
-    const m = new Map();
-    items.forEach(r => {
-      const label = String(r[col] ?? "(prázdné)");
-      const prev = m.get(label) || { label, cnt: 0, issued: 0 };
-      prev.cnt += 1;
-      prev.issued += issuedFlag(r);
-      m.set(label, prev);
-    });
-    return [...m.values()].sort((a,b) => b.cnt - a.cnt).slice(0, limit || 9999);
-  };
-  const groupAgency = () => {
-    if (!colAgency) return [];
-    const m = new Map();
-    items.forEach(r => {
-      const label = String(r[colAgency] ?? "(prázdné)");
-      const prev = m.get(label) || { label, cnt: 0, issued: 0 };
-      prev.cnt += 1;
-      prev.issued += issuedFlag(r);
-      m.set(label, prev);
-    });
-    return [...m.values()].sort((a,b) => b.cnt - a.cnt).slice(0, 15);
-  };
-  const byCurrency = () => {
-    if (!colCurrency) return [];
-    const m = new Map();
-    items.forEach(r => {
-      const label = String(r[colCurrency] ?? "(prázdné)");
-      const prev = m.get(label) || { label, cnt: 0, issued: 0, revenue: 0 };
-      prev.cnt += 1;
-      prev.issued += issuedFlag(r);
-      prev.revenue += toNum(colPrice ? r[colPrice] : 0);
-      m.set(label, prev);
-    });
-    return [...m.values()].sort((a,b) => b.cnt - a.cnt);
-  };
-  const groupDealer = () => {
-    if (!colDealer) return [];
-    const m = new Map();
-    items.forEach(r => {
-      const label = String(r[colDealer] ?? "(prázdné)");
-      const prev = m.get(label) || { label, cnt: 0, issued: 0 };
-      prev.cnt += 1;
-      prev.issued += issuedFlag(r);
-      m.set(label, prev);
-    });
-    return [...m.values()].sort((a,b) => b.cnt - a.cnt).slice(0, 15);
-  };
-  const monthly = () => {
-    if (!colDate) return [];
-    const m = new Map();
-    items.forEach(r => {
-      const d = parseDate(r[colDate]);
-      if (!d) return;
-      const month = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
-      const prev = m.get(month) || { month, total: 0, issued: 0 };
-      prev.total += 1;
-      prev.issued += issuedFlag(r);
-      m.set(month, prev);
-    });
-    return [...m.values()].sort((a,b) => a.month.localeCompare(b.month));
-  };
-
-  const total = items.length;
-  const issued = items.reduce((s, r) => s + issuedFlag(r), 0);
-  const agencies = colAgency ? new Set(items.map(r => String(r[colAgency] ?? "")).filter(v => v)).size : 0;
-  const countries = colCountry ? new Set(items.map(r => String(r[colCountry] ?? "")).filter(v => v)).size : 0;
-
-  return {
-    totals: { total, issued, agencies, countries },
-    monthly: monthly(),
-    by_status: groupCount(colStatus, 10),
-    by_last_status: groupCount(colLastStatus, 10),
-    by_agency: groupAgency(),
-    by_dealer: groupDealer(),
-    by_country: groupCount(colCountry, 15),
-    by_currency: byCurrency(),
-    by_connector: groupCount(colConnector, 10),
-    by_type: groupCount(colType, 10)
-  };
-}
-
-// ── Sort ─────────────────────────────────────────────────────────
-
-function toggleSort(col) {
-  sortState.dir = sortState.col === col && sortState.dir === "asc" ? "desc" : "asc";
-  sortState.col = col;
-  applyFilters();
-}
-
-function doSort(rows) {
-  const col = sortState.col, dir = sortState.dir === "asc" ? 1 : -1;
-  return [...rows].sort((a,b) => {
-    let va = a[col], vb = b[col];
-    const da = parseDate(va), db = parseDate(vb);
-    if (da && db) return dir * (da - db);
-    const na = parseFloat(va), nb = parseFloat(vb);
-    if (!isNaN(na) && !isNaN(nb)) return dir * (na - nb);
-    va = String(va??"").toLowerCase(); vb = String(vb??"").toLowerCase();
-    return dir * (va < vb ? -1 : va > vb ? 1 : 0);
-  });
-}
-
-// ── Render table ─────────────────────────────────────────────────
-
-function renderTable(rows) {
-  const el = document.getElementById("table-container");
-  if (!rows.length) {
-    el.innerHTML = `<div class="state">
-      <div class="state-icon">🔍</div>
-      <div class="state-title">Žádné záznamy</div>
-      <div class="state-sub">Zkus upravit nebo vymazat filtry.</div>
-    </div>`;
-    return;
-  }
-  const dc = specialCols.date;
-  const heads = allColumns.map(col => {
-    const cls = sortState.col === col ? (sortState.dir==="asc"?"sort-asc":"sort-desc") : "";
-    return `<th class="${cls}" onclick="toggleSort('${esc(col)}')">${esc(col.replace(/_/g," ").toUpperCase())}<i class="sort-icon"></i></th>`;
-  }).join("");
-
-  const visibleRows = rows.slice(0, TABLE_RENDER_LIMIT);
-  const body = visibleRows.map(row => {
-    const cells = allColumns.map(col => {
-      let v = row[col], cls = "";
-      if (col === dc) { v = fmtDate(v); cls = "cell-date"; }
-      else if (v === null || v === undefined || v === "") { v = ""; cls = "cell-empty"; }
-      else if (!isNaN(parseFloat(v)) && isFinite(v)) { v = String(v); cls = "cell-num"; }
-      else v = String(v);
-      return `<td class="${cls}" title="${esc(v)}">${esc(v)}</td>`;
-    }).join("");
-    return `<tr>${cells}</tr>`;
-  }).join("");
-
-  const note = rows.length > TABLE_RENDER_LIMIT
-    ? `<div class="table-limit-note">V tabulce je pro rychlost zobrazeno prvnĂ­ch ${TABLE_RENDER_LIMIT.toLocaleString("cs-CZ")} z ${rows.length.toLocaleString("cs-CZ")} Ĺ™ĂˇdkĹŻ. Grafy a KPI poÄŤĂ­tajĂ­ vĹˇechny vyfiltrovanĂ© zĂˇznamy.</div>`
-    : "";
-  el.innerHTML = `${note}<table><thead><tr>${heads}</tr></thead><tbody>${body}</tbody></table>`;
-}
-
-// ── CSV Export ────────────────────────────────────────────────────
-
-function exportCSV() {
-  if (!filteredRows.length) return;
-  const dc = specialCols.date;
-  const header = allColumns.join(",");
-  const body = filteredRows.map(row =>
-    allColumns.map(col => {
-      let v = row[col];
-      if (col === dc) v = fmtDate(v);
-      v = String(v ?? "").replace(/"/g, '""');
-      return `"${v}"`;
-    }).join(",")
-  ).join("\n");
-
-  const blob = new Blob(["\uFEFF" + header + "\n" + body], { type: "text/csv;charset=utf-8" });
-  const url  = URL.createObjectURL(blob);
-  const a    = Object.assign(document.createElement("a"), {
-    href: url,
-    download: `air-reservations-${new Date().toISOString().slice(0,10)}.csv`
-  });
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-// ── States ────────────────────────────────────────────────────────
-
-function showLoadingState(msg) {
-  document.getElementById("table-container").innerHTML = `
-    <div class="state">
-      <div class="spinner"></div>
-      <div class="state-title">Načítám data…</div>
-      <div class="state-sub" id="loading-sub">${msg || "Stahuji data z webu"}</div>
-    </div>`;
-  document.getElementById("topbar-meta").textContent = "Načítám…";
-}
-
-function setLoadingMsg(msg) {
-  const el = document.getElementById("loading-sub");
-  if (el) el.textContent = msg;
-}
-
-function showErrorState() {
-  document.getElementById("table-container").innerHTML = `
-    <div class="state">
-      <div class="state-icon">!</div>
-      <div class="state-title">Nelze nacist data</div>
-      <div class="state-sub">
-        Webovy datovy soubor se nepodarilo nacist. Zkuste obnovit stranku.
-      </div>
-    </div>`;
-  document.getElementById("topbar-meta").textContent = "Chyba dat";
-}
-
-function showError(msg) {
-  const b = document.getElementById("error-box");
-  b.textContent = `Chyba: ${msg}`;
-  b.classList.add("show");
-}
-
-function hideError() { document.getElementById("error-box").classList.remove("show"); }
-
-function updateServerStatus(online, mode = dataMode) {
-  const dot = document.getElementById("server-dot");
-  const text = document.getElementById("server-status-text");
-  const link = document.getElementById("download-server-link");
-  const panel = document.getElementById("offline-panel");
-
-  if (dot) {
-    dot.classList.toggle("online", online);
-    dot.classList.toggle("offline", !online);
-  }
-  if (text) text.textContent = online
-    ? (mode === "static" ? "Data online" : "Server bezi")
-    : "Data offline";
-  if (link) link.classList.remove("show");
-  if (panel) panel.classList.toggle("show", !online);
-}
-
-function esc(s) {
-  return String(s??"")
-    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
-
-// ── Init ──────────────────────────────────────────────────────────
-
-function loadAll(e) {
-  e.preventDefault();
-  window._loadAll = true;
-  loadData();
-}
-
-document.addEventListener("mousemove", handleChartTooltip);
-document.addEventListener("mouseleave", hideChartTooltip);
-document.addEventListener("scroll", hideChartTooltip, true);
-
-syncChartControls();
-loadData();
+const max = routes[0][1];
+const list = document.getElementById('routeList');
+routes.forEach(([name,count],i) => {
+  const li = document.createElement('li');
+  li.innerHTML = `
+    <span class="route-rank">${i+1}</span>
+    <span class="route-name">${name}</span>
+    <div class="route-bar-bg"><div class="route-bar" style="width:0%" data-w="${(count/max*100).toFixed(0)}%"></div></div>
+    <span class="route-count">${count}</span>`;
+  list.appendChild(li);
+});
+setTimeout(() => {
+  document.querySelectorAll('.route-bar').forEach(b => b.style.width = b.dataset.w);
+}, 200);
 </script>
 </body>
 </html>

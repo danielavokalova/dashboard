@@ -391,6 +391,92 @@
         }
         .page-footer strong { color: var(--white); font-weight: 700; letter-spacing: 0.06em; }
 
+        /* ── REFRESH SECTION EXTRAS ── */
+        .refresh-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+            margin-bottom: 1.2rem;
+        }
+        .refresh-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.6rem;
+        }
+        .refresh-card h4 {
+            color: var(--white);
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .refresh-card h4 .num {
+            background: var(--teal-dim);
+            color: var(--teal);
+            border-radius: 5px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 0.1rem 0.45rem;
+            letter-spacing: 0.05em;
+        }
+        .refresh-card p { font-size: 0.86rem; color: var(--muted); margin-bottom: 0.9rem; }
+        .refresh-card .link-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: var(--teal-dim);
+            border: 1px solid var(--border);
+            color: var(--teal);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.3rem 0.7rem;
+            border-radius: 999px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .chip:hover { background: rgba(0,210,196,0.22); }
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: rgba(34,197,94,0.12);
+            border: 1px solid rgba(34,197,94,0.35);
+            color: #4ade80;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            margin-top: 0.5rem;
+            width: fit-content;
+        }
+        .live-badge::before { content: "●"; font-size: 0.5rem; }
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.6rem;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .stat-card .stat-icon { font-size: 2.2rem; }
+        .stat-card h4 { color: var(--white); font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+        .stat-card p { font-size: 0.86rem; color: var(--muted); }
+        .support-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.6rem 2rem;
+        }
+        .support-card h4 { color: var(--teal); font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .support-card p { font-size: 0.88rem; color: var(--muted); }
+
         @media (max-width: 900px) {
             .hero, section, .qa-section { padding: 3rem 2rem 4rem; }
             .slide-footer { left: 2rem; right: 2rem; }
@@ -398,6 +484,7 @@
             .color-grid { grid-template-columns: 1fr; }
             .two-col { grid-template-columns: 1fr; }
             .agenda-cols { grid-template-columns: 1fr; }
+            .refresh-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -427,6 +514,107 @@
         <strong>CEE TRAVEL SYSTEMS</strong>
     </div>
 </div>
+
+<!-- ── REFRESH: SUPPORTING TEXTS ── -->
+<section>
+    <div class="section-tag">Part 1 — Refresh</div>
+    <h2>SUPPORTING TEXTS</h2>
+    <div class="refresh-grid">
+        <div class="refresh-card">
+            <h4><span class="num">01</span> Management of Attachments</h4>
+            <p>Upload and manage supporting files, imagery, and brand assets directly within GOL IBE. Live show: ES-CO, German language variants.</p>
+            <div class="link-row">
+                <a href="https://www.pantone-colours.com/" target="_blank" rel="noopener" class="chip">Pantone Colours ↗</a>
+                <a href="https://htmlcolorcodes.com/color-picker/" target="_blank" rel="noopener" class="chip">HTML Color Picker ↗</a>
+                <a href="https://www.awwwards.com/" target="_blank" rel="noopener" class="chip">Awwwards ↗</a>
+            </div>
+            <div class="live-badge">LIVE SHOW</div>
+        </div>
+        <div class="refresh-card">
+            <h4><span class="num">02</span> CSS — Airport Code &amp; City Label</h4>
+            <p>Override placeholder text for origin/destination fields using browser DevTools (F12) and AI-generated CSS snippets.</p>
+            <div class="code-block" style="font-size:0.75rem;overflow-x:auto;">#airport-select-to [class*="placeholder"] {
+    font-size: 0 !important;
+}
+#airport-select-to [class*="placeholder"]::after {
+    content: "Arrival destination";
+    font-size: 16px;
+    color: #6c757d;
+    font-family: inherit;
+}</div>
+            <div class="live-badge">LIVE SHOW — F12 + AI</div>
+        </div>
+        <div class="refresh-card">
+            <h4><span class="num">03</span> Footer Management</h4>
+            <p>Customise your booking engine footer — links, legal notices, social icons, and branding. Browse real-world footer inspiration before the live build.</p>
+            <div class="link-row">
+                <a href="https://www.footer.design/" target="_blank" rel="noopener" class="chip">Footer Design Gallery ↗</a>
+            </div>
+            <div class="live-badge">LIVE SHOW</div>
+        </div>
+        <div class="refresh-card">
+            <h4><span class="num">04</span> Travel Terms &amp; Conditions</h4>
+            <p>Set up, update, and display your agency's Terms &amp; Conditions within the booking flow. Ensure clients accept T&amp;Cs before confirming a reservation.</p>
+            <div class="live-badge">LIVE SHOW</div>
+        </div>
+    </div>
+    <div class="page-footer">
+        <span>Supporting Texts — Live Configuration Walkthrough</span>
+        <strong>CEE TRAVEL SYSTEMS</strong>
+    </div>
+</section>
+
+<!-- ── REFRESH: STATISTICS ── -->
+<section>
+    <div class="section-tag">Part 1 — Refresh</div>
+    <h2>STATISTICS</h2>
+    <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div>
+            <h4>Download &amp; Explore Your Booking Data</h4>
+            <p>Export raw reservation data directly from the GOL IBE backoffice. Live show — where to find the export, what columns are available, and how to filter by date range or route.</p>
+            <div class="live-badge" style="margin-top:0.7rem;">LIVE SHOW — DOWNLOAD WALKTHROUGH</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">✦</div>
+        <div>
+            <h4>Example: Interactive Data Dashboard</h4>
+            <p>Turn raw CSV exports into a clean, visual reporting dashboard. See a working example built on real air reservation data:</p>
+            <a href="https://danielavokalova.github.io/dashboard/air-reservations.html" target="_blank" rel="noopener" class="btn-teal" style="margin-top:0.9rem;max-width:320px;display:inline-block;text-align:center;">VIEW LIVE DASHBOARD ↗</a>
+        </div>
+    </div>
+    <div class="page-footer">
+        <span>Statistics &amp; Data Export Overview</span>
+        <strong>CEE TRAVEL SYSTEMS</strong>
+    </div>
+</section>
+
+<!-- ── REFRESH: SUPPORT ── -->
+<section>
+    <div class="section-tag">Part 1 — Refresh</div>
+    <h2>SUPPORT</h2>
+    <div class="support-card" style="max-width:700px;margin-bottom:1.2rem;">
+        <h4>We've got you covered.</h4>
+        <p>Our support team and knowledge base are available whenever you need help — whether it's a quick configuration question or a deeper technical issue. All resources are in one place and always up to date.</p>
+    </div>
+    <div class="refresh-grid" style="max-width:700px;">
+        <div class="refresh-card">
+            <h4>📖 Knowledge Base</h4>
+            <p>Step-by-step guides, configuration walkthroughs, and release notes.</p>
+            <a href="https://cee-systems.gitbook.io/enhelp-golibe" target="_blank" rel="noopener" class="chip" style="margin-top:0.4rem;">GOL IBE GitBook ↗</a>
+        </div>
+        <div class="refresh-card">
+            <h4>✉ Direct Contact</h4>
+            <p>Reach Daniela directly for account-specific questions and escalations.</p>
+            <a href="mailto:daniela.vokalova@travelportgds.cz" class="chip" style="margin-top:0.4rem;">daniela.vokalova@travelportgds.cz ↗</a>
+        </div>
+    </div>
+    <div class="page-footer">
+        <span>Support Resources &amp; Direct Contact</span>
+        <strong>CEE TRAVEL SYSTEMS</strong>
+    </div>
+</section>
 
 <!-- ── SLIDE 2: PRODUCTION PORTALS ── -->
 <section>

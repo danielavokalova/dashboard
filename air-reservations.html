@@ -5,28 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Air Reservations Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
   :root {
-    --bg: #0d1117;
-    --surface: #161b22;
-    --surface2: #21262d;
-    --border: rgba(255,255,255,0.08);
-    --text: #e6edf3;
-    --muted: #8b949e;
-    --teal: #00d4b4;
-    --teal-dim: rgba(0,212,180,0.12);
-    --rose: #ff6b8a;
-    --rose-dim: rgba(255,107,138,0.12);
-    --amber: #ffa94d;
-    --amber-dim: rgba(255,169,77,0.12);
-    --blue: #60a5fa;
-    --blue-dim: rgba(96,165,250,0.12);
-    --purple: #a78bfa;
-    --purple-dim: rgba(167,139,250,0.12);
-    --green: #4ade80;
-    --green-dim: rgba(74,222,128,0.12);
+    --bg:       #f5f0e8;
+    --bg2:      #ede8df;
+    --surface:  #faf7f2;
+    --surface2: #f0ebe0;
+    --border:   rgba(160,140,110,0.18);
+    --shadow:   rgba(120,100,70,0.12);
+    --text:     #2c2416;
+    --muted:    #8a7a62;
+    --teal:     #2a8c7a;
+    --teal-dim: rgba(42,140,122,0.1);
+    --rose:     #b84c5a;
+    --rose-dim: rgba(184,76,90,0.1);
+    --amber:    #c07a20;
+    --amber-dim:rgba(192,122,32,0.1);
+    --blue:     #3a6fa8;
+    --blue-dim: rgba(58,111,168,0.1);
+    --purple:   #6d52a8;
+    --purple-dim:rgba(109,82,168,0.1);
+    --green:    #3a8a50;
+    --green-dim:rgba(58,138,80,0.1);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,185 +42,168 @@
     font-size: 14px;
   }
 
+  /* subtle linen texture overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: -1;
+    background-image:
+      radial-gradient(ellipse 70% 50% at 15% 10%, rgba(42,140,122,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 50% at 85% 85%, rgba(58,111,168,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
   /* ── Header ── */
   .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 26px;
+    box-shadow: 0 2px 16px var(--shadow);
   }
 
   .header-left { display: flex; align-items: center; gap: 14px; }
 
   .header-icon {
-    width: 46px; height: 46px;
+    width: 48px; height: 48px;
     background: linear-gradient(135deg, var(--teal), var(--blue));
-    border-radius: 12px;
+    border-radius: 13px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.4rem;
-    box-shadow: 0 0 20px rgba(0,212,180,0.35);
+    font-size: 1.5rem;
+    box-shadow: 0 4px 14px rgba(42,140,122,0.3);
   }
 
-  .header h1 { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; }
-  .header p  { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+  .header h1 {
+    font-size: 1.4rem; font-weight: 800;
+    letter-spacing: -0.02em; color: var(--text);
+  }
+  .header p { font-size: 0.8rem; color: var(--muted); margin-top: 3px; }
 
   .badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(255,107,138,0.15);
-    border: 1px solid rgba(255,107,138,0.3);
+    display: inline-flex; align-items: center; gap: 7px;
+    background: rgba(184,76,90,0.1);
+    border: 1px solid rgba(184,76,90,0.25);
     color: var(--rose);
     border-radius: 999px;
-    padding: 5px 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
+    padding: 6px 14px;
+    font-size: 0.73rem; font-weight: 600;
   }
 
   .badge::before {
-    content: '';
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--rose);
+    content: ''; width: 6px; height: 6px;
+    border-radius: 50%; background: var(--rose);
     animation: pulse 2s infinite;
   }
 
-  @keyframes pulse {
-    0%,100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
   /* ── KPI grid ── */
   .kpi-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
+    gap: 14px;
+    margin-bottom: 20px;
   }
 
-  @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(3,1fr); } }
-  @media (max-width: 650px)  { .kpi-grid { grid-template-columns: repeat(2,1fr); } }
+  @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:650px) {.kpi-grid{grid-template-columns:repeat(2,1fr)}}
 
   .kpi-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 18px 20px;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
+    padding: 18px 18px 16px;
+    position: relative; overflow: hidden;
+    box-shadow: 0 2px 10px var(--shadow);
+    transition: transform .2s, box-shadow .2s;
   }
-
-  .kpi-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-  }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px var(--shadow); }
 
   .kpi-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    border-radius: 14px 14px 0 0;
   }
-
-  .kpi-card.teal::before   { background: linear-gradient(90deg, var(--teal), transparent); }
-  .kpi-card.rose::before   { background: linear-gradient(90deg, var(--rose), transparent); }
-  .kpi-card.amber::before  { background: linear-gradient(90deg, var(--amber), transparent); }
-  .kpi-card.blue::before   { background: linear-gradient(90deg, var(--blue), transparent); }
-  .kpi-card.purple::before { background: linear-gradient(90deg, var(--purple), transparent); }
-  .kpi-card.green::before  { background: linear-gradient(90deg, var(--green), transparent); }
+  .kpi-card.teal::before   { background: var(--teal); }
+  .kpi-card.rose::before   { background: var(--rose); }
+  .kpi-card.amber::before  { background: var(--amber); }
+  .kpi-card.blue::before   { background: var(--blue); }
+  .kpi-card.purple::before { background: var(--purple); }
+  .kpi-card.green::before  { background: var(--green); }
 
   .kpi-icon {
-    width: 32px; height: 32px;
-    border-radius: 8px;
+    width: 34px; height: 34px; border-radius: 9px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 1rem;
-    margin-bottom: 12px;
+    font-size: 1.1rem; margin-bottom: 12px;
   }
-
-  .kpi-card.teal   .kpi-icon { background: var(--teal-dim); }
-  .kpi-card.rose   .kpi-icon { background: var(--rose-dim); }
-  .kpi-card.amber  .kpi-icon { background: var(--amber-dim); }
-  .kpi-card.blue   .kpi-icon { background: var(--blue-dim); }
-  .kpi-card.purple .kpi-icon { background: var(--purple-dim); }
-  .kpi-card.green  .kpi-icon { background: var(--green-dim); }
+  .teal   .kpi-icon { background: var(--teal-dim); }
+  .rose   .kpi-icon { background: var(--rose-dim); }
+  .amber  .kpi-icon { background: var(--amber-dim); }
+  .blue   .kpi-icon { background: var(--blue-dim); }
+  .purple .kpi-icon { background: var(--purple-dim); }
+  .green  .kpi-icon { background: var(--green-dim); }
 
   .kpi-value {
-    font-size: 1.75rem;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1;
+    font-size: 1.7rem; font-weight: 800;
+    letter-spacing: -0.03em; line-height: 1;
   }
-
-  .kpi-card.teal   .kpi-value { color: var(--teal); }
-  .kpi-card.rose   .kpi-value { color: var(--rose); }
-  .kpi-card.amber  .kpi-value { color: var(--amber); }
-  .kpi-card.blue   .kpi-value { color: var(--blue); }
-  .kpi-card.purple .kpi-value { color: var(--purple); }
-  .kpi-card.green  .kpi-value { color: var(--green); }
+  .teal   .kpi-value { color: var(--teal); }
+  .rose   .kpi-value { color: var(--rose); }
+  .amber  .kpi-value { color: var(--amber); }
+  .blue   .kpi-value { color: var(--blue); }
+  .purple .kpi-value { color: var(--purple); }
+  .green  .kpi-value { color: var(--green); }
 
   .kpi-label {
-    font-size: 0.72rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    margin-top: 5px;
-    font-weight: 500;
+    font-size: 0.7rem; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.07em;
+    margin-top: 5px; font-weight: 500;
   }
 
-  /* ── Chart layout ── */
-  .chart-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 16px;
-    margin-bottom: 16px;
-  }
-
-  .chart-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
-  }
-
-  @media (max-width: 900px) {
-    .chart-grid { grid-template-columns: 1fr; }
-    .chart-row  { grid-template-columns: 1fr; }
-  }
-
-  /* ── Card ── */
+  /* ── Cards ── */
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 14px;
     padding: 20px 22px;
-  }
-
-  .card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 18px;
+    box-shadow: 0 2px 10px var(--shadow);
   }
 
   .card-title {
-    font-size: 0.82rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: var(--muted);
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); margin-bottom: 16px;
+  }
+
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 14px; margin-bottom: 14px;
+  }
+
+  .chart-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+  }
+
+  @media(max-width:900px){
+    .chart-grid,.chart-row{grid-template-columns:1fr}
   }
 
   .chart-wrap { position: relative; height: 220px; }
-  .chart-wrap.sm { height: 180px; }
+  .chart-wrap.sm { height: 185px; }
 
   /* ── Route list ── */
-  .route-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+  .route-list { list-style: none; display: flex; flex-direction: column; gap: 11px; }
 
-  .route-list li {
-    display: flex; align-items: center; gap: 10px;
-  }
+  .route-list li { display: flex; align-items: center; gap: 10px; }
 
   .route-rank {
-    width: 20px; height: 20px;
-    border-radius: 6px;
+    width: 20px; height: 20px; border-radius: 6px;
     background: var(--surface2);
     display: flex; align-items: center; justify-content: center;
     font-size: 0.65rem; font-weight: 700; color: var(--muted);
@@ -226,14 +211,13 @@
   }
 
   .route-name {
-    font-size: 0.85rem; font-weight: 600; color: var(--text);
-    min-width: 100px;
+    font-size: 0.85rem; font-weight: 600;
+    color: var(--text); min-width: 100px;
   }
 
   .route-bar-bg {
-    flex: 1; height: 6px;
-    background: var(--surface2);
-    border-radius: 99px; overflow: hidden;
+    flex: 1; height: 7px;
+    background: var(--surface2); border-radius: 99px; overflow: hidden;
   }
 
   .route-bar {
@@ -248,28 +232,9 @@
     color: var(--teal); min-width: 18px; text-align: right;
   }
 
-  /* ── Divider ── */
-  .divider {
-    height: 1px; background: var(--border); margin: 4px 0;
-  }
-
-  /* ── Footer ── */
   footer {
-    margin-top: 24px;
-    text-align: center;
-    font-size: 0.72rem;
-    color: var(--muted);
-    opacity: 0.6;
-  }
-
-  /* ── Glow grid bg ── */
-  body::before {
-    content: '';
-    position: fixed; inset: 0; z-index: -1;
-    background:
-      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(0,212,180,0.07) 0%, transparent 70%),
-      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(96,165,250,0.07) 0%, transparent 70%);
-    pointer-events: none;
+    margin-top: 22px; text-align: center;
+    font-size: 0.72rem; color: var(--muted); opacity: 0.7;
   }
 </style>
 </head>
@@ -321,28 +286,22 @@
   </div>
 </div>
 
-<!-- Row 1: volume line + donut -->
-<div class="chart-grid" style="margin-bottom:16px">
+<!-- Row 1: volume + donut -->
+<div class="chart-grid">
   <div class="card">
-    <div class="card-header">
-      <span class="card-title">Monthly Booking Volume</span>
-    </div>
+    <div class="card-title">Monthly Booking Volume</div>
     <div class="chart-wrap"><canvas id="cVolume"></canvas></div>
   </div>
   <div class="card">
-    <div class="card-header">
-      <span class="card-title">Trip Type</span>
-    </div>
+    <div class="card-title">Trip Type</div>
     <div class="chart-wrap"><canvas id="cTripType"></canvas></div>
   </div>
 </div>
 
-<!-- Row 2: avg price line (full width) -->
-<div style="margin-bottom:16px">
+<!-- Row 2: avg price -->
+<div style="margin-bottom:14px">
   <div class="card">
-    <div class="card-header">
-      <span class="card-title">Average Ticket Price per Month (CZK)</span>
-    </div>
+    <div class="card-title">Average Ticket Price per Month (CZK)</div>
     <div class="chart-wrap"><canvas id="cAvgPrice"></canvas></div>
   </div>
 </div>
@@ -350,23 +309,15 @@
 <!-- Row 3: destinations + price dist + routes -->
 <div class="chart-row">
   <div class="card">
-    <div class="card-header">
-      <span class="card-title">Top Destinations</span>
-    </div>
+    <div class="card-title">Top Destination Countries</div>
     <div class="chart-wrap sm"><canvas id="cDest"></canvas></div>
   </div>
-
   <div class="card">
-    <div class="card-header">
-      <span class="card-title">Price Distribution (CZK)</span>
-    </div>
+    <div class="card-title">Price Distribution (CZK)</div>
     <div class="chart-wrap sm"><canvas id="cPriceDist"></canvas></div>
   </div>
-
   <div class="card">
-    <div class="card-header">
-      <span class="card-title">Top Routes</span>
-    </div>
+    <div class="card-title">Top Routes</div>
     <ul class="route-list" id="routeList"></ul>
   </div>
 </div>
@@ -374,12 +325,12 @@
 <footer>Generated from airreservations.xlsx &nbsp;·&nbsp; Dashboard</footer>
 
 <script>
-// ── Animated counters ──
+// Animated counters
 document.querySelectorAll('[data-target]').forEach(el => {
   const target = +el.dataset.target;
   const suffix = el.dataset.suffix || '';
   const fmt = el.dataset.format;
-  const dur = 1200;
+  const dur = 1300;
   const start = performance.now();
   function tick(now) {
     const p = Math.min((now - start) / dur, 1);
@@ -391,14 +342,13 @@ document.querySelectorAll('[data-target]').forEach(el => {
   requestAnimationFrame(tick);
 });
 
-// ── Chart defaults ──
 Chart.defaults.font = { family: "'Inter', system-ui, sans-serif", size: 11 };
-Chart.defaults.color = '#8b949e';
+Chart.defaults.color = '#8a7a62';
 
-const GRID = 'rgba(255,255,255,0.05)';
+const GRID = 'rgba(160,140,110,0.12)';
 const MONTHS = ["Jan 25","Feb 25","Mar 25","Apr 25","May 25","Jun 25","Jul 25","Aug 25","Sep 25","Oct 25","Nov 25","Dec 25","Jan 26","Feb 26","Mar 26","Apr 26","May 26"];
 
-// Monthly volume
+// Volume bars
 new Chart(document.getElementById('cVolume'), {
   type: 'bar',
   data: {
@@ -406,24 +356,20 @@ new Chart(document.getElementById('cVolume'), {
     datasets: [{
       data: [9,8,19,5,12,8,6,7,7,1,3,2,1,14,2,8,6],
       backgroundColor: (ctx) => {
-        const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 220);
-        g.addColorStop(0, 'rgba(0,212,180,0.85)');
-        g.addColorStop(1, 'rgba(0,212,180,0.1)');
+        const g = ctx.chart.ctx.createLinearGradient(0,0,0,220);
+        g.addColorStop(0,'rgba(42,140,122,0.85)');
+        g.addColorStop(1,'rgba(42,140,122,0.15)');
         return g;
       },
-      borderRadius: 6,
-      borderSkipped: false,
+      borderRadius: 6, borderSkipped: false
     }]
   },
   options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false }, tooltip: { callbacks: {
-      title: (items) => items[0].label,
-      label: (item) => ` ${item.raw} bookings`
-    }}},
-    scales: {
-      x: { grid: { display: false }, border: { display: false } },
-      y: { grid: { color: GRID }, border: { display: false }, ticks: { stepSize: 5 } }
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false} },
+    scales:{
+      x:{grid:{display:false}, border:{display:false}},
+      y:{grid:{color:GRID}, border:{display:false}, ticks:{stepSize:5}}
     }
   }
 });
@@ -432,80 +378,74 @@ new Chart(document.getElementById('cVolume'), {
 new Chart(document.getElementById('cTripType'), {
   type: 'doughnut',
   data: {
-    labels: ['Return', 'One-way'],
+    labels: ['Return','One-way'],
     datasets: [{
-      data: [60, 58],
-      backgroundColor: ['#00d4b4','#ff6b8a'],
-      borderWidth: 0,
+      data: [60,58],
+      backgroundColor: ['#2a8c7a','#b84c5a'],
+      borderWidth: 3, borderColor: '#faf7f2',
       hoverOffset: 6
     }]
   },
   options: {
-    responsive: true, maintainAspectRatio: false,
-    cutout: '68%',
-    plugins: {
-      legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, pointStyleWidth: 10 } },
-      tooltip: { callbacks: { label: (i) => ` ${i.label}: ${i.raw} (${Math.round(i.raw/118*100)}%)` }}
+    responsive:true, maintainAspectRatio:false, cutout:'65%',
+    plugins:{
+      legend:{ position:'bottom', labels:{ padding:16, usePointStyle:true, pointStyleWidth:10 } },
+      tooltip:{ callbacks:{ label:(i) => ` ${i.label}: ${i.raw} (${Math.round(i.raw/118*100)}%)` }}
     }
   }
 });
 
-// Avg price area line
+// Avg price line
 new Chart(document.getElementById('cAvgPrice'), {
   type: 'line',
   data: {
     labels: MONTHS,
     datasets: [{
       data: [4061,16309,27556,3910,21662,5352,8090,3494,12976,3140,12418,15360,7144,5977,8387,4908,4427],
-      borderColor: '#ff6b8a',
+      borderColor: '#b84c5a',
       backgroundColor: (ctx) => {
-        const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 220);
-        g.addColorStop(0, 'rgba(255,107,138,0.25)');
-        g.addColorStop(1, 'rgba(255,107,138,0.0)');
+        const g = ctx.chart.ctx.createLinearGradient(0,0,0,220);
+        g.addColorStop(0,'rgba(184,76,90,0.18)');
+        g.addColorStop(1,'rgba(184,76,90,0.0)');
         return g;
       },
-      borderWidth: 2.5,
-      pointRadius: 4,
-      pointBackgroundColor: '#ff6b8a',
-      pointBorderColor: '#0d1117',
-      pointBorderWidth: 2,
-      fill: true,
-      tension: 0.4
+      borderWidth: 2.5, pointRadius: 4,
+      pointBackgroundColor: '#b84c5a',
+      pointBorderColor: '#faf7f2', pointBorderWidth: 2,
+      fill: true, tension: 0.4
     }]
   },
   options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false }, tooltip: { callbacks: {
-      label: (i) => ` ${i.raw.toLocaleString('cs-CZ')} CZK`
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false}, tooltip:{ callbacks:{
+      label:(i) => ` ${i.raw.toLocaleString('cs-CZ')} CZK`
     }}},
-    scales: {
-      x: { grid: { display: false }, border: { display: false } },
-      y: { grid: { color: GRID }, border: { display: false }, ticks: {
-        callback: v => v >= 1000 ? (v/1000).toFixed(0) + 'K' : v
+    scales:{
+      x:{grid:{display:false}, border:{display:false}},
+      y:{grid:{color:GRID}, border:{display:false}, ticks:{
+        callback: v => v>=1000 ? (v/1000).toFixed(0)+'K' : v
       }}
     }
   }
 });
 
-// Top destinations
+// Destinations
 new Chart(document.getElementById('cDest'), {
   type: 'bar',
   data: {
     labels: ['Spain','Germany','UK','Indonesia','France','Japan','Singapore','Poland'],
     datasets: [{
       data: [12,9,8,6,6,5,5,4],
-      backgroundColor: ['#00d4b4','#60a5fa','#a78bfa','#ff6b8a','#ffa94d','#4ade80','#00d4b4','#60a5fa'],
-      borderRadius: 5,
-      borderSkipped: false
+      backgroundColor: ['#2a8c7a','#3a6fa8','#6d52a8','#b84c5a','#c07a20','#3a8a50','#2a8c7a','#3a6fa8'],
+      borderRadius: 5, borderSkipped: false
     }]
   },
   options: {
-    responsive: true, maintainAspectRatio: false,
-    indexAxis: 'y',
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { color: GRID }, border: { display: false }, ticks: { stepSize: 2 } },
-      y: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 } } }
+    responsive:true, maintainAspectRatio:false, indexAxis:'y',
+    plugins:{ legend:{display:false} },
+    scales:{
+      x:{grid:{color:GRID}, border:{display:false}, ticks:{stepSize:2}},
+      y:{grid:{display:false}, border:{display:false}}
     }
   }
 });
@@ -514,39 +454,36 @@ new Chart(document.getElementById('cDest'), {
 new Chart(document.getElementById('cPriceDist'), {
   type: 'bar',
   data: {
-    labels: ['< 3K', '3–6K', '6–12K', '12–25K', '> 25K'],
+    labels: ['< 3K','3–6K','6–12K','12–25K','> 25K'],
     datasets: [{
       data: [25,34,27,17,15],
       backgroundColor: (ctx) => {
-        const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 180);
-        g.addColorStop(0, '#a78bfa');
-        g.addColorStop(1, 'rgba(167,139,250,0.3)');
+        const g = ctx.chart.ctx.createLinearGradient(0,0,0,180);
+        g.addColorStop(0,'rgba(109,82,168,0.9)');
+        g.addColorStop(1,'rgba(109,82,168,0.2)');
         return g;
       },
-      borderRadius: 6,
-      borderSkipped: false
+      borderRadius: 6, borderSkipped: false
     }]
   },
   options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false }, tooltip: { callbacks: {
-      label: (i) => ` ${i.raw} bookings`
-    }}},
-    scales: {
-      x: { grid: { display: false }, border: { display: false } },
-      y: { grid: { color: GRID }, border: { display: false } }
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false} },
+    scales:{
+      x:{grid:{display:false}, border:{display:false}},
+      y:{grid:{color:GRID}, border:{display:false}}
     }
   }
 });
 
-// Top routes list
+// Routes
 const routes = [
-  ['PRG → FRA', 7],['PRG → LON', 6],['PRG → PAR', 6],
-  ['PRG → MAD', 5],['BUD → MEL', 4],['PRG → AMS', 3]
+  ['PRG → FRA',7],['PRG → LON',6],['PRG → PAR',6],
+  ['PRG → MAD',5],['BUD → MEL',4],['PRG → AMS',3]
 ];
 const max = routes[0][1];
 const list = document.getElementById('routeList');
-routes.forEach(([name, count], i) => {
+routes.forEach(([name,count],i) => {
   const li = document.createElement('li');
   li.innerHTML = `
     <span class="route-rank">${i+1}</span>
@@ -555,7 +492,6 @@ routes.forEach(([name, count], i) => {
     <span class="route-count">${count}</span>`;
   list.appendChild(li);
 });
-// animate bars after paint
 setTimeout(() => {
   document.querySelectorAll('.route-bar').forEach(b => b.style.width = b.dataset.w);
 }, 200);

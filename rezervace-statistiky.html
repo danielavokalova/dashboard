@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rezervace · Statistiky</title>
+  <title>Air Reservations · Statistics</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -474,11 +474,11 @@
   <!-- HEADER -->
   <div class="header">
     <div class="header-left">
-      <h1>Rezervace <span>&amp;</span> Statistiky</h1>
+      <h1>Air Reservations <span>&amp;</span> Statistics</h1>
       <div class="header-meta">
         <span class="meta-pill">
           <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm0 14A6 6 0 118 2a6 6 0 010 12z"/><path d="M8 4a.75.75 0 01.75.75v3.5l2 1.15a.75.75 0 11-.75 1.3l-2.25-1.3A.75.75 0 017.25 8.75v-4A.75.75 0 018 4z"/></svg>
-          Leden 2025 – Květen 2026
+          January 2025 – May 2026
         </span>
         <span class="meta-pill">
           <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 3a1 1 0 011-1h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3zm1 0v10h10V3H3z"/></svg>
@@ -490,66 +490,66 @@
     <div class="header-right">
       <div class="demo-badge">
         <div class="demo-dot"></div>
-        Demo data
+        Demo Data
       </div>
     </div>
   </div>
 
   <!-- KPI CARDS -->
-  <div class="section-label">Klíčové ukazatele</div>
+  <div class="section-label">Key Metrics</div>
   <div class="kpi-grid">
     <div class="kpi-card accent-teal">
       <div class="kpi-icon">✈️</div>
-      <div class="kpi-label">Rezervace</div>
+      <div class="kpi-label">Reservations</div>
       <div class="kpi-value" data-counter="118" data-suffix="">0</div>
-      <div class="kpi-badge badge-canceled">Vše STORNO</div>
+      <div class="kpi-badge badge-canceled">All Canceled</div>
     </div>
     <div class="kpi-card accent-blue">
       <div class="kpi-icon">👤</div>
-      <div class="kpi-label">Cestující</div>
+      <div class="kpi-label">Travelers</div>
       <div class="kpi-value" data-counter="157" data-suffix="">0</div>
-      <div class="kpi-sub">z toho 18 kojenci</div>
+      <div class="kpi-sub">incl. 18 infants</div>
     </div>
     <div class="kpi-card accent-amber">
       <div class="kpi-icon">💰</div>
-      <div class="kpi-label">Celkové tržby</div>
+      <div class="kpi-label">Total Revenue</div>
       <div class="kpi-value" data-counter="1421263" data-suffix=" CZK" data-format="currency">0</div>
     </div>
     <div class="kpi-card accent-rose">
       <div class="kpi-icon">🎫</div>
-      <div class="kpi-label">Prům. cena lístku</div>
+      <div class="kpi-label">Avg Ticket Price</div>
       <div class="kpi-value" data-counter="12044" data-suffix=" CZK" data-format="currency">0</div>
     </div>
     <div class="kpi-card accent-purple">
       <div class="kpi-icon">🛡️</div>
-      <div class="kpi-label">Připoj. pojištění</div>
+      <div class="kpi-label">Insurance Attach</div>
       <div class="kpi-value" data-counter="27" data-suffix="%">0</div>
       <div class="kpi-sub">UNIQA</div>
     </div>
     <div class="kpi-card accent-indigo">
       <div class="kpi-icon">🔌</div>
-      <div class="kpi-label">Konektor</div>
+      <div class="kpi-label">Connector</div>
       <div class="kpi-value">GALILEO</div>
       <div class="kpi-sub">UAPI 109 · Standard 9</div>
     </div>
     <div class="kpi-card accent-green">
       <div class="kpi-icon">💺</div>
-      <div class="kpi-label">Třída</div>
+      <div class="kpi-label">Cabin Class</div>
       <div class="kpi-value">Eko / Biz</div>
       <div class="kpi-sub">117 Economy · 1 Business</div>
     </div>
   </div>
 
   <!-- CHARTS -->
-  <div class="section-label" style="margin-top:24px;">Analýza rezervací</div>
+  <div class="section-label" style="margin-top:24px;">Booking Analysis</div>
   <div class="charts-grid">
 
     <!-- 1. Monthly booking volume - full width bar -->
     <div class="chart-card full-width">
       <div class="chart-header">
         <div>
-          <div class="chart-title">Měsíční počet rezervací</div>
-          <div class="chart-subtitle">Leden 2025 – Květen 2026</div>
+          <div class="chart-title">Monthly Booking Volume</div>
+          <div class="chart-subtitle">January 2025 – May 2026</div>
         </div>
         <div class="chart-tag">📊 Bar chart</div>
       </div>
@@ -560,8 +560,8 @@
     <div class="chart-card full-width">
       <div class="chart-header">
         <div>
-          <div class="chart-title">Průměrná cena lístku (CZK)</div>
-          <div class="chart-subtitle">Měsíční vývoj průměrné ceny</div>
+          <div class="chart-title">Average Ticket Price (CZK)</div>
+          <div class="chart-subtitle">Monthly price trend</div>
         </div>
         <div class="chart-tag">📈 Area chart</div>
       </div>
@@ -572,8 +572,8 @@
     <div class="chart-card col-1">
       <div class="chart-header">
         <div>
-          <div class="chart-title">Typ výletu</div>
-          <div class="chart-subtitle">Zpáteční vs. jednosměrný</div>
+          <div class="chart-title">Trip Type</div>
+          <div class="chart-subtitle">Return vs. one-way</div>
         </div>
         <div class="chart-tag">🍩 Donut</div>
       </div>
@@ -584,8 +584,8 @@
     <div class="chart-card col-1">
       <div class="chart-header">
         <div>
-          <div class="chart-title">Top destinace</div>
-          <div class="chart-subtitle">Počet rezervací dle cílové země</div>
+          <div class="chart-title">Top Destinations</div>
+          <div class="chart-subtitle">Bookings by destination country</div>
         </div>
         <div class="chart-tag">📊 H-Bar</div>
       </div>
@@ -596,8 +596,8 @@
     <div class="chart-card col-1">
       <div class="chart-header">
         <div>
-          <div class="chart-title">Cenová distribuce</div>
-          <div class="chart-subtitle">Počet lístků v cenovém pásmu</div>
+          <div class="chart-title">Price Distribution</div>
+          <div class="chart-subtitle">Tickets per price band</div>
         </div>
         <div class="chart-tag">📊 Bar chart</div>
       </div>
@@ -608,10 +608,10 @@
     <div class="chart-card col-1">
       <div class="chart-header">
         <div>
-          <div class="chart-title">Nejoblíbenější trasy</div>
-          <div class="chart-subtitle">Top 6 tras dle počtu rezervací</div>
+          <div class="chart-title">Top Routes</div>
+          <div class="chart-subtitle">Top 6 routes by booking count</div>
         </div>
-        <div class="chart-tag">📋 Žebříček</div>
+        <div class="chart-tag">📋 Ranking</div>
       </div>
       <div class="routes-list" id="routes-list"></div>
     </div>
@@ -620,17 +620,17 @@
     <div class="chart-card full-width">
       <div class="chart-header">
         <div>
-          <div class="chart-title">Konektor &amp; Třída kabiny</div>
-          <div class="chart-subtitle">Rozložení dle systému a třídy letu</div>
+          <div class="chart-title">Connector &amp; Cabin Class</div>
+          <div class="chart-subtitle">Distribution by system and cabin class</div>
         </div>
       </div>
       <div class="donut-row">
         <div>
-          <div style="font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:12px;text-align:center;">Konektor</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:12px;text-align:center;">Connector</div>
           <canvas id="chart-connector" height="200"></canvas>
         </div>
         <div>
-          <div style="font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:12px;text-align:center;">Třída kabiny</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:12px;text-align:center;">Cabin Class</div>
           <canvas id="chart-cabin" height="200"></canvas>
         </div>
       </div>
@@ -640,13 +640,13 @@
 
   <!-- FOOTER -->
   <footer>
-    <span>Vygenerováno z airreservations_1.xlsx</span>
+    <span>Generated from airreservations_1.xlsx</span>
     <span class="footer-dot"></span>
     <span>Dashboard</span>
     <span class="footer-dot"></span>
     <span>Demo Agentura · CZK</span>
     <span class="footer-dot"></span>
-    <span>118 rezervací · Vše STORNO</span>
+    <span>118 reservations · All Canceled</span>
   </footer>
 
 </div>
@@ -654,17 +654,17 @@
 <script>
 // ─── DATA ──────────────────────────────────────────────────────────────────
 const monthlyLabels = [
-  'Led 25','Úno 25','Bře 25','Dub 25','Kvě 25','Čvn 25',
-  'Čvc 25','Srp 25','Zář 25','Říj 25','Lis 25','Pro 25',
-  'Led 26','Úno 26','Bře 26','Dub 26','Kvě 26'
+  'Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25',
+  'Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25',
+  'Jan 26','Feb 26','Mar 26','Apr 26','May 26'
 ];
 const monthlyVolume = [9,8,19,5,12,8,6,7,7,1,3,2,1,14,2,8,6];
 const avgPriceData  = [4061,16309,27556,3910,21662,5352,8090,3494,12976,3140,12418,15360,7144,5977,8387,4908,4427];
 
-const destLabels = ['Španělsko','Německo','Velká Brit.','Indonésie','Francie','Japonsko','Singapur','Polsko'];
+const destLabels = ['Spain','Germany','UK','Indonesia','France','Japan','Singapore','Poland'];
 const destData   = [12,9,8,6,6,5,5,4];
 
-const priceBands  = ['< 3 000','3–6 000','6–12 000','12–25 000','> 25 000'];
+const priceBands  = ['< 3K','3–6K','6–12K','12–25K','> 25K'];
 const priceCounts = [25,34,27,17,15];
 
 const routeLabels = ['PRG→FRA','PRG→LON','PRG→PAR','PRG→MAD','BUD→MEL','PRG→AMS'];
@@ -1093,7 +1093,7 @@ function drawAllCharts() {
   drawBarChart('chart-monthly-volume', monthlyLabels, monthlyVolume, TEAL);
   drawLineChart('chart-avg-price', monthlyLabels, avgPriceData, BLUE);
   drawDonutChart('chart-trip-type',
-    ['Zpáteční', 'Jednosměrný'],
+    ['Return', 'One-way'],
     [60, 58],
     [TEAL, AMBER]
   );

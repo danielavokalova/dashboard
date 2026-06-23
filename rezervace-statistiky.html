@@ -478,11 +478,11 @@
       <div class="header-meta">
         <span class="meta-pill">
           <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm0 14A6 6 0 118 2a6 6 0 010 12z"/><path d="M8 4a.75.75 0 01.75.75v3.5l2 1.15a.75.75 0 11-.75 1.3l-2.25-1.3A.75.75 0 017.25 8.75v-4A.75.75 0 018 4z"/></svg>
-          January 2025 – May 2026
+          January 2025 – April 2026
         </span>
         <span class="meta-pill">
           <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 3a1 1 0 011-1h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3zm1 0v10h10V3H3z"/></svg>
-          Demo Agentura
+          All Agencies
         </span>
         <span class="meta-pill">CZK</span>
       </div>
@@ -490,7 +490,7 @@
     <div class="header-right">
       <div class="demo-badge">
         <div class="demo-dot"></div>
-        Demo Data
+        Live Data
       </div>
     </div>
   </div>
@@ -501,42 +501,42 @@
     <div class="kpi-card accent-teal">
       <div class="kpi-icon">✈️</div>
       <div class="kpi-label">Reservations</div>
-      <div class="kpi-value" data-counter="118" data-suffix="">0</div>
-      <div class="kpi-badge badge-canceled">All Canceled</div>
+      <div class="kpi-value" data-counter="56222" data-suffix="">0</div>
+      <div class="kpi-badge" style="background:#dcfce7;color:#166534;">33 751 Issued</div>
     </div>
     <div class="kpi-card accent-blue">
       <div class="kpi-icon">👤</div>
       <div class="kpi-label">Travelers</div>
-      <div class="kpi-value" data-counter="157" data-suffix="">0</div>
-      <div class="kpi-sub">incl. 18 infants</div>
+      <div class="kpi-value" data-counter="85219" data-suffix="">0</div>
+      <div class="kpi-sub">incl. 614 infants</div>
     </div>
     <div class="kpi-card accent-amber">
       <div class="kpi-icon">💰</div>
       <div class="kpi-label">Total Revenue</div>
-      <div class="kpi-value" data-counter="1421263" data-suffix=" CZK" data-format="currency">0</div>
+      <div class="kpi-value" data-counter="179080025" data-suffix=" CZK" data-format="currency">0</div>
     </div>
     <div class="kpi-card accent-rose">
       <div class="kpi-icon">🎫</div>
       <div class="kpi-label">Avg Ticket Price</div>
-      <div class="kpi-value" data-counter="12044" data-suffix=" CZK" data-format="currency">0</div>
+      <div class="kpi-value" data-counter="20194" data-suffix=" CZK" data-format="currency">0</div>
     </div>
     <div class="kpi-card accent-purple">
       <div class="kpi-icon">🛡️</div>
       <div class="kpi-label">Insurance Attach</div>
-      <div class="kpi-value" data-counter="27" data-suffix="%">0</div>
+      <div class="kpi-value" data-counter="3" data-suffix="%">0</div>
       <div class="kpi-sub">UNIQA</div>
     </div>
     <div class="kpi-card accent-indigo">
       <div class="kpi-icon">🔌</div>
       <div class="kpi-label">Connector</div>
-      <div class="kpi-value">GALILEO</div>
-      <div class="kpi-sub">UAPI 109 · Standard 9</div>
+      <div class="kpi-value" style="font-size:16px">UAPI / TF</div>
+      <div class="kpi-sub">40K UAPI · 14K TF · 2K TS</div>
     </div>
     <div class="kpi-card accent-green">
       <div class="kpi-icon">💺</div>
       <div class="kpi-label">Cabin Class</div>
       <div class="kpi-value">Eko / Biz</div>
-      <div class="kpi-sub">117 Economy · 1 Business</div>
+      <div class="kpi-sub">24K Economy · 425 Business</div>
     </div>
   </div>
 
@@ -549,7 +549,7 @@
       <div class="chart-header">
         <div>
           <div class="chart-title">Monthly Booking Volume</div>
-          <div class="chart-subtitle">January 2025 – May 2026</div>
+          <div class="chart-subtitle">January 2025 – April 2026</div>
         </div>
         <div class="chart-tag">📊 Bar chart</div>
       </div>
@@ -640,13 +640,13 @@
 
   <!-- FOOTER -->
   <footer>
-    <span>Generated from airreservations_1.xlsx</span>
+    <span>Generated from air-reservations.csv</span>
     <span class="footer-dot"></span>
     <span>Dashboard</span>
     <span class="footer-dot"></span>
-    <span>Demo Agentura · CZK</span>
+    <span>All Agencies · CZK rows only</span>
     <span class="footer-dot"></span>
-    <span>118 reservations · All Canceled</span>
+    <span>56,222 reservations · Jan 2025 – Apr 2026</span>
   </footer>
 
 </div>
@@ -656,19 +656,19 @@
 const monthlyLabels = [
   'Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25',
   'Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25',
-  'Jan 26','Feb 26','Mar 26','Apr 26','May 26'
+  'Jan 26','Feb 26','Mar 26','Apr 26'
 ];
-const monthlyVolume = [9,8,19,5,12,8,6,7,7,1,3,2,1,14,2,8,6];
-const avgPriceData  = [4061,16309,27556,3910,21662,5352,8090,3494,12976,3140,12418,15360,7144,5977,8387,4908,4427];
+const monthlyVolume = [6169,4990,4619,4412,4639,4205,4100,3816,3185,2645,2462,2029,2729,2564,2999,659];
+const avgPriceData  = [10372,20341,21371,20305,25474,21973,20480,20696,23480,18176,22576,20945,24084,23958,23666,21189];
 
-const destLabels = ['Spain','Germany','UK','Indonesia','France','Japan','Singapore','Poland'];
-const destData   = [12,9,8,6,6,5,5,4];
+const destLabels = ['Philippines','Spain','UAE','Pakistan','Germany','Czech Rep.','UK','Japan'];
+const destData   = [20890,1756,1630,1196,1129,990,974,957];
 
 const priceBands  = ['< 3K','3–6K','6–12K','12–25K','> 25K'];
-const priceCounts = [25,34,27,17,15];
+const priceCounts = [1496,1009,1696,2619,2048];
 
-const routeLabels = ['PRG→FRA','PRG→LON','PRG→PAR','PRG→MAD','BUD→MEL','PRG→AMS'];
-const routeCounts = [7,6,6,5,4,3];
+const routeLabels = ['FRA→MAD','SYD→VIE','MEL→CMB','TPE→MNL','TLV→MNL','TYO→MNL'];
+const routeCounts = [839,494,429,402,383,313];
 
 // ─── COLORS ────────────────────────────────────────────────────────────────
 const TEAL   = '#0d9488';
@@ -1093,8 +1093,8 @@ function drawAllCharts() {
   drawBarChart('chart-monthly-volume', monthlyLabels, monthlyVolume, TEAL);
   drawLineChart('chart-avg-price', monthlyLabels, avgPriceData, BLUE);
   drawDonutChart('chart-trip-type',
-    ['Return', 'One-way'],
-    [60, 58],
+    ['Return','One-way','Multi','OpenJaw'],
+    [24550,27865,2961,846],
     [TEAL, AMBER]
   );
   drawHBarChart('chart-destinations', destLabels, destData,
@@ -1102,13 +1102,13 @@ function drawAllCharts() {
   );
   drawBarChart('chart-price-dist', priceBands, priceCounts, PURPLE);
   drawDonutChart('chart-connector',
-    ['GALILEO_UAPI', 'GALILEO'],
-    [109, 9],
+    ['GALILEO_UAPI','TF','GALILEO_TS','GALILEO'],
+    [40062,13995,1868,297],
     [INDIGO, AMBER]
   );
   drawDonutChart('chart-cabin',
-    ['Economy', 'Business'],
-    [117, 1],
+    ['Economy','Business','Mixed'],
+    [24271,425,260],
     [TEAL, ROSE]
   );
 }

@@ -1,89 +1,62 @@
 #!/usr/bin/env python3
 """Air Reservations – lokální dashboard server"""
-import os, json, datetime, subprocess, time
+import os, json, datetime, subprocess, time, csv, glob, re
 from decimal import Decimal
 from flask import Flask, Response, send_from_directory, request
 from flask_cors import CORS
-import psycopg2, psycopg2.extras
 from dotenv import load_dotenv
 
-# Prefer values from local .env over inherited shell variables.
 load_dotenv(override=True)
 
-PORT  = int(os.getenv("PORT", 8080))
-BASE  = os.path.dirname(os.path.abspath(__file__))
+PORT = int(os.getenv("PORT", 8080))
+BASE = os.path.dirname(os.path.abspath(__file__))
 SYNC_WAIT_SECONDS = int(os.getenv("SYNC_WAIT_SECONDS", "12"))
 
-def _find_latest_table():
-    """Vrátí TABLE_NAME z .env, nebo najde tabulku s nejnovějšími daty (max datum) mezi gol_reservations_*."""
-    explicit = os.getenv("TABLE_NAME", "").strip()
-    if explicit:
+# ── CSV data source ────────────────────────────────────────────────────────────
+
+def _find_csv():
+    """Najde nejnovější GOL CSV soubor ve složce dashboardu."""
+    explicit = os.getenv("DATA_CSV", "").strip()
+    if explicit and os.path.exists(explicit):
         return explicit
-    try:
-        conn = psycopg2.connect(
-            host=os.getenv("DB_HOST","localhost"), port=int(os.getenv("DB_PORT","5432")),
-            dbname=os.getenv("DB_NAME","postgres"), user=os.getenv("DB_USER","postgres"),
-            password=os.getenv("DB_PASSWORD",""),
-        )
-        cur = conn.cursor()
-        # Najdi všechny kandidátní tabulky
-        cur.execute("""
-            SELECT table_name FROM information_schema.tables
-            WHERE table_schema = 'public'
-              AND table_name LIKE 'gol_reservations%'
-            ORDER BY table_name DESC
-            LIMIT 10
-        """)
-        candidates = [r[0] for r in cur.fetchall()]
+    patterns = ["GOL_Reservations*.csv", "gol_reservations*.csv", "air-reservations-data.csv"]
+    for pat in patterns:
+        files = sorted(glob.glob(os.path.join(BASE, pat)), key=os.path.getmtime, reverse=True)
+        if files:
+            return files[0]
+    return None
 
-        best_table, best_date = None, None
-        date_expr = """CASE
-            WHEN reservation_date ~ '^\\d{2}\\.\\d{2}\\.\\d{4}$' THEN to_date(reservation_date,'DD.MM.YYYY')
-            WHEN reservation_date ~ '^\\d{4}-\\d{2}-\\d{2}' THEN reservation_date::date
-            ELSE NULL END"""
-        for t in candidates:
-            try:
-                cur.execute(f'SELECT MAX({date_expr}) FROM "{t}"')
-                row = cur.fetchone()
-                d = row[0] if row else None
-                if d and (best_date is None or d > best_date):
-                    best_date, best_table = d, t
-            except Exception:
-                pass
+CSV_FILE = _find_csv()
 
-        cur.close(); conn.close()
-        if best_table:
-            print(f"[server] Vybrána tabulka s nejnovějšími daty: {best_table} (max datum: {best_date})")
-            return best_table
-    except Exception as e:
-        print(f"[server] Nelze detekovat tabulku: {e}")
-    return "gol_reservations_sourcedata_3_20260311130217"
+_csv_cache = None  # (columns, rows)
 
-TABLE = _find_latest_table()
+def load_csv_data():
+    global _csv_cache
+    if _csv_cache is not None:
+        return _csv_cache
+    if not CSV_FILE:
+        return None, None
+    print(f"[server] Načítám CSV: {CSV_FILE}")
+    with open(CSV_FILE, encoding="utf-8-sig", newline="") as f:
+        reader = csv.DictReader(f)
+        rows = [dict(r) for r in reader]
+    columns = list(rows[0].keys()) if rows else []
+    # normalize column names to lowercase with underscores (matches dashboard expectations)
+    def slug(s): return re.sub(r"[^a-z0-9]+","_",s.lower()).strip("_")
+    col_map = {c: slug(c) for c in columns}
+    norm_rows = [{col_map[k]: v for k, v in r.items()} for r in rows]
+    norm_cols = list(col_map.values())
+    _csv_cache = (norm_cols, norm_rows)
+    print(f"[server] CSV načteno: {len(norm_rows):,} záznamů")
+    return _csv_cache
 
-app = Flask(__name__, static_folder=BASE)
-CORS(app)
+if CSV_FILE:
+    print(f"[server] Datový zdroj: CSV → {CSV_FILE}")
+    load_csv_data()
+else:
+    print(f"[server] CSV nenalezeno, zkouším PostgreSQL")
 
-# ── SQL výrazy ─────────────────────────────────────────────────────────────────
 
-_DATE = r"""CASE
-    WHEN reservation_date ~ '^\d{2}\.\d{2}\.\d{4}$' THEN to_date(reservation_date,'DD.MM.YYYY')
-    WHEN reservation_date ~ '^\d{4}-\d{2}-\d{2}' THEN reservation_date::date
-    ELSE NULL END"""
-
-_ISSUED = """CASE
-    WHEN UPPER(COALESCE(status::text,'')) LIKE '%%ISSUE%%' THEN 1
-    WHEN issuance_date IS NOT NULL AND issuance_date::text NOT IN ('','null','None') THEN 1
-    ELSE 0 END"""
-
-# ── DB ─────────────────────────────────────────────────────────────────────────
-
-def get_db():
-    return psycopg2.connect(
-        host=os.getenv("DB_HOST","localhost"), port=int(os.getenv("DB_PORT","5432")),
-        dbname=os.getenv("DB_NAME","postgres"), user=os.getenv("DB_USER","postgres"),
-        password=os.getenv("DB_PASSWORD",""),
-    )
 
 # ── JSON encoder ───────────────────────────────────────────────────────────────
 
@@ -97,44 +70,57 @@ def jresp(data, s=200):
     return Response(json.dumps(data, cls=Enc, ensure_ascii=False),
                     status=s, mimetype="application/json")
 
-# ── Filtry ─────────────────────────────────────────────────────────────────────
+# ── CSV helpers ────────────────────────────────────────────────────────────────
 
-def build_filter(args):
-    """Sestaví WHERE klauzuli z parametrů requestu."""
-    conds, params = [], []
-    if args.get('date_from'):
-        conds.append(f"({_DATE}) >= %s::date"); params.append(args['date_from'])
-    if args.get('date_to'):
-        conds.append(f"({_DATE}) <= %s::date"); params.append(args['date_to'])
-    for col in ('agency','dealer','agency_country','currency','connector','status','type'):
-        if args.get(col):
-            conds.append(f'"{col}" = %s'); params.append(args[col])
-    if args.get('search'):
-        conds.append(f"row_to_json(\"{TABLE}\")::text ILIKE %s")
-        params.append(f"%{args['search']}%")
-    return ("WHERE " + " AND ".join(conds)) if conds else "", params
+def _parse_date(v):
+    if not v: return None
+    s = str(v).strip()
+    if re.match(r'^\d{2}\.\d{2}\.\d{4}$', s):
+        d,m,y = s.split('.'); return f"{y}-{m.zfill(2)}-{d.zfill(2)}"
+    if re.match(r'^\d{4}-\d{2}-\d{2}', s):
+        return s[:10]
+    return None
 
-def wand(where, extra):
-    """Přidá podmínku k WHERE klauzuli."""
-    return f"{where} AND ({extra})" if where else f"WHERE ({extra})"
+def _is_issued(row):
+    status = str(row.get('status','')).upper()
+    if 'ISSUE' in status: return True
+    idate = str(row.get('issuance_date','')).strip()
+    return idate not in ('','null','None','')
+
+def _filter_csv(rows, args):
+    date_from = args.get('date_from','')
+    date_to   = args.get('date_to','')
+    search    = args.get('search','').lower()
+    exact_cols = ('agency','dealer','agency_country','currency','connector','status','type')
+    result = []
+    for r in rows:
+        d = _parse_date(r.get('reservation_date',''))
+        if date_from and (not d or d < date_from): continue
+        if date_to   and (not d or d > date_to):   continue
+        skip = False
+        for col in exact_cols:
+            val = args.get(col,'')
+            if val and r.get(col,'') != val: skip = True; break
+        if skip: continue
+        if search and search not in ' '.join(r.values()).lower(): continue
+        result.append(r)
+    return result
 
 # ── /api/reservations ──────────────────────────────────────────────────────────
 
 @app.route("/api/reservations")
 def reservations():
     try:
+        columns, all_rows = load_csv_data()
+        if all_rows is None:
+            raise RuntimeError("CSV soubor nenalezen. Umístěte GOL_Reservations*.csv do složky dashboardu.")
         limit = int(request.args.get("limit", 500))
-        where, params = build_filter(request.args)
-        conn = get_db()
-        cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        cur.execute(f'SELECT COUNT(*) FROM "{TABLE}" {where}', params)
-        total = cur.fetchone()["count"]
-        lim   = f"LIMIT {limit}" if limit > 0 else ""
-        cur.execute(f'SELECT * FROM "{TABLE}" {where} ORDER BY ({_DATE}) DESC NULLS LAST {lim}', params)
-        rows = [dict(r) for r in cur.fetchall()]
-        cols = list(rows[0].keys()) if rows else []
-        cur.close(); conn.close()
-        return jresp({"ok":True,"columns":cols,"rows":rows,"count":len(rows),
+        rows = _filter_csv(all_rows, request.args)
+        rows.sort(key=lambda r: _parse_date(r.get('reservation_date','')) or '', reverse=True)
+        total = len(rows)
+        if limit > 0:
+            rows = rows[:limit]
+        return jresp({"ok":True,"columns":columns,"rows":rows,"count":len(rows),
                       "total":total,"limited":limit>0 and len(rows)<total})
     except Exception as e:
         return jresp({"ok":False,"error":str(e),"columns":[],"rows":[],"count":0,"total":0,"limited":False}, 500)
@@ -144,144 +130,94 @@ def reservations():
 @app.route("/api/stats")
 def stats():
     try:
-        where, params = build_filter(request.args)
-        conn = get_db()
-        cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        T = f'"{TABLE}"'
+        from collections import defaultdict
+        columns, all_rows = load_csv_data()
+        if all_rows is None:
+            raise RuntimeError("CSV soubor nenalezen.")
+        rows = _filter_csv(all_rows, request.args)
 
-        def q(sql):
-            cur.execute(sql, params); return [dict(r) for r in cur.fetchall()]
-        def q1(sql):
-            cur.execute(sql, params); r = cur.fetchone(); return dict(r) if r else {}
-
-        # Celkové součty
-        totals = q1(f"""SELECT COUNT(*) as total, SUM({_ISSUED}) as issued,
-                        COUNT(DISTINCT agency) as agencies,
-                        COUNT(DISTINCT agency_country) as countries
-                        FROM {T} {where}""")
+        issued_count = sum(1 for r in rows if _is_issued(r))
+        agencies  = len({r.get('agency','') for r in rows if r.get('agency','')})
+        countries = len({r.get('agency_country','') for r in rows if r.get('agency_country','')})
+        totals = {"total": len(rows), "issued": issued_count, "agencies": agencies, "countries": countries}
 
         # Měsíční trend
-        w_d = wand(where, f"({_DATE}) IS NOT NULL")
-        monthly = q(f"""SELECT TO_CHAR(({_DATE}),'YYYY-MM') as month,
-                        COUNT(*) as total, SUM({_ISSUED}) as issued
-                        FROM {T} {w_d} GROUP BY month ORDER BY month""")
+        mon = defaultdict(lambda: {"total":0,"issued":0})
+        for r in rows:
+            d = _parse_date(r.get('reservation_date',''))
+            if d:
+                m = d[:7]
+                mon[m]["total"] += 1
+                if _is_issued(r): mon[m]["issued"] += 1
+        monthly = [{"month":k,"total":v["total"],"issued":v["issued"]} for k,v in sorted(mon.items())]
 
-        # Status
-        by_status = q(f"""SELECT COALESCE(status::text,'(prázdné)') as label,
-                          COUNT(*) as cnt FROM {T} {where}
-                          GROUP BY label ORDER BY cnt DESC""")
+        def group_by(key, rows, limit=None):
+            cnt = defaultdict(int)
+            for r in rows: cnt[r.get(key,'') or '(prázdné)'] += 1
+            result = sorted(cnt.items(), key=lambda x:-x[1])
+            if limit: result = result[:limit]
+            return [{"label":k,"cnt":v} for k,v in result]
 
-        # Last status
-        by_last_status = q(f"""SELECT COALESCE(last_status::text,'(prázdné)') as label,
-                               COUNT(*) as cnt FROM {T} {where}
-                               GROUP BY label ORDER BY cnt DESC LIMIT 10""")
+        def group_agency(rows):
+            cnt = defaultdict(lambda:{"cnt":0,"issued":0})
+            for r in rows:
+                a = r.get('agency','') or '(prázdné)'
+                cnt[a]["cnt"] += 1
+                if _is_issued(r): cnt[a]["issued"] += 1
+            result = sorted(cnt.items(), key=lambda x:-x[1]["cnt"])[:15]
+            return [{"label":k,"cnt":v["cnt"],"issued":v["issued"]} for k,v in result]
 
-        # Agentury top 15
-        w_ag = wand(where, "agency IS NOT NULL AND agency::text != ''")
-        by_agency = q(f"""SELECT agency as label, COUNT(*) as cnt, SUM({_ISSUED}) as issued
-                          FROM {T} {w_ag} GROUP BY agency ORDER BY cnt DESC LIMIT 15""")
+        def group_currency(rows):
+            cnt = defaultdict(lambda:{"cnt":0,"revenue":0})
+            for r in rows:
+                c = r.get('currency','') or '(prázdné)'
+                cnt[c]["cnt"] += 1
+                try: cnt[c]["revenue"] += float(r.get('total_price','') or 0)
+                except: pass
+            return [{"label":k,"cnt":v["cnt"],"revenue":round(v["revenue"],0)} for k,v in sorted(cnt.items(),key=lambda x:-x[1]["cnt"])]
 
-        # Země top 15
-        w_co = wand(where, "agency_country IS NOT NULL AND agency_country::text != ''")
-        by_country = q(f"""SELECT agency_country as label, COUNT(*) as cnt
-                           FROM {T} {w_co} GROUP BY agency_country ORDER BY cnt DESC LIMIT 15""")
-
-        # Měna + revenue
-        w_cu = wand(where, "currency IS NOT NULL AND currency::text != ''")
-        by_currency = q(f"""SELECT currency as label, COUNT(*) as cnt,
-                            ROUND(SUM(CASE WHEN total_price IS NOT NULL AND total_price::text NOT IN ('','null')
-                                     THEN total_price::numeric ELSE 0 END), 0) as revenue
-                            FROM {T} {w_cu} GROUP BY currency ORDER BY cnt DESC""")
-
-        # Connector
-        by_connector = q(f"""SELECT COALESCE(connector::text,'(prázdné)') as label,
-                             COUNT(*) as cnt FROM {T} {where}
-                             GROUP BY label ORDER BY cnt DESC""")
-
-        # Typ letu
-        by_type = q(f"""SELECT COALESCE(type::text,'(prázdné)') as label,
-                        COUNT(*) as cnt FROM {T} {where}
-                        GROUP BY label ORDER BY cnt DESC""")
-
-        cur.close(); conn.close()
         return jresp({"ok":True,"totals":totals,"monthly":monthly,
-                      "by_status":by_status,"by_last_status":by_last_status,
-                      "by_agency":by_agency,"by_country":by_country,
-                      "by_currency":by_currency,"by_connector":by_connector,
-                      "by_type":by_type})
+                      "by_status":     group_by('status', rows),
+                      "by_last_status":group_by('last_status', rows, 10),
+                      "by_agency":     group_agency(rows),
+                      "by_country":    group_by('agency_country', rows, 15),
+                      "by_currency":   group_currency(rows),
+                      "by_connector":  group_by('connector', rows),
+                      "by_type":       group_by('type', rows)})
     except Exception as e:
         return jresp({"ok":False,"error":str(e)}, 500)
 
-# ── /api/health + refresh ──────────────────────────────────────────────────────
-
-def db_total():
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute(f'SELECT COUNT(*) FROM "{TABLE}"')
-    total = cur.fetchone()[0]
-    cur.close()
-    conn.close()
-    return total
+# ── /api/health ────────────────────────────────────────────────────────────────
 
 @app.route("/api/health")
 def health():
     try:
-        total = db_total()
-        return jresp({"ok": True, "db": True, "total": total, "table": TABLE})
+        columns, rows = load_csv_data()
+        total = len(rows) if rows else 0
+        return jresp({"ok": True, "db": True, "total": total, "table": CSV_FILE or "csv"})
     except Exception as exc:
         return jresp({"ok": False, "db": False, "error": str(exc)}, 503)
 
 @app.route("/api/refresh-data", methods=["POST"])
 def refresh_data():
-    """Spustí sync do Postgres a počká na doplnění dat."""
-    notes = []
-    try:
-        before = db_total()
-    except Exception as exc:
-        return jresp({"ok": False, "error": f"PostgreSQL: {exc}", "notes": notes}, 500)
-
-    try:
-        proc = subprocess.run(
-            ["docker", "start", "google-sync"],
-            capture_output=True,
-            text=True,
-            timeout=20,
-            check=False,
-        )
-        if proc.returncode == 0:
-            notes.append("google-sync spuštěn")
-        else:
-            notes.append("google-sync není dostupný (pokračuji z Postgres)")
-    except Exception as exc:
-        notes.append(f"docker sync: {exc}")
-
-    after = before
-    for second in range(max(SYNC_WAIT_SECONDS, 1)):
-        time.sleep(1)
-        try:
-            after = db_total()
-            if after != before:
-                notes.append(f"postgres aktualizován ({before} → {after})")
-                break
-        except Exception as exc:
-            return jresp({"ok": False, "error": f"PostgreSQL: {exc}", "notes": notes}, 500)
-    else:
-        notes.append(f"postgres načten ({after} záznamů)")
-
-    return jresp({"ok": True, "total": after, "before": before, "notes": notes})
+    """Znovu načte CSV ze souboru."""
+    global _csv_cache
+    _csv_cache = None
+    columns, rows = load_csv_data()
+    total = len(rows) if rows else 0
+    return jresp({"ok": True, "total": total, "before": total, "notes": [f"CSV znovu načteno ({total:,} záznamů)"]})
 
 # ── /api/filter-options ────────────────────────────────────────────────────────
 
 @app.route("/api/filter-options")
 def filter_options():
     try:
-        conn = get_db(); cur = conn.cursor()
+        columns, rows = load_csv_data()
+        if rows is None: raise RuntimeError("CSV nenalezeno")
         opts = {}
         for col in ('status','agency','dealer','agency_country','currency','connector','type'):
-            cur.execute(f"""SELECT DISTINCT "{col}"::text FROM "{TABLE}"
-                           WHERE "{col}" IS NOT NULL AND "{col}"::text != '' ORDER BY 1""")
-            opts[col] = [r[0] for r in cur.fetchall()]
-        cur.close(); conn.close()
+            vals = sorted({r.get(col,'') for r in rows if r.get(col,'')})
+            opts[col] = vals
         return jresp({"ok":True, **opts})
     except Exception as e:
         return jresp({"ok":False,"error":str(e)}, 500)

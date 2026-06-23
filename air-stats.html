@@ -659,7 +659,7 @@ function buildQuery() {
 ═══════════════════════════════════════════════════════════ */
 async function loadFilterOptions() {
   try {
-    const d = await fetchJSON(BASE + "/api/gsheet-filter-options");
+    const d = await fetchJSON(BASE + "/api/filter-options");
     if (!d.ok) return;
     populate("fAgency",  d.agency  || [], "All agencies");
     populate("fStatus",  d.status  || [], "All statuses");
@@ -687,7 +687,7 @@ async function loadStats() {
   hideError();
   showVeil("Loading statistics…");
   try {
-    const d = await fetchJSON(BASE + "/api/gsheet-stats" + buildQuery());
+    const d = await fetchJSON(BASE + "/api/stats" + buildQuery());
     if (!d.ok) throw new Error(d.error || "Server returned ok:false");
     renderAll(d);
     setUpdated();

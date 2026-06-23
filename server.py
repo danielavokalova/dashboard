@@ -295,6 +295,27 @@ GSHEET_CSV = (
 )
 DATE_FROM = "2026-01-01"
 
+def _fetch_gsheet_rows():
+    """Stáhne Google Sheets CSV a vrátí (columns, rows) jako list of dicts."""
+    import urllib.request, csv, io
+    req = urllib.request.urlopen(GSHEET_CSV, timeout=30)
+    raw = req.read().decode("utf-8-sig")
+    reader = csv.DictReader(io.StringIO(raw))
+    rows = [dict(r) for r in reader]
+    columns = list(rows[0].keys()) if rows else []
+    return columns, rows
+
+@app.route("/api/gsheet-reservations")
+def gsheet_reservations():
+    """Vrátí všechna data z Google Sheets ve stejném formátu jako /api/reservations."""
+    try:
+        columns, rows = _fetch_gsheet_rows()
+        return jresp({"ok": True, "columns": columns, "rows": rows,
+                      "count": len(rows), "total": len(rows), "limited": False})
+    except Exception as e:
+        return jresp({"ok": False, "error": str(e), "columns": [], "rows": [],
+                      "count": 0, "total": 0, "limited": False}, 500)
+
 @app.route("/api/gsheet-stream")
 def gsheet_stream():
     """Streamuje záznamy z Google Sheets od DATE_FROM jako NDJSON s progress."""

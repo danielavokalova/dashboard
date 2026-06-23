@@ -1955,8 +1955,7 @@ async function fetchWithTimeout(url, ms = 1500) {
 }
 
 async function loadApiReservations() {
-  const limit = window._loadAll ? 0 : 200;
-  const res = await fetchWithTimeout(`${API}/api/reservations?limit=${limit}`);
+  const res = await fetchWithTimeout(`${API}/api/gsheet-reservations`, 30000);
   const data = await res.json();
   if (!data.ok) throw new Error(data.error || "Neznama chyba");
   return data;

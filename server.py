@@ -337,6 +337,132 @@ def gsheet_stream():
     return Response(generate(), mimetype="application/x-ndjson",
                     headers={"Cache-Control": "no-store"})
 
+# ── /api/gsheet-stats ──────────────────────────────────────────────────────────
+
+@app.route("/api/gsheet-stats")
+def gsheet_stats():
+    """Statistiky přímo z Google Sheets (bez PostgreSQL)."""
+    import urllib.request, csv, io, re
+    from collections import defaultdict
+
+    def parse_date(v):
+        s = str(v).strip()
+        if re.match(r'^\d{2}\.\d{2}\.\d{4}$', s):
+            d,m,y = s.split('.'); return f"{y}-{m}-{d}"
+        if re.match(r'^\d{4}-\d{2}-\d{2}', s): return s[:10]
+        return ""
+
+    def is_issued(row):
+        st = str(row.get('Status','') or row.get('status','')).upper()
+        if 'ISSUE' in st: return True
+        return bool(str(row.get('Issuance date','') or row.get('issuance_date','')).strip())
+
+    try:
+        req = urllib.request.urlopen(GSHEET_CSV, timeout=30)
+        raw = req.read().decode("utf-8-sig")
+        reader = csv.DictReader(io.StringIO(raw))
+        rows = list(reader)
+
+        # Apply filters from request args
+        date_from = request.args.get('date_from','')
+        date_to   = request.args.get('date_to','')
+        f_agency  = request.args.get('agency','')
+        f_status  = request.args.get('status','')
+        f_country = request.args.get('agency_country','')
+
+        def get(row, *keys):
+            for k in keys:
+                v = row.get(k,'')
+                if v: return v
+            return ''
+
+        filtered = []
+        for r in rows:
+            d = parse_date(get(r,'Reservation date','reservation_date'))
+            if date_from and (not d or d < date_from): continue
+            if date_to   and (not d or d > date_to):   continue
+            if f_agency  and get(r,'Agency','agency') != f_agency: continue
+            if f_status  and get(r,'Status','status') != f_status: continue
+            if f_country and get(r,'Agency Country','agency_country') != f_country: continue
+            filtered.append(r)
+
+        issued = sum(1 for r in filtered if is_issued(r))
+        agencies  = len({get(r,'Agency','agency') for r in filtered if get(r,'Agency','agency')})
+        countries = len({get(r,'Agency Country','agency_country') for r in filtered if get(r,'Agency Country','agency_country')})
+        totals = {"total": len(filtered), "issued": issued, "agencies": agencies, "countries": countries}
+
+        mon = defaultdict(lambda: {"total":0,"issued":0})
+        for r in filtered:
+            d = parse_date(get(r,'Reservation date','reservation_date'))
+            if d:
+                mon[d[:7]]["total"] += 1
+                if is_issued(r): mon[d[:7]]["issued"] += 1
+        monthly = [{"month":k,"total":v["total"],"issued":v["issued"]} for k,v in sorted(mon.items())]
+
+        def grp(key_opts, lim=None):
+            cnt = defaultdict(int)
+            for r in filtered:
+                v = get(r, *key_opts) or '(prázdné)'
+                cnt[v] += 1
+            res = sorted(cnt.items(), key=lambda x:-x[1])
+            if lim: res = res[:lim]
+            return [{"label":k,"cnt":v} for k,v in res]
+
+        def grp_agency():
+            cnt = defaultdict(lambda:{"cnt":0,"issued":0})
+            for r in filtered:
+                a = get(r,'Agency','agency') or '(prázdné)'
+                cnt[a]["cnt"] += 1
+                if is_issued(r): cnt[a]["issued"] += 1
+            res = sorted(cnt.items(), key=lambda x:-x[1]["cnt"])[:15]
+            return [{"label":k,"cnt":v["cnt"],"issued":v["issued"]} for k,v in res]
+
+        def grp_currency():
+            cnt = defaultdict(lambda:{"cnt":0,"revenue":0})
+            for r in filtered:
+                c = get(r,'Currency','currency') or '(prázdné)'
+                cnt[c]["cnt"] += 1
+                try: cnt[c]["revenue"] += float(get(r,'Total Price','total_price') or 0)
+                except: pass
+            return [{"label":k,"cnt":v["cnt"],"revenue":round(v["revenue"],0)} for k,v in sorted(cnt.items(),key=lambda x:-x[1]["cnt"])]
+
+        return jresp({"ok":True,"totals":totals,"monthly":monthly,
+                      "by_status":     grp(['Status','status']),
+                      "by_last_status":grp(['Last Status','last_status'],10),
+                      "by_agency":     grp_agency(),
+                      "by_country":    grp(['Agency Country','agency_country'],15),
+                      "by_currency":   grp_currency(),
+                      "by_connector":  grp(['Connector','connector']),
+                      "by_type":       grp(['Type','type'])})
+    except Exception as e:
+        return jresp({"ok":False,"error":str(e)}, 500)
+
+@app.route("/api/gsheet-filter-options")
+def gsheet_filter_options():
+    """Unikátní hodnoty filtrů přímo z Google Sheets."""
+    import urllib.request, csv, io
+    try:
+        req = urllib.request.urlopen(GSHEET_CSV, timeout=30)
+        raw = req.read().decode("utf-8-sig")
+        reader = csv.DictReader(io.StringIO(raw))
+        rows = list(reader)
+        def vals(*keys):
+            s = set()
+            for r in rows:
+                for k in keys:
+                    v = (r.get(k,'') or '').strip()
+                    if v: s.add(v)
+            return sorted(s)
+        return jresp({"ok":True,
+                      "status":   vals('Status','status'),
+                      "agency":   vals('Agency','agency'),
+                      "agency_country": vals('Agency Country','agency_country'),
+                      "currency": vals('Currency','currency'),
+                      "connector":vals('Connector','connector'),
+                      "type":     vals('Type','type')})
+    except Exception as e:
+        return jresp({"ok":False,"error":str(e)}, 500)
+
 # ── Static files ───────────────────────────────────────────────────────────────
 
 @app.route("/")

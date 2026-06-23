@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Air Reservations — Statistics</title>
+<style>
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root {
+  --ink:        #1f2a2a;
+  --muted:      #4f6a6c;
+  --line:       #425c5e;
+  --paper:      rgba(245,246,244,0.92);
+  --paper-s:    #f7f7f2;
+  --panel:      rgba(250,250,246,0.97);
+  --shadow:     rgba(90,115,115,0.26);
+  --border:     rgba(66,92,94,0.17);
+  --row-hover:  rgba(79,106,108,0.07);
+  --teal:       #4f6a6c;
+  --rose:       #8f3e4a;
+  --amber:      #c07a20;
+  --blue:       #425c5e;
+  --green:      #3a8a50;
+  --purple:     #5c4a7a;
+  --orange:     #a05c28;
+  --slate:      #607080;
+}
+
+/* ── RESET ──────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+  color: var(--ink);
+  background:
+    linear-gradient(rgba(245,246,244,0.10), rgba(245,246,244,0.10)),
+    url("botanicus.png") repeat;
+}
+
+/* ── TOPBAR ─────────────────────────────────────────────── */
+.topbar {
+  background: var(--paper);
+  border-bottom: 2px solid var(--line);
+  padding: 11px 40px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font: 700 11px/1 "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.17s, color 0.17s;
+  white-space: nowrap;
+}
+.btn-back:hover { background: var(--muted); color: #fff; }
+.btn-back:focus-visible { outline: 2px solid var(--muted); outline-offset: 2px; }
+
+.topbar-title {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  color: var(--ink);
+  text-transform: uppercase;
+  text-shadow: 0 1px 4px rgba(90,115,115,0.16);
+}
+
+.topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar-meta {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: right;
+  line-height: 1.55;
+}
+
+/* ── BUTTONS ────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border: none;
+  border-radius: 9px;
+  font: 700 11px/1 "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+  white-space: nowrap;
+}
+.btn:hover    { opacity: 0.82; transform: translateY(-1px); }
+.btn:active   { transform: translateY(0); }
+.btn:disabled { opacity: 0.38; cursor: wait; transform: none; }
+.btn:focus-visible { outline: 2px solid var(--muted); outline-offset: 2px; }
+
+.btn-primary { background: var(--muted); color: #fff; }
+.btn-refresh {
+  background: var(--rose);
+  color: #fff;
+}
+.btn-outline {
+  background: transparent;
+  color: var(--muted);
+  border: 1.5px solid var(--border);
+}
+.btn-outline:hover { background: rgba(79,106,108,0.1); transform: none; }
+
+/* ── SPINNER ────────────────────────────────────────────── */
+.spinner {
+  display: none;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+.spinner.show { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── ERROR BOX ──────────────────────────────────────────── */
+.error-box {
+  display: none;
+  background: rgba(143,62,74,0.07);
+  border: 1.5px solid rgba(143,62,74,0.24);
+  border-radius: 12px;
+  padding: 13px 20px;
+  color: #6a1a24;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 20px 36px 0;
+}
+.error-box.show { display: block; }
+.error-box strong { display: block; margin-bottom: 4px; font-weight: 800; }
+
+/* ── REFRESH NOTES ──────────────────────────────────────── */
+.refresh-notes {
+  display: none;
+  background: rgba(58,138,80,0.07);
+  border: 1.5px solid rgba(58,138,80,0.22);
+  border-radius: 12px;
+  padding: 12px 20px;
+  color: #1f5430;
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 20px 36px 0;
+}
+.refresh-notes.show { display: block; }
+.refresh-notes ul { padding-left: 18px; }
+
+/* ── FILTER BAR ─────────────────────────────────────────── */
+.filter-bar {
+  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+  padding: 13px 36px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.filter-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.filter-input, .filter-select {
+  height: 32px;
+  padding: 0 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--ink);
+  font: 13px/1 "Segoe UI", system-ui, sans-serif;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.filter-input:focus, .filter-select:focus {
+  border-color: var(--muted);
+}
+.filter-input[type="date"] { width: 140px; }
+.filter-select { width: 160px; cursor: pointer; }
+
+.filter-sep {
+  width: 1px;
+  height: 24px;
+  background: var(--border);
+  align-self: center;
+}
+
+/* ── MAIN ───────────────────────────────────────────────── */
+.main {
+  padding: 24px 36px 60px;
+  max-width: 1760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── KPI ROW ────────────────────────────────────────────── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.kpi-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 24px;
+  box-shadow: 0 3px 16px var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 14px 14px 0 0;
+}
+.kpi-card.kpi-total::before  { background: var(--teal); }
+.kpi-card.kpi-issued::before { background: var(--green); }
+.kpi-card.kpi-agency::before { background: var(--amber); }
+.kpi-card.kpi-country::before{ background: var(--blue); }
+
+.kpi-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.kpi-value {
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+
+.kpi-sub {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* ── CHARTS GRID ────────────────────────────────────────── */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.chart-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 24px;
+  box-shadow: 0 3px 16px var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.chart-card.full-width {
+  grid-column: 1 / -1;
+}
+
+.chart-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+}
+
+.chart-wrap {
+  position: relative;
+  width: 100%;
+}
+
+canvas {
+  display: block;
+  width: 100% !important;
+}
+
+/* ── STATUS PILLS ───────────────────────────────────────── */
+.pill {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.pill-green  { background: rgba(58,138,80,0.12);  color: #1f5430; }
+.pill-teal   { background: rgba(79,106,108,0.12); color: #2a4a4c; }
+.pill-rose   { background: rgba(143,62,74,0.12);  color: #6a1a24; }
+.pill-muted  { background: rgba(90,115,115,0.10); color: var(--muted); }
+
+/* ── LOADING OVERLAY ────────────────────────────────────── */
+.loading-veil {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(245,246,244,0.72);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 14px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.loading-veil.show { display: flex; }
+.loading-veil .veil-ring {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(79,106,108,0.2);
+  border-top-color: var(--muted);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .charts-grid { grid-template-columns: 1fr; }
+  .chart-card.full-width { grid-column: 1; }
+}
+@media (max-width: 640px) {
+  .topbar { padding: 11px 18px; }
+  .filter-bar { padding: 13px 18px; }
+  .main { padding: 18px 14px 50px; }
+  .topbar-title { font-size: 13px; letter-spacing: 0.14em; }
+  .kpi-row { grid-template-columns: 1fr 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner, .loading-veil .veil-ring { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING VEIL -->
+<div class="loading-veil" id="veil" role="status" aria-live="polite">
+  <div class="veil-ring"></div>
+  <span id="veilMsg">Loading…</span>
+</div>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <a href="index.html" class="btn-back" aria-label="Back to dashboard">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+      <path d="M8.5 2L4 6.5L8.5 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Back
+  </a>
+
+  <span class="topbar-title">AIR RESERVATIONS — STATISTICS</span>
+
+  <div class="topbar-right">
+    <div class="topbar-meta">
+      <span id="updatedLabel">Last updated</span><br>
+      <span id="updatedTime">—</span>
+    </div>
+    <button class="btn btn-refresh" id="btnRefresh" title="Sync data from source and reload stats">
+      <div class="spinner" id="refreshSpinner"></div>
+      <svg id="refreshIcon" width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+        <path d="M11 6.5A4.5 4.5 0 1 1 6.5 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M6.5 2L9 4.5L6.5 2Z" fill="currentColor"/>
+        <polyline points="6.5,2 9,2 9,4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Sync &amp; Refresh
+    </button>
+  </div>
+</header>
+
+<!-- FILTER BAR -->
+<section class="filter-bar" aria-label="Filters">
+  <div class="filter-group">
+    <label class="filter-label" for="fDateFrom">From</label>
+    <input type="date" class="filter-input" id="fDateFrom" value="2025-01-01">
+  </div>
+  <div class="filter-group">
+    <label class="filter-label" for="fDateTo">To</label>
+    <input type="date" class="filter-input" id="fDateTo">
+  </div>
+
+  <div class="filter-sep" role="separator"></div>
+
+  <div class="filter-group">
+    <label class="filter-label" for="fAgency">Agency</label>
+    <select class="filter-select" id="fAgency">
+      <option value="">All agencies</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label class="filter-label" for="fStatus">Status</label>
+    <select class="filter-select" id="fStatus">
+      <option value="">All statuses</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label class="filter-label" for="fCountry">Country</label>
+    <select class="filter-select" id="fCountry">
+      <option value="">All countries</option>
+    </select>
+  </div>
+
+  <button class="btn btn-primary" id="btnApply">Apply</button>
+  <button class="btn btn-outline" id="btnReset">Reset</button>
+</section>
+
+<!-- ERROR BOX -->
+<div class="error-box" id="errorBox" role="alert"></div>
+<!-- REFRESH NOTES -->
+<div class="refresh-notes" id="refreshNotes" role="status"></div>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+  <!-- KPI ROW -->
+  <section class="kpi-row" aria-label="Key metrics">
+    <div class="kpi-card kpi-total">
+      <div class="kpi-label">Total reservations</div>
+      <div class="kpi-value" id="kTotal">—</div>
+      <div class="kpi-sub" id="kTotalSub">&nbsp;</div>
+    </div>
+    <div class="kpi-card kpi-issued">
+      <div class="kpi-label">Issued (ticket issued)</div>
+      <div class="kpi-value" id="kIssued">—</div>
+      <div class="kpi-sub" id="kIssuedSub">&nbsp;</div>
+    </div>
+    <div class="kpi-card kpi-agency">
+      <div class="kpi-label">Active agencies</div>
+      <div class="kpi-value" id="kAgencies">—</div>
+      <div class="kpi-sub" id="kAgenciesSub">&nbsp;</div>
+    </div>
+    <div class="kpi-card kpi-country">
+      <div class="kpi-label">Countries</div>
+      <div class="kpi-value" id="kCountries">—</div>
+      <div class="kpi-sub" id="kCountriesSub">&nbsp;</div>
+    </div>
+  </section>
+
+  <!-- CHARTS -->
+  <section class="charts-grid" aria-label="Charts">
+
+    <!-- Monthly trend — full width -->
+    <div class="chart-card full-width">
+      <div class="chart-title">Monthly trend — total vs. issued</div>
+      <div class="chart-wrap">
+        <canvas id="cMonthly" height="260" aria-label="Monthly trend line chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Status breakdown donut -->
+    <div class="chart-card">
+      <div class="chart-title">Status breakdown</div>
+      <div class="chart-wrap">
+        <canvas id="cStatus" height="300" aria-label="Status breakdown donut chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Connector split donut -->
+    <div class="chart-card">
+      <div class="chart-title">Connector split</div>
+      <div class="chart-wrap">
+        <canvas id="cConnector" height="300" aria-label="Connector split donut chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Flight type donut -->
+    <div class="chart-card">
+      <div class="chart-title">Flight type split</div>
+      <div class="chart-wrap">
+        <canvas id="cType" height="300" aria-label="Flight type split donut chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Top agencies — full width -->
+    <div class="chart-card full-width">
+      <div class="chart-title">Top 15 agencies — total reservations &amp; issued tickets</div>
+      <div class="chart-wrap">
+        <canvas id="cAgencies" height="480" aria-label="Top agencies horizontal bar chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Top countries -->
+    <div class="chart-card">
+      <div class="chart-title">Top countries</div>
+      <div class="chart-wrap">
+        <canvas id="cCountries" height="380" aria-label="Top countries horizontal bar chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Currency breakdown -->
+    <div class="chart-card">
+      <div class="chart-title">Currency breakdown — reservations &amp; revenue</div>
+      <div class="chart-wrap">
+        <canvas id="cCurrency" height="380" aria-label="Currency breakdown horizontal bar chart"></canvas>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   CONSTANTS & STATE
+═══════════════════════════════════════════════════════════ */
+const BASE = "http://localhost:8080";
+
+const PALETTE = [
+  "#4f6a6c", // teal
+  "#8f3e4a", // rose
+  "#c07a20", // amber
+  "#425c5e", // blue-dark
+  "#3a8a50", // green
+  "#5c4a7a", // purple
+  "#a05c28", // orange
+  "#607080", // slate
+  "#3a6a7a", // cyan
+  "#7a5040", // sienna
+  "#4a6a40", // olive
+  "#6a4060", // plum
+];
+
+const today = new Date().toISOString().slice(0,10);
+document.getElementById("fDateTo").value = today;
+
+/* ═══════════════════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════════════════ */
+function fmt(n) {
+  if (n == null || n === "") return "—";
+  return Number(n).toLocaleString("en-US");
+}
+
+function fmtPct(v, total) {
+  if (!total) return "";
+  return ((v / total) * 100).toFixed(1) + "%";
+}
+
+function fmtRevenue(n) {
+  if (n == null) return "—";
+  if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(2) + "M";
+  if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(1) + "k";
+  return String(n);
+}
+
+function dpr() {
+  return window.devicePixelRatio || 1;
+}
+
+function setupCanvas(canvas) {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const w = rect.width || 600;
+  const h = canvas.height; // logical height from attribute
+  const ratio = dpr();
+  canvas.width  = w * ratio;
+  canvas.height = h * ratio;
+  canvas.style.width  = w + "px";
+  canvas.style.height = h + "px";
+  const ctx = canvas.getContext("2d");
+  ctx.scale(ratio, ratio);
+  return { ctx, w, h };
+}
+
+function showError(msg) {
+  const el = document.getElementById("errorBox");
+  el.innerHTML = "<strong>Could not reach the server.</strong>" + msg;
+  el.classList.add("show");
+}
+function hideError() {
+  document.getElementById("errorBox").classList.remove("show");
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FETCH HELPERS
+═══════════════════════════════════════════════════════════ */
+async function fetchJSON(url, opts) {
+  const r = await fetch(url, opts);
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return r.json();
+}
+
+function buildQuery() {
+  const p = new URLSearchParams();
+  const add = (id, key) => {
+    const v = document.getElementById(id).value;
+    if (v) p.set(key, v);
+  };
+  add("fDateFrom",  "date_from");
+  add("fDateTo",    "date_to");
+  add("fAgency",    "agency");
+  add("fStatus",    "status");
+  add("fCountry",   "agency_country");
+  return p.toString() ? "?" + p.toString() : "";
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FILTER OPTIONS
+═══════════════════════════════════════════════════════════ */
+async function loadFilterOptions() {
+  try {
+    const d = await fetchJSON(BASE + "/api/filter-options");
+    if (!d.ok) return;
+    populate("fAgency",  d.agency  || [], "All agencies");
+    populate("fStatus",  d.status  || [], "All statuses");
+    populate("fCountry", d.agency_country || [], "All countries");
+  } catch(_) { /* non-fatal — dropdowns stay empty */ }
+}
+
+function populate(id, items, placeholder) {
+  const sel = document.getElementById(id);
+  const cur = sel.value;
+  while (sel.options.length > 1) sel.remove(1);
+  items.forEach(v => {
+    const o = document.createElement("option");
+    o.value = v;
+    o.textContent = v;
+    sel.appendChild(o);
+  });
+  if (items.includes(cur)) sel.value = cur;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LOAD STATS
+═══════════════════════════════════════════════════════════ */
+async function loadStats() {
+  hideError();
+  showVeil("Loading statistics…");
+  try {
+    const d = await fetchJSON(BASE + "/api/stats" + buildQuery());
+    if (!d.ok) throw new Error(d.error || "Server returned ok:false");
+    renderAll(d);
+    setUpdated();
+  } catch(e) {
+    showError(
+      " Make sure <code>server.py</code> is running on port 8080. " +
+      "(" + e.message + ")"
+    );
+  } finally {
+    hideVeil();
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REFRESH / SYNC
+═══════════════════════════════════════════════════════════ */
+async function doRefresh() {
+  const btn = document.getElementById("btnRefresh");
+  const sp  = document.getElementById("refreshSpinner");
+  const ic  = document.getElementById("refreshIcon");
+  const notes = document.getElementById("refreshNotes");
+
+  btn.disabled = true;
+  sp.classList.add("show");
+  ic.style.display = "none";
+  notes.classList.remove("show");
+  showVeil("Syncing data…");
+
+  try {
+    const d = await fetchJSON(BASE + "/api/refresh-data", { method: "POST" });
+    if (d.notes && d.notes.length) {
+      notes.innerHTML = "<ul>" + d.notes.map(n => "<li>" + n + "</li>").join("") + "</ul>";
+      notes.classList.add("show");
+    }
+    await loadStats();
+  } catch(e) {
+    showError(" Sync failed. Make sure <code>server.py</code> is running. (" + e.message + ")");
+    hideVeil();
+  } finally {
+    btn.disabled = false;
+    sp.classList.remove("show");
+    ic.style.display = "";
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VEIL
+═══════════════════════════════════════════════════════════ */
+function showVeil(msg) {
+  document.getElementById("veilMsg").textContent = msg || "Loading…";
+  document.getElementById("veil").classList.add("show");
+}
+function hideVeil() {
+  document.getElementById("veil").classList.remove("show");
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SET UPDATED TIME
+═══════════════════════════════════════════════════════════ */
+function setUpdated() {
+  document.getElementById("updatedTime").textContent =
+    new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RENDER ALL
+═══════════════════════════════════════════════════════════ */
+function _renderAll(d) {
+  const t = d.totals || {};
+  // KPIs
+  document.getElementById("kTotal").textContent     = fmt(t.total);
+  document.getElementById("kIssued").textContent    = fmt(t.issued);
+  document.getElementById("kAgencies").textContent  = fmt(t.agencies);
+  document.getElementById("kCountries").textContent = fmt(t.countries);
+
+  const issuedPct = t.total ? ((t.issued / t.total) * 100).toFixed(1) + "% of total" : "";
+  document.getElementById("kIssuedSub").textContent    = issuedPct;
+  document.getElementById("kTotalSub").textContent     = "across all records";
+  document.getElementById("kAgenciesSub").textContent  = "with reservations";
+  document.getElementById("kCountriesSub").textContent = "represented";
+
+  // Charts
+  drawLineChart("cMonthly",     d.monthly     || []);
+  drawDonut("cStatus",          d.by_status   || []);
+  drawDonut("cConnector",       d.by_connector|| []);
+  drawDonut("cType",            d.by_type     || []);
+  drawHBar("cAgencies",         d.by_agency   || [], { hasIssued: true });
+  drawHBar("cCountries",        d.by_country  || [], { hasIssued: false });
+  drawHBarCurrency("cCurrency", d.by_currency || []);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CHART: LINE (monthly trend)
+═══════════════════════════════════════════════════════════ */
+function drawLineChart(id, data) {
+  const canvas = document.getElementById(id);
+  const { ctx, w, h } = setupCanvas(canvas);
+
+  const PAD = { top: 28, right: 28, bottom: 52, left: 64 };
+  const cw = w - PAD.left - PAD.right;
+  const ch = h - PAD.top  - PAD.bottom;
+
+  ctx.clearRect(0, 0, w, h);
+
+  if (!data.length) {
+    noData(ctx, w, h);
+    return;
+  }
+
+  const totals  = data.map(d => d.total  || 0);
+  const issueds = data.map(d => d.issued || 0);
+  const maxVal  = Math.max(...totals, ...issueds, 1);
+  const labels  = data.map(d => (d.month || "").slice(0, 7));
+  const N       = data.length;
+
+  // grid
+  const gridLines = 5;
+  ctx.textAlign = "right";
+  ctx.textBaseline = "middle";
+  ctx.font = "11px 'Segoe UI', system-ui, sans-serif";
+  ctx.fillStyle = "#4f6a6c";
+
+  for (let i = 0; i <= gridLines; i++) {
+    const val = (maxVal / gridLines) * i;
+    const y   = PAD.top + ch - (ch / gridLines) * i;
+    ctx.strokeStyle = "rgba(66,92,94,0.10)";
+    ctx.lineWidth   = 1;
+    ctx.beginPath();
+    ctx.moveTo(PAD.left, y);
+    ctx.lineTo(PAD.left + cw, y);
+    ctx.stroke();
+    ctx.fillText(fmt(Math.round(val)), PAD.left - 8, y);
+  }
+
+  // x labels
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  ctx.fillStyle = "#4f6a6c";
+  const step = N > 1 ? cw / (N - 1) : cw;
+
+  labels.forEach((lbl, i) => {
+    const x = PAD.left + (N > 1 ? i * step : cw / 2);
+    // skip some if too many
+    if (N > 18 && i % 2 !== 0) return;
+    ctx.save();
+    ctx.translate(x, PAD.top + ch + 8);
+    ctx.rotate(-Math.PI / 5);
+    ctx.textAlign = "right";
+    ctx.fillText(lbl, 0, 0);
+    ctx.restore();
+  });
+
+  // draw line helper
+  function drawLine(series, color, fill) {
+    const pts = series.map((v, i) => ({
+      x: PAD.left + (N > 1 ? i * step : cw / 2),
+      y: PAD.top + ch - (v / maxVal) * ch,
+    }));
+
+    if (fill) {
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, PAD.top + ch);
+      pts.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.lineTo(pts[pts.length-1].x, PAD.top + ch);
+      ctx.closePath();
+      ctx.fillStyle = color.replace(")", ",0.08)").replace("rgb(","rgba(").replace("#", "rgba(").replace("rgba(","rgba(");
+      // simpler: just use solid with low alpha
+      ctx.fillStyle = hexAlpha(color, 0.08);
+      ctx.fill();
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) {
+      const cp = {
+        x: (pts[i-1].x + pts[i].x) / 2,
+        y1: pts[i-1].y,
+        y2: pts[i].y,
+      };
+      ctx.bezierCurveTo(cp.x, cp.y1, cp.x, cp.y2, pts[i].x, pts[i].y);
+    }
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = 2.5;
+    ctx.lineJoin    = "round";
+    ctx.stroke();
+
+    // dots
+    pts.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.strokeStyle = "#f7f7f2";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    });
+  }
+
+  drawLine(totals,  "#4f6a6c", true);
+  drawLine(issueds, "#8f3e4a", false);
+
+  // legend
+  const legend = [
+    { label: "Total",  color: "#4f6a6c" },
+    { label: "Issued", color: "#8f3e4a" },
+  ];
+  let lx = PAD.left;
+  ctx.textBaseline = "middle";
+  ctx.textAlign = "left";
+  legend.forEach(l => {
+    ctx.fillStyle = l.color;
+    ctx.fillRect(lx, 10, 20, 3);
+    ctx.beginPath();
+    ctx.arc(lx + 10, 11.5, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#1f2a2a";
+    ctx.font = "11px 'Segoe UI', system-ui, sans-serif";
+    ctx.fillText(l.label, lx + 26, 11.5);
+    lx += 90;
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CHART: DONUT
+═══════════════════════════════════════════════════════════ */
+function drawDonut(id, data) {
+  const canvas = document.getElementById(id);
+  const { ctx, w, h } = setupCanvas(canvas);
+  ctx.clearRect(0, 0, w, h);
+
+  if (!data.length) { noData(ctx, w, h); return; }
+
+  const total = data.reduce((s, d) => s + (d.cnt || 0), 0);
+  const LEGEND_W = Math.min(200, w * 0.38);
+  const chartW   = w - LEGEND_W;
+  const cx       = chartW / 2;
+  const cy       = h / 2;
+  const R        = Math.min(chartW, h) / 2 - 14;
+  const r        = R * 0.58;
+
+  let angle = -Math.PI / 2;
+
+  data.forEach((d, i) => {
+    const slice = (d.cnt / total) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R, angle, angle + slice);
+    ctx.closePath();
+    ctx.fillStyle = PALETTE[i % PALETTE.length];
+    ctx.fill();
+    ctx.strokeStyle = "#f7f7f2";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    angle += slice;
+  });
+
+  // hole
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fillStyle = "#fafaf6";
+  ctx.fill();
+
+  // center label
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = "bold 22px 'Segoe UI', system-ui, sans-serif";
+  ctx.fillStyle = "#1f2a2a";
+  ctx.fillText(fmt(total), cx, cy - 7);
+  ctx.font = "10px 'Segoe UI', system-ui, sans-serif";
+  ctx.fillStyle = "#4f6a6c";
+  ctx.fillText("TOTAL", cx, cy + 13);
+
+  // legend
+  const lx0 = chartW + 10;
+  const rowH = 20;
+  const startY = Math.max(8, cy - (data.length * rowH) / 2);
+
+  ctx.textAlign = "left";
+  data.forEach((d, i) => {
+    const y = startY + i * rowH;
+    if (y + rowH > h) return; // clip
+    ctx.fillStyle = PALETTE[i % PALETTE.length];
+    ctx.beginPath();
+    ctx.arc(lx0 + 6, y + 8, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#1f2a2a";
+    ctx.font = "11px 'Segoe UI', system-ui, sans-serif";
+    ctx.textBaseline = "middle";
+    const label = (d.label || "?").slice(0, 18);
+    ctx.fillText(label, lx0 + 16, y + 8);
+    ctx.fillStyle = "#4f6a6c";
+    ctx.font = "10px 'Segoe UI', system-ui, sans-serif";
+    ctx.fillText(fmt(d.cnt) + "  " + fmtPct(d.cnt, total), lx0 + 16, y + 19);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CHART: HORIZONTAL BAR (generic)
+═══════════════════════════════════════════════════════════ */
+function drawHBar(id, rawData, opts) {
+  opts = opts || {};
+  const canvas = document.getElementById(id);
+  const { ctx, w, h } = setupCanvas(canvas);
+  ctx.clearRect(0, 0, w, h);
+
+  if (!rawData.length) { noData(ctx, w, h); return; }
+
+  const data  = rawData.slice(0, 15);
+  const N     = data.length;
+  const LABEL = Math.min(220, w * 0.30);
+  const PAD   = { top: 16, right: 80, bottom: 12 };
+  const barW  = w - LABEL - PAD.right;
+  const rowH  = (h - PAD.top - PAD.bottom) / N;
+  const barH  = Math.min(rowH * 0.48, 18);
+  const maxV  = Math.max(...data.map(d => d.cnt || 0), 1);
+  const total = rawData.reduce((s, d) => s + (d.cnt || 0), 0);
+
+  data.forEach((d, i) => {
+    const y     = PAD.top + i * rowH;
+    const barY  = y + (rowH - barH * (opts.hasIssued ? 2.2 : 1)) / 2;
+    const frac  = (d.cnt || 0) / maxV;
+
+    // label
+    ctx.textAlign    = "right";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle    = "#1f2a2a";
+    ctx.font         = "11px 'Segoe UI', system-ui, sans-serif";
+    const lbl = (d.label || "?");
+    ctx.fillText(lbl.length > 26 ? lbl.slice(0, 24) + "…" : lbl, LABEL - 8, barY + barH / 2);
+
+    // bg track
+    ctx.fillStyle = "rgba(66,92,94,0.08)";
+    roundRect(ctx, LABEL, barY, barW, barH, 3);
+    ctx.fill();
+
+    // total bar
+    ctx.fillStyle = "#4f6a6c";
+    roundRect(ctx, LABEL, barY, Math.max(4, frac * barW), barH, 3);
+    ctx.fill();
+
+    // issued bar (stacked below for agencies)
+    if (opts.hasIssued && d.issued) {
+      const issFrac = d.issued / maxV;
+      const iy = barY + barH + 3;
+      ctx.fillStyle = "rgba(143,62,74,0.10)";
+      roundRect(ctx, LABEL, iy, barW, barH * 0.72, 3);
+      ctx.fill();
+      ctx.fillStyle = "#8f3e4a";
+      roundRect(ctx, LABEL, iy, Math.max(3, issFrac * barW), barH * 0.72, 3);
+      ctx.fill();
+    }
+
+    // value + pct
+    ctx.textAlign    = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle    = "#1f2a2a";
+    ctx.font         = "bold 11px 'Segoe UI', system-ui, sans-serif";
+    ctx.fillText(fmt(d.cnt), LABEL + frac * barW + 7, barY + barH / 2);
+    ctx.fillStyle = "#4f6a6c";
+    ctx.font      = "10px 'Segoe UI', system-ui, sans-serif";
+    ctx.fillText(fmtPct(d.cnt, total), LABEL + frac * barW + 7, barY + barH / 2 + 12);
+  });
+
+  // legend for stacked
+  if (opts.hasIssued) {
+    const lx = LABEL;
+    ctx.font = "10px 'Segoe UI', system-ui, sans-serif";
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#4f6a6c";
+    ctx.fillRect(lx, 4, 14, 4);
+    ctx.fillStyle = "#1f2a2a";
+    ctx.fillText("Total", lx + 18, 6);
+    ctx.fillStyle = "#8f3e4a";
+    ctx.fillRect(lx + 70, 4, 14, 4);
+    ctx.fillStyle = "#1f2a2a";
+    ctx.fillText("Issued", lx + 88, 6);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CHART: CURRENCY HBAR (with revenue)
+═══════════════════════════════════════════════════════════ */
+function drawHBarCurrency(id, rawData) {
+  const canvas = document.getElementById(id);
+  const { ctx, w, h } = setupCanvas(canvas);
+  ctx.clearRect(0, 0, w, h);
+
+  if (!rawData.length) { noData(ctx, w, h); return; }
+
+  const data  = rawData.slice(0, 15);
+  const N     = data.length;
+  const LABEL = 64;
+  const PAD   = { top: 16, right: 100, bottom: 12 };
+  const barW  = w - LABEL - PAD.right;
+  const rowH  = (h - PAD.top - PAD.bottom) / N;
+  const barH  = Math.min(rowH * 0.42, 16);
+  const maxCnt = Math.max(...data.map(d => d.cnt     || 0), 1);
+  const maxRev = Math.max(...data.map(d => d.revenue || 0), 1);
+
+  data.forEach((d, i) => {
+    const y    = PAD.top + i * rowH;
+    const barY = y + (rowH - barH * 2.4) / 2;
+
+    // label
+    ctx.textAlign    = "right";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle    = "#1f2a2a";
+    ctx.font         = "bold 11px 'Segoe UI', system-ui, sans-serif";
+    ctx.fillText(d.label || "?", LABEL - 8, barY + barH / 2);
+
+    // count bar
+    const fracC = (d.cnt || 0) / maxCnt;
+    ctx.fillStyle = "rgba(66,92,94,0.08)";
+    roundRect(ctx, LABEL, barY, barW, barH, 3);
+    ctx.fill();
+    ctx.fillStyle = "#4f6a6c";
+    roundRect(ctx, LABEL, barY, Math.max(4, fracC * barW), barH, 3);
+    ctx.fill();
+
+    ctx.textAlign    = "left";
+    ctx.textBaseline = "middle";
+    ctx.font         = "bold 10px 'Segoe UI', system-ui, sans-serif";
+    ctx.fillStyle    = "#1f2a2a";
+    ctx.fillText(fmt(d.cnt), LABEL + fracC * barW + 6, barY + barH / 2);
+
+    // revenue bar
+    if (d.revenue != null) {
+      const iy    = barY + barH + 4;
+      const fracR = d.revenue / maxRev;
+      ctx.fillStyle = "rgba(192,122,32,0.10)";
+      roundRect(ctx, LABEL, iy, barW, barH * 0.75, 3);
+      ctx.fill();
+      ctx.fillStyle = "#c07a20";
+      roundRect(ctx, LABEL, iy, Math.max(4, fracR * barW), barH * 0.75, 3);
+      ctx.fill();
+      ctx.font      = "10px 'Segoe UI', system-ui, sans-serif";
+      ctx.fillStyle = "#4f6a6c";
+      ctx.fillText(fmtRevenue(d.revenue), LABEL + fracR * barW + 6, iy + barH * 0.375);
+    }
+  });
+
+  // legend
+  ctx.font = "10px 'Segoe UI', system-ui, sans-serif";
+  ctx.textBaseline = "middle";
+  ctx.textAlign = "left";
+  const lx = LABEL;
+  ctx.fillStyle = "#4f6a6c"; ctx.fillRect(lx, 4, 14, 4);
+  ctx.fillStyle = "#1f2a2a"; ctx.fillText("Reservations", lx + 18, 6);
+  ctx.fillStyle = "#c07a20"; ctx.fillRect(lx + 110, 4, 14, 4);
+  ctx.fillStyle = "#1f2a2a"; ctx.fillText("Revenue", lx + 128, 6);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════════ */
+function noData(ctx, w, h) {
+  ctx.textAlign    = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle    = "rgba(79,106,108,0.35)";
+  ctx.font         = "13px 'Segoe UI', system-ui, sans-serif";
+  ctx.fillText("No data", w / 2, h / 2);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  if (w < r * 2) r = w / 2;
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function hexAlpha(hex, alpha) {
+  const r = parseInt(hex.slice(1,3), 16);
+  const g = parseInt(hex.slice(3,5), 16);
+  const b = parseInt(hex.slice(5,7), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESIZE — redraw all charts on window resize
+═══════════════════════════════════════════════════════════ */
+let _lastData = null;
+let _resizeTimer = null;
+
+window.addEventListener("resize", () => {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(() => {
+    if (_lastData) renderAll(_lastData);
+  }, 120);
+});
+
+/* ═══════════════════════════════════════════════════════════
+   WIRE UP EVENTS
+═══════════════════════════════════════════════════════════ */
+document.getElementById("btnApply").addEventListener("click", loadStats);
+document.getElementById("btnRefresh").addEventListener("click", doRefresh);
+document.getElementById("btnReset").addEventListener("click", () => {
+  document.getElementById("fDateFrom").value = "2025-01-01";
+  document.getElementById("fDateTo").value   = today;
+  document.getElementById("fAgency").value   = "";
+  document.getElementById("fStatus").value   = "";
+  document.getElementById("fCountry").value  = "";
+  loadStats();
+});
+
+// renderAll — caches data so resize can redraw
+function renderAll(d) {
+  _lastData = d;
+  _renderAll(d);
+}
+
+// Keyboard: Enter in filter bar applies
+document.querySelector(".filter-bar").addEventListener("keydown", e => {
+  if (e.key === "Enter") loadStats();
+});
+
+/* ═══════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════ */
+(async function init() {
+  await loadFilterOptions();
+  await loadStats();
+})();
+</script>
+</body>
+</html>

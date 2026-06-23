@@ -286,6 +286,57 @@ def filter_options():
     except Exception as e:
         return jresp({"ok":False,"error":str(e)}, 500)
 
+# ── /api/gsheet-stream  ────────────────────────────────────────────────────────
+
+GSHEET_CSV = (
+    "https://docs.google.com/spreadsheets/d/"
+    "1PnxOaenFjIPbmEnySChbE6h13HehIsFM9VNnwytsY4k"
+    "/export?format=csv&gid=413463191"
+)
+DATE_FROM = "2026-01-01"
+
+@app.route("/api/gsheet-stream")
+def gsheet_stream():
+    """Streamuje záznamy z Google Sheets od DATE_FROM jako NDJSON s progress."""
+    import urllib.request, csv, io
+
+    def generate():
+        try:
+            req = urllib.request.urlopen(GSHEET_CSV, timeout=30)
+            raw = req.read().decode("utf-8-sig")
+        except Exception as e:
+            yield json.dumps({"error": str(e)}) + "\n"
+            return
+
+        reader = csv.DictReader(io.StringIO(raw))
+        rows = list(reader)
+        total = len(rows)
+        sent = 0
+        yield json.dumps({"total": total}) + "\n"
+
+        for row in rows:
+            date_val = (row.get("Reservation date") or row.get("reservation_date") or "").strip()
+            # support DD.MM.YYYY and YYYY-MM-DD
+            try:
+                if "." in date_val:
+                    parts = date_val.split(".")
+                    date_iso = f"{parts[2]}-{parts[1].zfill(2)}-{parts[0].zfill(2)}"
+                else:
+                    date_iso = date_val[:10]
+            except Exception:
+                date_iso = ""
+
+            if date_iso >= DATE_FROM:
+                yield json.dumps(row) + "\n"
+            sent += 1
+            if sent % 500 == 0:
+                yield json.dumps({"progress": sent, "total": total}) + "\n"
+
+        yield json.dumps({"done": True, "total": total}) + "\n"
+
+    return Response(generate(), mimetype="application/x-ndjson",
+                    headers={"Cache-Control": "no-store"})
+
 # ── Static files ───────────────────────────────────────────────────────────────
 
 @app.route("/")

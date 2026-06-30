@@ -322,6 +322,49 @@ body {
   flex-shrink: 0;
 }
 
+/* ── YOY STRIP ──────────────────────────────────────────── */
+.yoy-strip {
+  display: flex;
+  gap: 12px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+.yoy-card {
+  flex: 1;
+  min-width: 160px;
+  background: rgba(245,246,244,0.7);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 14px;
+}
+.yoy-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.yoy-desc {
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 8px;
+  opacity: 0.7;
+}
+.yoy-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+.yoy-metric { color: var(--muted); flex: 1; }
+.yoy-val { font-weight: 800; min-width: 54px; text-align: right; }
+.yoy-abs { color: var(--muted); font-size: 11px; min-width: 46px; text-align: right; }
+.yoy-up   { color: #2e7d52; }
+.yoy-down { color: var(--issued); }
+.yoy-loading { font-size: 12px; color: var(--muted); padding: 8px 0; }
+
 /* ── CHART SECTION ──────────────────────────────────────── */
 .chart-section {
   background: var(--panel);
@@ -1057,6 +1100,7 @@ td.cell-empty { color: var(--muted); }
     </div>
     <div class="breakdown-col-title" id="chart-group-title" style="margin-top:6px">Agentura – celkem / vystaveno</div>
     <div id="chart-top-body"></div>
+    <div class="yoy-strip" id="yoy-strip"></div>
   </div>
 
   <!-- BREAKDOWN: 6 panelů -->
@@ -2236,10 +2280,92 @@ async function reloadStats() {
       const params = buildApiFilterParams();
       const res = await fetchWithTimeout(`${API}/api/stats?${params}`);
       const data = await res.json();
-      if (data.ok) { applyStats(data); return; }
+      if (data.ok) { applyStats(data); loadYoyComparison(); return; }
     } catch(e) { /* fallback na client-side */ }
   }
   applyStats(buildStatsFromRows(filteredRows), { local: true });
+  loadYoyComparison();
+}
+
+// ── YoY / 6M / 1M porovnání ──────────────────────────────────────────────────
+
+async function fetchPeriodStats(dateFrom, dateTo) {
+  if (dataMode === "api") {
+    try {
+      const res = await fetchWithTimeout(`${API}/api/stats?date_from=${dateFrom}&date_to=${dateTo}`, 4000);
+      const d = await res.json();
+      if (d.ok) return { total: Number(d.total||0), issued: Number(d.issued||0) };
+    } catch(e) {}
+  }
+  // fallback: počítej z allRows podle datumu
+  const colDate = findCol("reservation_date");
+  const rows = allRows.filter(r => {
+    if (!colDate) return true;
+    const raw = r[colDate]; if (!raw) return false;
+    let iso = raw;
+    const m = String(raw).match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+    if (m) iso = `${m[3]}-${m[2]}-${m[1]}`;
+    return iso >= dateFrom && iso <= dateTo;
+  });
+  const colIss = findCol("issuance_date") || findCol("status");
+  const issued = rows.filter(r => {
+    if (!colIss) return false;
+    const v = String(r[colIss]||"").toUpperCase();
+    return v.includes("ISSUE") || (findCol("issuance_date") && r[findCol("issuance_date")]);
+  }).length;
+  return { total: rows.length, issued };
+}
+
+async function loadYoyComparison() {
+  const el = document.getElementById("yoy-strip");
+  if (!el) return;
+  const now = new Date();
+  const fmt = d => d.toISOString().slice(0,10);
+  const today = fmt(now);
+  const y = now.getFullYear(), pY = y - 1;
+  const mm = String(now.getMonth()+1).padStart(2,"0");
+  const dd = String(now.getDate()).padStart(2,"0");
+  const sixMAgo = new Date(now); sixMAgo.setMonth(sixMAgo.getMonth()-6);
+  const twMAgo  = new Date(now); twMAgo.setMonth(twMAgo.getMonth()-12);
+  const periods = [
+    { label:"YoY", desc:`${y} vs ${pY}`,
+      curr:[`${y}-01-01`, today], prev:[`${pY}-01-01`,`${pY}-${mm}-${dd}`] },
+    { label:"6M",  desc:"posl. 6M vs předchozí 6M",
+      curr:[fmt(sixMAgo), today], prev:[fmt(twMAgo), fmt(sixMAgo)] },
+    { label:"1M",  desc:`${mm}/${y} vs ${mm}/${pY}`,
+      curr:[`${y}-${mm}-01`, today], prev:[`${pY}-${mm}-01`,`${pY}-${mm}-${dd}`] },
+  ];
+  el.innerHTML = `<div class="yoy-loading">Počítám porovnání…</div>`;
+  try {
+    const results = await Promise.all(periods.map(async p => {
+      const [cc, cp] = await Promise.all([
+        fetchPeriodStats(p.curr[0], p.curr[1]),
+        fetchPeriodStats(p.prev[0], p.prev[1]),
+      ]);
+      return { ...p, cc, cp };
+    }));
+    const pct = (c,p) => !p ? null : ((c-p)/p*100).toFixed(1);
+    const arr = v => v===null?"": v>=0?"↑":"↓";
+    const cls = v => v===null?"": v>=0?"yoy-up":"yoy-down";
+    el.innerHTML = results.map(r => {
+      const pc = pct(r.cc.total,  r.cp.total);
+      const pi = pct(r.cc.issued, r.cp.issued);
+      return `<div class="yoy-card">
+        <div class="yoy-label">${r.label}</div>
+        <div class="yoy-desc">${r.desc}</div>
+        <div class="yoy-row">
+          <span class="yoy-metric">Celkem</span>
+          <span class="yoy-val ${cls(Number(pc))}">${arr(Number(pc))} ${pc!==null?pc+"%":"—"}</span>
+          <span class="yoy-abs">${r.cc.total.toLocaleString("cs-CZ")}</span>
+        </div>
+        <div class="yoy-row">
+          <span class="yoy-metric">Vystaveno</span>
+          <span class="yoy-val ${cls(Number(pi))}">${arr(Number(pi))} ${pi!==null?pi+"%":"—"}</span>
+          <span class="yoy-abs">${r.cc.issued.toLocaleString("cs-CZ")}</span>
+        </div>
+      </div>`;
+    }).join("");
+  } catch(e) { el.innerHTML = ""; }
 }
 
 function buildApiFilterParams() {

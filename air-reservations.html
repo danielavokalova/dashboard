@@ -2292,7 +2292,11 @@ async function reloadStats() {
 async function fetchPeriodStats(dateFrom, dateTo) {
   if (dataMode === "api") {
     try {
-      const res = await fetchWithTimeout(`${API}/api/stats?date_from=${dateFrom}&date_to=${dateTo}`, 4000);
+      // Zachovej aktivní filtry (agentura, dealer…) ale přepiš datum
+      const params = buildApiFilterParams();
+      params.set("date_from", dateFrom);
+      params.set("date_to",   dateTo);
+      const res = await fetchWithTimeout(`${API}/api/stats?${params}`, 4000);
       const d = await res.json();
       if (d.ok) return { total: Number(d.total||0), issued: Number(d.issued||0) };
     } catch(e) {}

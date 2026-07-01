@@ -2480,14 +2480,14 @@ async function loadYoyComparison() {
 
       if (top20.length > 0) {
         // Build panel rows for a given period index
-        function buildPanelRows(agencies, periodIdx) {
+        function buildPanelRows(agencies, periodIdx, rankOffset=0) {
           const d = agData[periodIdx];
           return agencies.map((ag, i) => {
             const c = d.curr[ag]?.cnt||0;
             const p2 = d.prev[ag]?.cnt||0;
             const v = pct(c, p2);
             return `<div class="yoy-ag-row">
-              <span class="yoy-ag-rank">${i+1}</span>
+              <span class="yoy-ag-rank">${i+1+rankOffset}</span>
               <span class="yoy-ag-name" title="${ag}">${ag}</span>
               <span class="yoy-ag-cnt">${c.toLocaleString("cs-CZ")}</span>
               <span class="yoy-ag-delta ${cls(v)}">${arr(v)} ${v!==null?v+"%":"—"}</span>
@@ -2500,19 +2500,19 @@ async function loadYoyComparison() {
           `<button class="yoy-tab${i===0?" active":""}" onclick="yoySelectPeriod(${i})">${p.label}</button>`
         ).join("");
 
-        const left10  = top20.slice(0,10);
-        const right10 = top20.slice(10,20);
+        const left15  = top20.slice(0,15);
+        const right5  = top20.slice(15,20);
 
         // Pre-render all 4 sets of panels (hidden except active)
         const allPanels = periods.map((p,i) => `
           <div class="yoy-panels" id="yoy-panels-${i}" style="${i===0?"":"display:none"}">
             <div class="yoy-panel">
-              <div class="yoy-panel-title">Top 1–10 &nbsp;·&nbsp; ${p.label}: ${p.desc}</div>
-              ${buildPanelRows(left10, i)}
+              <div class="yoy-panel-title">TOP 20 &nbsp;·&nbsp; 1–15 &nbsp;·&nbsp; ${p.label}: ${p.desc}</div>
+              ${buildPanelRows(left15, i)}
             </div>
             <div class="yoy-panel">
-              <div class="yoy-panel-title">Top 11–20 &nbsp;·&nbsp; ${p.label}: ${p.desc}</div>
-              ${buildPanelRows(right10.map((ag,j)=>({ag,rank:j+11})).map(x=>x.ag), i)}
+              <div class="yoy-panel-title">TOP 20 &nbsp;·&nbsp; 16–20 &nbsp;·&nbsp; ${p.label}: ${p.desc}</div>
+              ${buildPanelRows(right5, i, 15)}
             </div>
           </div>`).join("");
 

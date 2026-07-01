@@ -2504,19 +2504,19 @@ async function loadYoyComparison() {
           `<button class="yoy-tab${i===0?" active":""}" onclick="yoySelectPeriod(${i})">${p.label}</button>`
         ).join("");
 
-        const left15  = top20.slice(0,15);
-        const right5  = top20.slice(15,20);
+        const left10  = top20.slice(0,10);
+        const right10 = top20.slice(10,20);
 
         // Pre-render all 4 sets of panels (hidden except active)
         const allPanels = periods.map((p,i) => `
           <div class="yoy-panels" id="yoy-panels-${i}" style="${i===0?"":"display:none"}">
             <div class="yoy-panel">
-              <div class="yoy-panel-title">TOP 20 &nbsp;·&nbsp; 1–15 &nbsp;·&nbsp; ${p.label}: ${p.desc}</div>
-              ${buildPanelRows(left15, i)}
+              <div class="yoy-panel-title">TOP 20 &nbsp;·&nbsp; 1–10 &nbsp;·&nbsp; ${p.label}: ${p.desc}</div>
+              ${buildPanelRows(left10, i)}
             </div>
             <div class="yoy-panel">
-              <div class="yoy-panel-title">TOP 20 &nbsp;·&nbsp; 16–20 &nbsp;·&nbsp; ${p.label}: ${p.desc}</div>
-              ${buildPanelRows(right5, i, 15)}
+              <div class="yoy-panel-title">TOP 20 &nbsp;·&nbsp; 11–20 &nbsp;·&nbsp; ${p.label}: ${p.desc}</div>
+              ${buildPanelRows(right10, i, 10)}
             </div>
           </div>`).join("");
 

@@ -323,15 +323,16 @@ body {
 }
 
 /* ── YOY STRIP ──────────────────────────────────────────── */
-.yoy-strip {
+.yoy-strip { margin-top: 18px; }
+.yoy-cards {
   display: flex;
-  gap: 12px;
-  margin-top: 14px;
+  gap: 10px;
   flex-wrap: wrap;
+  margin-bottom: 14px;
 }
 .yoy-card {
   flex: 1;
-  min-width: 160px;
+  min-width: 140px;
   background: rgba(245,246,244,0.7);
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -345,25 +346,41 @@ body {
   text-transform: uppercase;
   margin-bottom: 2px;
 }
-.yoy-desc {
-  font-size: 10px;
-  color: var(--muted);
-  margin-bottom: 8px;
-  opacity: 0.7;
-}
-.yoy-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 4px;
-  font-size: 12px;
-}
+.yoy-desc { font-size: 10px; color: var(--muted); margin-bottom: 8px; opacity: 0.7; }
+.yoy-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; font-size: 12px; }
 .yoy-metric { color: var(--muted); flex: 1; }
 .yoy-val { font-weight: 800; min-width: 54px; text-align: right; }
 .yoy-abs { color: var(--muted); font-size: 11px; min-width: 46px; text-align: right; }
 .yoy-up   { color: #2e7d52; }
 .yoy-down { color: var(--issued); }
 .yoy-loading { font-size: 12px; color: var(--muted); padding: 8px 0; }
+.yoy-table-wrap { overflow-x: auto; margin-top: 4px; }
+.yoy-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.yoy-table th {
+  text-align: right;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  text-transform: uppercase;
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.yoy-table th:first-child { text-align: left; }
+.yoy-table td {
+  padding: 5px 8px;
+  border-bottom: 1px solid rgba(66,92,94,0.07);
+  text-align: right;
+  white-space: nowrap;
+}
+.yoy-table td:first-child { text-align: left; font-weight: 600; color: var(--ink); }
+.yoy-table tr:last-child td { border-bottom: none; }
+.yoy-table tr:hover td { background: var(--row-hover); }
 
 /* ── CHART SECTION ──────────────────────────────────────── */
 .chart-section {
@@ -2331,6 +2348,8 @@ async function loadYoyComparison() {
   const dd = String(now.getDate()).padStart(2,"0");
   const sixMAgo = new Date(now); sixMAgo.setMonth(sixMAgo.getMonth()-6);
   const twMAgo  = new Date(now); twMAgo.setMonth(twMAgo.getMonth()-12);
+  const sevenDAgo  = new Date(now); sevenDAgo.setDate(sevenDAgo.getDate()-7);
+  const fourteenDAgo = new Date(now); fourteenDAgo.setDate(fourteenDAgo.getDate()-14);
   const periods = [
     { label:"YoY", desc:`${y} vs ${pY}`,
       curr:[`${y}-01-01`, today], prev:[`${pY}-01-01`,`${pY}-${mm}-${dd}`] },
@@ -2338,6 +2357,8 @@ async function loadYoyComparison() {
       curr:[fmt(sixMAgo), today], prev:[fmt(twMAgo), fmt(sixMAgo)] },
     { label:"1M",  desc:`${mm}/${y} vs ${mm}/${pY}`,
       curr:[`${y}-${mm}-01`, today], prev:[`${pY}-${mm}-01`,`${pY}-${mm}-${dd}`] },
+    { label:"1T",  desc:"posl. 7 dní vs předchozích 7 dní",
+      curr:[fmt(sevenDAgo), today], prev:[fmt(fourteenDAgo), fmt(sevenDAgo)] },
   ];
   el.innerHTML = `<div class="yoy-loading">Počítám porovnání…</div>`;
   try {
@@ -2348,27 +2369,71 @@ async function loadYoyComparison() {
       ]);
       return { ...p, cc, cp };
     }));
+
     const pct = (c,p) => !p ? null : ((c-p)/p*100).toFixed(1);
-    const arr = v => v===null?"": v>=0?"↑":"↓";
-    const cls = v => v===null?"": v>=0?"yoy-up":"yoy-down";
-    el.innerHTML = results.map(r => {
-      const pc = pct(r.cc.total,  r.cp.total);
+    const arr = v => v===null?"": Number(v)>=0?"↑":"↓";
+    const cls = v => v===null?"": Number(v)>=0?"yoy-up":"yoy-down";
+    const cell = (v, abs) => `<span class="yoy-val ${cls(v)}">${arr(v)} ${v!==null?v+"%":"—"}</span> <span class="yoy-abs">${abs.toLocaleString("cs-CZ")}</span>`;
+
+    // Souhrnné karty
+    const cards = results.map(r => {
+      const pc = pct(r.cc.total, r.cp.total);
       const pi = pct(r.cc.issued, r.cp.issued);
       return `<div class="yoy-card">
         <div class="yoy-label">${r.label}</div>
         <div class="yoy-desc">${r.desc}</div>
-        <div class="yoy-row">
-          <span class="yoy-metric">Celkem</span>
-          <span class="yoy-val ${cls(Number(pc))}">${arr(Number(pc))} ${pc!==null?pc+"%":"—"}</span>
-          <span class="yoy-abs">${r.cc.total.toLocaleString("cs-CZ")}</span>
-        </div>
-        <div class="yoy-row">
-          <span class="yoy-metric">Vystaveno</span>
-          <span class="yoy-val ${cls(Number(pi))}">${arr(Number(pi))} ${pi!==null?pi+"%":"—"}</span>
-          <span class="yoy-abs">${r.cc.issued.toLocaleString("cs-CZ")}</span>
-        </div>
+        <div class="yoy-row"><span class="yoy-metric">Celkem</span>${cell(pc, r.cc.total)}</div>
+        <div class="yoy-row"><span class="yoy-metric">Vystaveno</span>${cell(pi, r.cc.issued)}</div>
       </div>`;
     }).join("");
+
+    // Tabulka per agentura (pouze pokud server vrátil by_agency)
+    let agTable = "";
+    if (dataMode === "api") {
+      const agData = await Promise.all(periods.map(async p => {
+        try {
+          const params = buildApiFilterParams();
+          params.set ? params.set("date_from", p.curr[0]) : null;
+          const q = new URLSearchParams(buildApiFilterParams());
+          q.set("date_from", p.curr[0]); q.set("date_to", p.curr[1]);
+          const qp = new URLSearchParams(buildApiFilterParams());
+          qp.set("date_from", p.prev[0]); qp.set("date_to", p.prev[1]);
+          const [rc, rp] = await Promise.all([
+            fetchWithTimeout(`${API}/api/stats?${q}`, 4000).then(r=>r.json()),
+            fetchWithTimeout(`${API}/api/stats?${qp}`, 4000).then(r=>r.json()),
+          ]);
+          const curr = Object.fromEntries((rc.by_agency||[]).map(a=>[a.label,{cnt:Number(a.cnt||0),issued:Number(a.issued||0)}]));
+          const prev = Object.fromEntries((rp.by_agency||[]).map(a=>[a.label,{cnt:Number(a.cnt||0),issued:Number(a.issued||0)}]));
+          return { curr, prev };
+        } catch(e) { return { curr:{}, prev:{} }; }
+      }));
+
+      // Agentury ze všech period dohromady
+      const agencies = [...new Set(agData.flatMap(d => Object.keys(d.curr)))].sort((a,b)=>{
+        const totA = agData[0].curr[a]?.cnt||0; const totB = agData[0].curr[b]?.cnt||0;
+        return totB - totA;
+      }).slice(0,20);
+
+      if (agencies.length > 0) {
+        const heads = periods.map(p=>`<th colspan="2">${p.label}</th>`).join("");
+        const subheads = periods.map(()=>`<th>Δ%</th><th>Celkem</th>`).join("");
+        const rows = agencies.map(ag => {
+          const cells = agData.map(d => {
+            const c = d.curr[ag]||{cnt:0}; const p = d.prev[ag]||{cnt:0};
+            const v = pct(c.cnt, p.cnt);
+            return `<td><span class="${cls(v)}">${arr(v)} ${v!==null?v+"%":"—"}</span></td><td>${c.cnt.toLocaleString("cs-CZ")}</td>`;
+          }).join("");
+          return `<tr><td>${ag}</td>${cells}</tr>`;
+        }).join("");
+
+        agTable = `<div class="yoy-table-wrap"><table class="yoy-table">
+          <thead><tr><th>Agentura</th>${heads}</tr><tr><th></th>${subheads}</tr></thead>
+          <tbody>${rows}</tbody>
+        </table></div>`;
+      }
+    }
+
+    el.innerHTML = `<div class="yoy-cards">${cards}</div>${agTable}`;
   } catch(e) { el.innerHTML = ""; }
 }
 

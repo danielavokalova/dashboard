@@ -2474,9 +2474,13 @@ async function loadYoyComparison() {
         } catch(e) { return { label:p.label, desc:p.desc, curr:{}, prev:{} }; }
       }));
 
-      // Top 20 agencies sorted by current-period count of first period (YoY)
-      const allAg = [...new Set(agData.flatMap(d => Object.keys(d.curr)))];
-      const top20 = allAg.sort((a,b) => (agData[0].curr[b]?.cnt||0) - (agData[0].curr[a]?.cnt||0)).slice(0,20);
+      // Top 20 agencies — pool from all periods (curr + prev) so right panel is never empty
+      const allAg = [...new Set(agData.flatMap(d => [...Object.keys(d.curr), ...Object.keys(d.prev)]))];
+      const top20 = allAg.sort((a,b) => {
+        const sumA = agData.reduce((s,d) => s + (d.curr[a]?.cnt||0) + (d.prev[a]?.cnt||0), 0);
+        const sumB = agData.reduce((s,d) => s + (d.curr[b]?.cnt||0) + (d.prev[b]?.cnt||0), 0);
+        return sumB - sumA;
+      }).slice(0,20);
 
       if (top20.length > 0) {
         // Build panel rows for a given period index

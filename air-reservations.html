@@ -328,7 +328,7 @@ body {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 .yoy-card {
   flex: 1;
@@ -354,33 +354,98 @@ body {
 .yoy-up   { color: #2e7d52; }
 .yoy-down { color: var(--issued); }
 .yoy-loading { font-size: 12px; color: var(--muted); padding: 8px 0; }
-.yoy-table-wrap { overflow-x: auto; margin-top: 4px; }
-.yoy-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
+
+/* period tabs */
+.yoy-period-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  align-items: center;
 }
-.yoy-table th {
-  text-align: right;
+.yoy-period-tabs span {
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.14em;
   color: var(--muted);
   text-transform: uppercase;
-  padding: 5px 8px;
+  margin-right: 4px;
+}
+.yoy-tab {
+  padding: 5px 13px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.yoy-tab:hover { background: rgba(66,92,94,0.08); }
+.yoy-tab.active {
+  background: var(--issued);
+  border-color: var(--issued);
+  color: #fff;
+}
+
+/* two-panel agency layout */
+.yoy-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.yoy-panel {
+  background: rgba(245,246,244,0.6);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.yoy-panel-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
   border-bottom: 1px solid var(--border);
-  white-space: nowrap;
 }
-.yoy-table th:first-child { text-align: left; }
-.yoy-table td {
-  padding: 5px 8px;
-  border-bottom: 1px solid rgba(66,92,94,0.07);
+.yoy-ag-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(66,92,94,0.06);
+  font-size: 12px;
+}
+.yoy-ag-row:last-child { border-bottom: none; }
+.yoy-ag-name {
+  flex: 1;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+.yoy-ag-cnt {
+  color: var(--muted);
+  font-size: 11px;
+  min-width: 40px;
   text-align: right;
-  white-space: nowrap;
 }
-.yoy-table td:first-child { text-align: left; font-weight: 600; color: var(--ink); }
-.yoy-table tr:last-child td { border-bottom: none; }
-.yoy-table tr:hover td { background: var(--row-hover); }
+.yoy-ag-delta {
+  font-weight: 800;
+  font-size: 12px;
+  min-width: 58px;
+  text-align: right;
+}
+.yoy-ag-rank {
+  color: var(--muted);
+  font-size: 10px;
+  min-width: 18px;
+}
 
 /* ── CHART SECTION ──────────────────────────────────────── */
 .chart-section {
@@ -2360,8 +2425,16 @@ async function loadYoyComparison() {
     { label:"1T",  desc:"posl. 7 dní vs předchozích 7 dní",
       curr:[fmt(sevenDAgo), today], prev:[fmt(fourteenDAgo), fmt(sevenDAgo)] },
   ];
+
   el.innerHTML = `<div class="yoy-loading">Počítám porovnání…</div>`;
+
+  const pct = (c,p) => !p ? null : ((c-p)/p*100).toFixed(1);
+  const arr = v => v===null?"": Number(v)>=0?"↑":"↓";
+  const cls = v => v===null?"": Number(v)>=0?"yoy-up":"yoy-down";
+  const cell = (v, abs) => `<span class="yoy-val ${cls(v)}">${arr(v)} ${v!==null?v+"%":"—"}</span> <span class="yoy-abs">${abs.toLocaleString("cs-CZ")}</span>`;
+
   try {
+    // Summary cards — fetch all 4 periods in parallel
     const results = await Promise.all(periods.map(async p => {
       const [cc, cp] = await Promise.all([
         fetchPeriodStats(p.curr[0], p.curr[1]),
@@ -2370,12 +2443,6 @@ async function loadYoyComparison() {
       return { ...p, cc, cp };
     }));
 
-    const pct = (c,p) => !p ? null : ((c-p)/p*100).toFixed(1);
-    const arr = v => v===null?"": Number(v)>=0?"↑":"↓";
-    const cls = v => v===null?"": Number(v)>=0?"yoy-up":"yoy-down";
-    const cell = (v, abs) => `<span class="yoy-val ${cls(v)}">${arr(v)} ${v!==null?v+"%":"—"}</span> <span class="yoy-abs">${abs.toLocaleString("cs-CZ")}</span>`;
-
-    // Souhrnné karty
     const cards = results.map(r => {
       const pc = pct(r.cc.total, r.cp.total);
       const pi = pct(r.cc.issued, r.cp.issued);
@@ -2387,54 +2454,85 @@ async function loadYoyComparison() {
       </div>`;
     }).join("");
 
-    // Tabulka per agentura (pouze pokud server vrátil by_agency)
-    let agTable = "";
+    // Per-agency panels — only in API mode
+    let panelsHtml = "";
     if (dataMode === "api") {
+      // Fetch agency data for all 4 periods
       const agData = await Promise.all(periods.map(async p => {
         try {
-          const params = buildApiFilterParams();
-          params.set ? params.set("date_from", p.curr[0]) : null;
-          const q = new URLSearchParams(buildApiFilterParams());
-          q.set("date_from", p.curr[0]); q.set("date_to", p.curr[1]);
-          const qp = new URLSearchParams(buildApiFilterParams());
-          qp.set("date_from", p.prev[0]); qp.set("date_to", p.prev[1]);
+          const qc = new URLSearchParams(buildApiFilterParams());
+          qc.set("date_from", p.curr[0]); qc.set("date_to", p.curr[1]);
+          const qp2 = new URLSearchParams(buildApiFilterParams());
+          qp2.set("date_from", p.prev[0]); qp2.set("date_to", p.prev[1]);
           const [rc, rp] = await Promise.all([
-            fetchWithTimeout(`${API}/api/stats?${q}`, 4000).then(r=>r.json()),
-            fetchWithTimeout(`${API}/api/stats?${qp}`, 4000).then(r=>r.json()),
+            fetchWithTimeout(`${API}/api/stats?${qc}`, 5000).then(r=>r.json()),
+            fetchWithTimeout(`${API}/api/stats?${qp2}`, 5000).then(r=>r.json()),
           ]);
-          const curr = Object.fromEntries((rc.by_agency||[]).map(a=>[a.label,{cnt:Number(a.cnt||0),issued:Number(a.issued||0)}]));
-          const prev = Object.fromEntries((rp.by_agency||[]).map(a=>[a.label,{cnt:Number(a.cnt||0),issued:Number(a.issued||0)}]));
-          return { curr, prev };
-        } catch(e) { return { curr:{}, prev:{} }; }
+          const curr = Object.fromEntries((rc.by_agency||[]).map(a=>[a.label,{cnt:Number(a.cnt||0)}]));
+          const prev = Object.fromEntries((rp.by_agency||[]).map(a=>[a.label,{cnt:Number(a.cnt||0)}]));
+          return { label:p.label, desc:p.desc, curr, prev };
+        } catch(e) { return { label:p.label, desc:p.desc, curr:{}, prev:{} }; }
       }));
 
-      // Agentury ze všech period dohromady
-      const agencies = [...new Set(agData.flatMap(d => Object.keys(d.curr)))].sort((a,b)=>{
-        const totA = agData[0].curr[a]?.cnt||0; const totB = agData[0].curr[b]?.cnt||0;
-        return totB - totA;
-      }).slice(0,20);
+      // Top 20 agencies sorted by current-period count of first period (YoY)
+      const allAg = [...new Set(agData.flatMap(d => Object.keys(d.curr)))];
+      const top20 = allAg.sort((a,b) => (agData[0].curr[b]?.cnt||0) - (agData[0].curr[a]?.cnt||0)).slice(0,20);
 
-      if (agencies.length > 0) {
-        const heads = periods.map(p=>`<th colspan="2">${p.label}</th>`).join("");
-        const subheads = periods.map(()=>`<th>Δ%</th><th>Celkem</th>`).join("");
-        const rows = agencies.map(ag => {
-          const cells = agData.map(d => {
-            const c = d.curr[ag]||{cnt:0}; const p = d.prev[ag]||{cnt:0};
-            const v = pct(c.cnt, p.cnt);
-            return `<td><span class="${cls(v)}">${arr(v)} ${v!==null?v+"%":"—"}</span></td><td>${c.cnt.toLocaleString("cs-CZ")}</td>`;
+      if (top20.length > 0) {
+        // Build panel rows for a given period index
+        function buildPanelRows(agencies, periodIdx) {
+          const d = agData[periodIdx];
+          return agencies.map((ag, i) => {
+            const c = d.curr[ag]?.cnt||0;
+            const p2 = d.prev[ag]?.cnt||0;
+            const v = pct(c, p2);
+            return `<div class="yoy-ag-row">
+              <span class="yoy-ag-rank">${i+1}</span>
+              <span class="yoy-ag-name" title="${ag}">${ag}</span>
+              <span class="yoy-ag-cnt">${c.toLocaleString("cs-CZ")}</span>
+              <span class="yoy-ag-delta ${cls(v)}">${arr(v)} ${v!==null?v+"%":"—"}</span>
+            </div>`;
           }).join("");
-          return `<tr><td>${ag}</td>${cells}</tr>`;
-        }).join("");
+        }
 
-        agTable = `<div class="yoy-table-wrap"><table class="yoy-table">
-          <thead><tr><th>Agentura</th>${heads}</tr><tr><th></th>${subheads}</tr></thead>
-          <tbody>${rows}</tbody>
-        </table></div>`;
+        // Period tabs + panels container (period index stored as data attr)
+        const tabsHtml = periods.map((p,i) =>
+          `<button class="yoy-tab${i===0?" active":""}" onclick="yoySelectPeriod(${i})">${p.label}</button>`
+        ).join("");
+
+        const left10  = top20.slice(0,10);
+        const right10 = top20.slice(10,20);
+
+        // Pre-render all 4 sets of panels (hidden except active)
+        const allPanels = periods.map((p,i) => `
+          <div class="yoy-panels" id="yoy-panels-${i}" style="${i===0?"":"display:none"}">
+            <div class="yoy-panel">
+              <div class="yoy-panel-title">Top 1–10 &nbsp;·&nbsp; ${p.label}: ${p.desc}</div>
+              ${buildPanelRows(left10, i)}
+            </div>
+            <div class="yoy-panel">
+              <div class="yoy-panel-title">Top 11–20 &nbsp;·&nbsp; ${p.label}: ${p.desc}</div>
+              ${buildPanelRows(right10.map((ag,j)=>({ag,rank:j+11})).map(x=>x.ag), i)}
+            </div>
+          </div>`).join("");
+
+        panelsHtml = `
+          <div class="yoy-period-tabs">
+            <span>Období:</span>${tabsHtml}
+          </div>
+          ${allPanels}`;
       }
     }
 
-    el.innerHTML = `<div class="yoy-cards">${cards}</div>${agTable}`;
+    el.innerHTML = `<div class="yoy-cards">${cards}</div>${panelsHtml}`;
   } catch(e) { el.innerHTML = ""; }
+}
+
+function yoySelectPeriod(idx) {
+  document.querySelectorAll(".yoy-tab").forEach((t,i) => t.classList.toggle("active", i===idx));
+  document.querySelectorAll("[id^='yoy-panels-']").forEach(p => {
+    p.style.display = p.id === `yoy-panels-${idx}` ? "" : "none";
+  });
 }
 
 function buildApiFilterParams() {

@@ -43,21 +43,20 @@ body {
   display: flex;
   align-items: center;
   gap: 22px;
-  padding: 18px 56px;
+  padding: 28px 56px;
   background: var(--navy);
   border-bottom: 3px solid var(--tan);
   box-shadow: 0 4px 18px rgba(46,52,80,0.35);
 }
 
 h1 {
-  font-size: 22px;
+  font-size: 24px;
   letter-spacing: 0.3em;
   font-weight: 800;
   color: var(--cream);
 }
 
 .palette-dots {
-  margin-left: auto;
   display: flex;
   gap: 8px;
 }
@@ -66,6 +65,28 @@ h1 {
   width: 12px;
   height: 12px;
   border-radius: 50%;
+}
+
+.bar-clock {
+  margin-left: auto;
+  text-align: right;
+}
+
+#clock-time {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+#clock-date {
+  margin-top: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--bluegray);
 }
 
 /* MAIN */
@@ -149,40 +170,6 @@ main {
   gap: 22px;
 }
 
-/* CLOCK CARD */
-.clock-card {
-  background: var(--navy);
-  border-radius: 20px;
-  border-bottom: 4px solid var(--tan);
-  padding: 24px 28px;
-  color: var(--cream);
-  box-shadow: 0 10px 28px rgba(46,52,80,0.35);
-}
-
-#clock-time {
-  font-size: 42px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-
-#clock-date {
-  margin-top: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--bluegray);
-}
-
-#clock-week {
-  margin-top: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--tan);
-}
-
 .side-tiles {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -243,6 +230,10 @@ footer {
     <span style="background:#aebcc9"></span>
     <span style="background:#ddd6b4"></span>
     <span style="background:#f2f0dd"></span>
+  </div>
+  <div class="bar-clock">
+    <div id="clock-time">--:--:--</div>
+    <div id="clock-date"></div>
   </div>
 </nav>
 
@@ -320,11 +311,6 @@ footer {
   </div>
 
   <aside class="side">
-    <div class="clock-card">
-      <div id="clock-time">--:--:--</div>
-      <div id="clock-date"></div>
-      <div id="clock-week"></div>
-    </div>
     <div class="side-tiles">
       <a class="tile" href="mailto:">EMAIL</a>
       <a class="tile" href="https://mail.google.com/mail/u/0/?tab=rm&ogbl#inbox" target="_blank">GMAIL</a>
@@ -350,7 +336,6 @@ textarea.addEventListener("input", () => {
 
 const clockTime = document.getElementById("clock-time");
 const clockDate = document.getElementById("clock-date");
-const clockWeek = document.getElementById("clock-week");
 function isoWeek(d) {
   const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   const day = date.getUTCDay() || 7;
@@ -361,8 +346,8 @@ function isoWeek(d) {
 function updateClock() {
   const now = new Date();
   clockTime.textContent = now.toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-  clockDate.textContent = now.toLocaleDateString("cs-CZ", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-  clockWeek.textContent = `${isoWeek(now)}. týden`;
+  const date = now.toLocaleDateString("cs-CZ", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  clockDate.textContent = `${date} · ${isoWeek(now)}. týden`;
 }
 updateClock();
 setInterval(updateClock, 1000);

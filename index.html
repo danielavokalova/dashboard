@@ -31,44 +31,45 @@ body {
   display: flex;
   flex-direction: column;
   font-family: "Segoe UI", system-ui, sans-serif;
-  background: url("flowers.svg") repeat;
-  background-size: 480px 480px;
+  background: linear-gradient(180deg,
+    #aebcc9 0%, #aebcc9 55%,
+    #ddd6b4 78%,
+    #f2f0dd 100%);
+  background-attachment: fixed;
   color: var(--ink);
 }
 
-/* HEADER */
-header {
-  padding: 36px 56px 24px;
-}
-
-.header-row {
+/* TOP BAR */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
   align-items: center;
   gap: 22px;
-}
-
-#clock {
-  margin-left: auto;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  color: var(--blue-muted);
-  text-align: right;
-  line-height: 1.5;
+  padding: 18px 56px;
+  background: var(--navy);
+  border-bottom: 3px solid var(--tan);
+  box-shadow: 0 4px 18px rgba(46,52,80,0.35);
 }
 
 h1 {
-  font-size: 28px;
-  letter-spacing: 0.28em;
+  font-size: 22px;
+  letter-spacing: 0.3em;
   font-weight: 800;
-  color: var(--ink);
-  text-shadow: 0 1px 4px rgba(46,52,80,0.15);
+  color: var(--cream);
 }
 
-.divider {
-  height: 2px;
-  background: var(--blue-line);
-  margin-top: 18px;
+.palette-dots {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.palette-dots span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
 }
 
 /* MAIN */
@@ -152,6 +153,40 @@ main {
   gap: 22px;
 }
 
+/* CLOCK CARD */
+.clock-card {
+  background: var(--navy);
+  border-radius: 20px;
+  border-bottom: 4px solid var(--tan);
+  padding: 24px 28px;
+  color: var(--cream);
+  box-shadow: 0 10px 28px rgba(46,52,80,0.35);
+}
+
+#clock-time {
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+#clock-date {
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--bluegray);
+}
+
+#clock-week {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--tan);
+}
+
 .side-tiles {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -201,38 +236,19 @@ footer {
   font-size: 13px;
 }
 
-/* OCTOPUS */
-.logo-chobotnice {
-  color: var(--navy);
-  width: 56px;
-  height: 56px;
-}
 </style>
 </head>
 
 <body>
 
-<header>
-  <div class="header-row">
-    <svg class="logo-chobotnice" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="50" cy="40" r="25" fill="currentColor"/>
-      <g fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round">
-        <path d="M50 65 C45 75 55 85 50 95"/>
-        <path d="M40 63 C30 75 45 85 35 95"/>
-        <path d="M60 63 C70 75 55 85 65 95"/>
-        <path d="M30 58 C15 70 35 85 20 92"/>
-        <path d="M70 58 C85 70 65 85 80 92"/>
-      </g>
-      <g fill="white">
-        <circle cx="42" cy="40" r="3.5"/>
-        <circle cx="58" cy="40" r="3.5"/>
-      </g>
-    </svg>
-    <h1>DASHBOARD</h1>
-    <div id="clock"></div>
+<nav class="topbar">
+  <h1>DASHBOARD</h1>
+  <div class="palette-dots" aria-hidden="true">
+    <span style="background:#aebcc9"></span>
+    <span style="background:#ddd6b4"></span>
+    <span style="background:#f2f0dd"></span>
   </div>
-  <div class="divider"></div>
-</header>
+</nav>
 
 <main>
   <div class="content">
@@ -308,6 +324,11 @@ footer {
   </div>
 
   <aside class="side">
+    <div class="clock-card">
+      <div id="clock-time">--:--:--</div>
+      <div id="clock-date"></div>
+      <div id="clock-week"></div>
+    </div>
     <div class="side-tiles">
       <a class="tile" href="mailto:">EMAIL</a>
       <a class="tile" href="https://mail.google.com/mail/u/0/?tab=rm&ogbl#inbox" target="_blank">GMAIL</a>
@@ -331,12 +352,21 @@ textarea.addEventListener("input", () => {
   localStorage.setItem("dashboardNotes", textarea.value);
 });
 
-const clock = document.getElementById("clock");
+const clockTime = document.getElementById("clock-time");
+const clockDate = document.getElementById("clock-date");
+const clockWeek = document.getElementById("clock-week");
+function isoWeek(d) {
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const day = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  return Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
+}
 function updateClock() {
   const now = new Date();
-  const date = now.toLocaleDateString("cs-CZ", { weekday: "short", day: "numeric", month: "long", year: "numeric" });
-  const time = now.toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-  clock.innerHTML = `${date}<br>${time}`;
+  clockTime.textContent = now.toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  clockDate.textContent = now.toLocaleDateString("cs-CZ", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  clockWeek.textContent = `${isoWeek(now)}. týden`;
 }
 updateClock();
 setInterval(updateClock, 1000);

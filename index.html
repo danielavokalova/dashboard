@@ -6,14 +6,18 @@
 
 <style>
 :root {
-  --ink: #1f2a2a;
-  --blue-muted: #4f6a6c;
-  --blue-line: #425c5e;
-  --paper: rgba(245,246,244,0.92);
-  --tile-bg: rgba(245,246,244,0.9);
-  --tile-shadow: rgba(90,115,115,0.35);
-  --notes-bg: rgba(245,246,244,0.94);
-  --octopus: #8f3e4a;
+  --navy: #2e3450;
+  --ink: #2e3450;
+  --blue-muted: #5a6580;
+  --blue-line: #2e3450;
+  --bluegray: #aebcc9;
+  --tan: #ddd6b4;
+  --cream: #f2f0dd;
+  --paper: rgba(221,214,180,0.92);
+  --tile-bg: rgba(242,240,221,0.92);
+  --tile-shadow: rgba(46,52,80,0.22);
+  --notes-bg: rgba(242,240,221,0.94);
+  --flower: #2e3450;
 }
 
 * {
@@ -57,7 +61,7 @@ h1 {
   letter-spacing: 0.28em;
   font-weight: 800;
   color: var(--ink);
-  text-shadow: 0 1px 4px rgba(90,115,115,0.18);
+  text-shadow: 0 1px 4px rgba(46,52,80,0.15);
 }
 
 .divider {
@@ -100,6 +104,8 @@ main {
   text-transform: uppercase;
   margin-bottom: 20px;
   width: fit-content;
+  padding-bottom: 6px;
+  border-bottom: 3px solid var(--tan);
 }
 
 /* TILES */
@@ -112,6 +118,7 @@ main {
 .tile {
   height: 80px;
   background: var(--tile-bg);
+  border: 1px solid rgba(174,188,201,0.55);
   border-radius: 14px;
   display: flex;
   align-items: center;
@@ -132,7 +139,9 @@ main {
 
 .tile:hover {
   transform: translateY(-4px);
-  box-shadow: 0 14px 32px rgba(90,115,115,0.45);
+  box-shadow: 0 14px 32px rgba(46,52,80,0.35);
+  background: var(--cream);
+  color: var(--navy);
 }
 
 /* SIDE PANEL */
@@ -152,9 +161,10 @@ main {
 .notes {
   flex: 1;
   background: var(--notes-bg);
+  border-top: 4px solid var(--tan);
   border-radius: 26px;
   padding: 28px;
-  box-shadow: 0 8px 26px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 26px rgba(46,52,80,0.14);
   display: flex;
   flex-direction: column;
 }
@@ -186,13 +196,13 @@ footer {
   height: 120px;
   display: flex;
   align-items: center;
-  color: var(--blue-muted);
+  color: var(--navy);
   font-size: 13px;
 }
 
-/* OCTOPUS */
-.logo-chobotnice {
-  color: var(--octopus);
+/* FLOWER */
+.logo-flower {
+  color: var(--flower);
   width: 56px;
   height: 56px;
 }
@@ -203,19 +213,16 @@ footer {
 
 <header>
   <div class="header-row">
-    <svg class="logo-chobotnice" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="50" cy="40" r="25" fill="currentColor"/>
-      <g fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round">
-        <path d="M50 65 C45 75 55 85 50 95"/>
-        <path d="M40 63 C30 75 45 85 35 95"/>
-        <path d="M60 63 C70 75 55 85 65 95"/>
-        <path d="M30 58 C15 70 35 85 20 92"/>
-        <path d="M70 58 C85 70 65 85 80 92"/>
+    <svg class="logo-flower" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <g fill="currentColor">
+        <ellipse cx="50" cy="27" rx="12" ry="19"/>
+        <ellipse cx="50" cy="27" rx="12" ry="19" transform="rotate(72 50 50)"/>
+        <ellipse cx="50" cy="27" rx="12" ry="19" transform="rotate(144 50 50)"/>
+        <ellipse cx="50" cy="27" rx="12" ry="19" transform="rotate(216 50 50)"/>
+        <ellipse cx="50" cy="27" rx="12" ry="19" transform="rotate(288 50 50)"/>
       </g>
-      <g fill="white">
-        <circle cx="42" cy="40" r="3.5"/>
-        <circle cx="58" cy="40" r="3.5"/>
-      </g>
+      <circle cx="50" cy="50" r="11" fill="#ddd6b4"/>
+      <circle cx="50" cy="50" r="5" fill="#f2f0dd"/>
     </svg>
     <h1>DASHBOARD</h1>
     <div id="clock"></div>

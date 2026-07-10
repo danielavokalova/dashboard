@@ -6,12 +6,10 @@
 
 <style>
 :root {
-  --bg: #e7efcc;          /* pozadí – nejsvětlejší */
-  --panel: #c4d19b;       /* všech 8 panelů */
-  --btn-bg: #e7efcc;      /* tlačítka v panelech */
-  --teal: #38858e;        /* písmo – nejtmavší */
-  --sage: #7baa8c;
-  --shadow: rgba(43,107,115,0.18);
+  --bg: #faf7f2;          /* pozadí – teplá smetanová */
+  --btn-bg: #fffdf7;      /* tlačítka v panelech – jednotná krémová */
+  --ink: #5d5a6e;         /* písmo – tlumená šedofialová */
+  --shadow: rgba(93,90,110,0.18);
 }
 
 * {
@@ -26,7 +24,7 @@ body {
   flex-direction: column;
   font-family: "Segoe UI", system-ui, sans-serif;
   background: var(--bg);
-  color: var(--teal);
+  color: var(--ink);
 }
 
 /* TOP BAR */
@@ -35,7 +33,7 @@ body {
   align-items: center;
   gap: 16px;
   padding: 10px 28px;
-  background: var(--teal);
+  background: var(--ink);
   box-shadow: 0 3px 12px var(--shadow);
   flex-shrink: 0;
 }
@@ -99,24 +97,32 @@ main {
   min-width: 0;
 }
 
-/* PANELY */
+/* PANELY – pastelová paleta (coolors.co) */
 .panel {
-  background: var(--panel);
   border-radius: 16px;
   padding: 14px 16px 16px;
-  box-shadow: 0 2px 4px var(--shadow), 0 10px 24px var(--shadow), 0 18px 40px rgba(43,107,115,0.14);
+  box-shadow: 0 2px 4px var(--shadow), 0 10px 24px var(--shadow), 0 18px 40px rgba(93,90,110,0.14);
   min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
+.panel-1 { background: #ffcfd2; }  /* růžová */
+.panel-2 { background: #fde4cf; }  /* broskvová */
+.panel-3 { background: #fbf8cc; }  /* vanilková */
+.panel-4 { background: #b9fbc0; }  /* mátová */
+.panel-5 { background: #98f5e1; }  /* akvamarín */
+.panel-6 { background: #90dbf4; }  /* blankytná */
+.panel-7 { background: #a3c4f3; }  /* pomněnková */
+.panel-8 { background: #cfbaf0; }  /* levandulová */
+
 .panel-label {
   display: block;
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.3em;
-  color: var(--teal);
+  color: var(--ink);
   text-transform: uppercase;
   margin-bottom: 10px;
 }
@@ -141,10 +147,10 @@ main {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: var(--teal);
+  color: var(--ink);
   text-align: center;
   line-height: 1.35;
-  box-shadow: 0 1px 2px var(--shadow), 0 4px 10px var(--shadow), 0 8px 18px rgba(43,107,115,0.12);
+  box-shadow: 0 1px 2px var(--shadow), 0 4px 10px var(--shadow), 0 8px 18px rgba(93,90,110,0.12);
   text-decoration: none;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
@@ -152,15 +158,15 @@ main {
 
 .tile:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 4px var(--shadow), 0 8px 16px var(--shadow), 0 14px 28px rgba(43,107,115,0.16);
-  background: var(--teal);
+  box-shadow: 0 2px 4px var(--shadow), 0 8px 16px var(--shadow), 0 14px 28px rgba(93,90,110,0.16);
+  background: var(--ink);
   color: var(--bg);
 }
 
 .tile.shake {
   animation: tile-shake 0.4s ease;
-  background: var(--panel);
-  color: var(--teal);
+  background: #eae5f0;
+  color: var(--ink);
   box-shadow: 0 1px 3px var(--shadow);
 }
 
@@ -177,9 +183,9 @@ main {
 /* FOOTER */
 footer {
   flex-shrink: 0;
-  background: var(--panel);
+  background: #eae5f0;
   padding: 8px 28px;
-  color: var(--teal);
+  color: var(--ink);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.05em;
@@ -193,9 +199,14 @@ footer {
 <nav class="topbar">
   <h1>DASHBOARD</h1>
   <div class="palette-dots" aria-hidden="true">
-    <span style="background:#7baa8c"></span>
-    <span style="background:#c4d19b"></span>
-    <span style="background:#e7efcc"></span>
+    <span style="background:#ffcfd2"></span>
+    <span style="background:#fde4cf"></span>
+    <span style="background:#fbf8cc"></span>
+    <span style="background:#b9fbc0"></span>
+    <span style="background:#98f5e1"></span>
+    <span style="background:#90dbf4"></span>
+    <span style="background:#a3c4f3"></span>
+    <span style="background:#cfbaf0"></span>
   </div>
   <div class="bar-clock">
     <div id="clock-time">--:--:--</div>
@@ -252,7 +263,7 @@ footer {
   </div>
   <div class="col">
 
-    <div class="panel panel-3">
+    <div class="panel panel-5">
       <span class="panel-label">Gitlab</span>
       <div class="tiles">
         <a class="tile" href="https://gitlab.in.cee-systems.com/gol-support/frontends/-/blob/master/etc/d4_frontends.yml" target="_blank">MAGIC</a>
@@ -261,7 +272,7 @@ footer {
       </div>
     </div>
 
-    <div class="panel panel-4">
+    <div class="panel panel-6">
       <span class="panel-label">Kluci</span>
       <div class="tiles">
         <a class="tile" href="https://chatgpt.com/" target="_blank">GPT</a>
@@ -272,7 +283,7 @@ footer {
       </div>
     </div>
 
-    <div class="panel panel-1">
+    <div class="panel panel-7">
       <span class="panel-label">Mail &amp; Kalendář</span>
       <div class="tiles">
         <a class="tile" href="mailto:">EMAIL</a>
@@ -281,7 +292,7 @@ footer {
       </div>
     </div>
 
-    <div class="panel panel-2">
+    <div class="panel panel-8">
       <!-- volný panel do zásoby -->
     </div>
 

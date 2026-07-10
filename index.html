@@ -6,10 +6,10 @@
 
 <style>
 :root {
-  --bg: #faf7f2;          /* pozadí – teplá smetanová */
-  --btn-bg: #fffdf7;      /* tlačítka v panelech – jednotná krémová */
-  --ink: #5d5a6e;         /* písmo – tlumená šedofialová */
-  --shadow: rgba(93,90,110,0.18);
+  --bg: #faf4ec;          /* pozadí – teplá smetanová */
+  --btn-bg: #fffaf2;      /* tlačítka v panelech – jednotná krémová */
+  --ink: #6f5849;         /* písmo – teplá hnědá */
+  --shadow: rgba(111,88,73,0.18);
 }
 
 * {
@@ -101,21 +101,22 @@ main {
 .panel {
   border-radius: 16px;
   padding: 14px 16px 16px;
-  box-shadow: 0 2px 4px var(--shadow), 0 10px 24px var(--shadow), 0 18px 40px rgba(93,90,110,0.14);
+  box-shadow: 0 2px 4px var(--shadow), 0 10px 24px var(--shadow), 0 18px 40px rgba(111,88,73,0.14);
   min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
-.panel-1 { background: #ffcfd2; }  /* růžová */
-.panel-2 { background: #fde4cf; }  /* broskvová */
-.panel-3 { background: #fbf8cc; }  /* vanilková */
-.panel-4 { background: #b9fbc0; }  /* mátová */
-.panel-5 { background: #98f5e1; }  /* akvamarín */
-.panel-6 { background: #90dbf4; }  /* blankytná */
-.panel-7 { background: #a3c4f3; }  /* pomněnková */
-.panel-8 { background: #cfbaf0; }  /* levandulová */
+/* Peach Sorbet – 8 odstínů od korálové po světlou broskev */
+.panel-1 { background: #ec8d8d; }
+.panel-2 { background: #f09b93; }
+.panel-3 { background: #f4a999; }
+.panel-4 { background: #f7b7a0; }
+.panel-5 { background: #fac5a8; }
+.panel-6 { background: #fcd3b1; }
+.panel-7 { background: #fde1bc; }
+.panel-8 { background: #feeac9; }
 
 .panel-label {
   display: block;
@@ -150,7 +151,7 @@ main {
   color: var(--ink);
   text-align: center;
   line-height: 1.35;
-  box-shadow: 0 1px 2px var(--shadow), 0 4px 10px var(--shadow), 0 8px 18px rgba(93,90,110,0.12);
+  box-shadow: 0 1px 2px var(--shadow), 0 4px 10px var(--shadow), 0 8px 18px rgba(111,88,73,0.12);
   text-decoration: none;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
@@ -158,14 +159,14 @@ main {
 
 .tile:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 4px var(--shadow), 0 8px 16px var(--shadow), 0 14px 28px rgba(93,90,110,0.16);
+  box-shadow: 0 2px 4px var(--shadow), 0 8px 16px var(--shadow), 0 14px 28px rgba(111,88,73,0.16);
   background: var(--ink);
   color: var(--bg);
 }
 
 .tile.shake {
   animation: tile-shake 0.4s ease;
-  background: #eae5f0;
+  background: #f0e4d6;
   color: var(--ink);
   box-shadow: 0 1px 3px var(--shadow);
 }
@@ -183,7 +184,7 @@ main {
 /* FOOTER */
 footer {
   flex-shrink: 0;
-  background: #eae5f0;
+  background: #f0e4d6;
   padding: 8px 28px;
   color: var(--ink);
   font-size: 11px;
@@ -199,14 +200,14 @@ footer {
 <nav class="topbar">
   <h1>DASHBOARD</h1>
   <div class="palette-dots" aria-hidden="true">
-    <span style="background:#ffcfd2"></span>
-    <span style="background:#fde4cf"></span>
-    <span style="background:#fbf8cc"></span>
-    <span style="background:#b9fbc0"></span>
-    <span style="background:#98f5e1"></span>
-    <span style="background:#90dbf4"></span>
-    <span style="background:#a3c4f3"></span>
-    <span style="background:#cfbaf0"></span>
+    <span style="background:#ec8d8d"></span>
+    <span style="background:#f09b93"></span>
+    <span style="background:#f4a999"></span>
+    <span style="background:#f7b7a0"></span>
+    <span style="background:#fac5a8"></span>
+    <span style="background:#fcd3b1"></span>
+    <span style="background:#fde1bc"></span>
+    <span style="background:#feeac9"></span>
   </div>
   <div class="bar-clock">
     <div id="clock-time">--:--:--</div>

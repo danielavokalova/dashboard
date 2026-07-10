@@ -6,14 +6,11 @@
 
 <style>
 :root {
-  --bg: #e7efcc;          /* nejsvětlejší – pozadí */
-  --olive: #c4d19b;
-  --olive-light: #d4deb2;
+  --bg: #e7efcc;          /* pozadí – nejsvětlejší */
+  --panel: #c4d19b;       /* všech 8 panelů */
+  --btn-bg: #e7efcc;      /* tlačítka v panelech */
+  --teal: #38858e;        /* písmo – nejtmavší */
   --sage: #7baa8c;
-  --sage-light: #9cbfa6;
-  --teal: #38858e;        /* nejtmavší – nápisy */
-  --ink: #2b6b73;
-  --btn-bg: #f4f7e4;
   --shadow: rgba(43,107,115,0.18);
 }
 
@@ -81,7 +78,7 @@ h1 {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.05em;
-  color: var(--olive-light);
+  color: var(--bg);
 }
 
 /* MAIN */
@@ -104,16 +101,15 @@ main {
 
 /* PANELY */
 .panel {
+  background: var(--panel);
   border-radius: 16px;
-  padding: 14px 16px;
+  padding: 14px 16px 16px;
   box-shadow: 0 6px 16px var(--shadow);
   min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
-
-.panel-1 { background: var(--sage); }
-.panel-2 { background: var(--sage-light); }
-.panel-3 { background: var(--olive); }
-.panel-4 { background: var(--olive-light); }
 
 .panel-label {
   display: block;
@@ -127,14 +123,16 @@ main {
 
 /* TLAČÍTKA */
 .tiles {
+  flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 1fr;
+  gap: 12px;
 }
 
 .tile {
-  min-height: 46px;
-  padding: 4px 6px;
+  min-height: 42px;
+  padding: 6px 8px;
   background: var(--btn-bg);
   border-radius: 10px;
   display: flex;
@@ -144,7 +142,7 @@ main {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: var(--ink);
+  color: var(--teal);
   text-align: center;
   line-height: 1.35;
   box-shadow: 0 3px 8px var(--shadow);
@@ -162,7 +160,7 @@ main {
 
 /* POZNÁMKY */
 .notes {
-  background: var(--olive-light);
+  background: var(--panel);
   border-radius: 16px;
   padding: 14px 16px;
   box-shadow: 0 6px 16px var(--shadow);
@@ -191,14 +189,14 @@ main {
   font-family: inherit;
   font-size: 13px;
   line-height: 1.55;
-  color: var(--ink);
+  color: var(--teal);
   outline: none;
 }
 
 /* FOOTER */
 footer {
   flex-shrink: 0;
-  background: var(--olive);
+  background: var(--panel);
   padding: 8px 28px;
   color: var(--teal);
   font-size: 11px;

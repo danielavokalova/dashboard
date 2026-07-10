@@ -6,18 +6,15 @@
 
 <style>
 :root {
-  --navy: #2e3450;
-  --ink: #2e3450;
-  --blue-muted: #5a6580;
-  --blue-line: #2e3450;
-  --bluegray: #aebcc9;
-  --tan: #ddd6b4;
-  --cream: #f2f0dd;
-  --paper: rgba(221,214,180,0.92);
-  --tile-bg: rgba(242,240,221,0.92);
-  --tile-shadow: rgba(46,52,80,0.22);
-  --notes-bg: rgba(242,240,221,0.94);
-  --flower: #2e3450;
+  --bg: #e7efcc;          /* nejsvětlejší – pozadí */
+  --olive: #c4d19b;
+  --olive-light: #d4deb2;
+  --sage: #7baa8c;
+  --sage-light: #9cbfa6;
+  --teal: #38858e;        /* nejtmavší – nápisy */
+  --ink: #2b6b73;
+  --btn-bg: #f4f7e4;
+  --shadow: rgba(43,107,115,0.18);
 }
 
 * {
@@ -27,196 +24,186 @@
 }
 
 body {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   font-family: "Segoe UI", system-ui, sans-serif;
-  background: var(--bluegray);
-  color: var(--ink);
+  background: var(--bg);
+  color: var(--teal);
 }
 
 /* TOP BAR */
 .topbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
   display: flex;
   align-items: center;
-  gap: 22px;
-  padding: 28px 56px;
-  background: var(--navy);
-  border-bottom: 3px solid var(--tan);
-  box-shadow: 0 4px 18px rgba(46,52,80,0.35);
+  gap: 16px;
+  padding: 10px 28px;
+  background: var(--teal);
+  box-shadow: 0 3px 12px var(--shadow);
+  flex-shrink: 0;
 }
 
 h1 {
-  font-size: 24px;
-  letter-spacing: 0.3em;
+  font-size: 17px;
+  letter-spacing: 0.28em;
   font-weight: 800;
-  color: var(--cream);
+  color: var(--bg);
 }
 
 .palette-dots {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 .palette-dots span {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
 }
 
 .bar-clock {
   margin-left: auto;
-  text-align: right;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
 }
 
 #clock-time {
-  font-size: 26px;
+  font-size: 19px;
   font-weight: 800;
   letter-spacing: 0.06em;
-  color: var(--cream);
+  color: var(--bg);
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 
 #clock-date {
-  margin-top: 5px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--bluegray);
+  letter-spacing: 0.05em;
+  color: var(--olive-light);
 }
 
 /* MAIN */
 main {
   flex: 1;
+  min-height: 0;
   display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 44px;
-  padding: 40px 56px;
+  grid-template-columns: 1fr 1fr 290px;
+  gap: 18px;
+  padding: 14px 28px;
+  overflow: auto;
 }
 
-.content {
+.col {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0 44px;
-  align-items: start;
-}
-
-.col-left, .col-right {
+  grid-template-rows: repeat(4, 1fr);
+  gap: 18px;
   min-width: 0;
 }
 
-/* SECTIONS */
-.section-container {
-  margin-bottom: 45px;
+/* PANELY */
+.panel {
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: 0 6px 16px var(--shadow);
+  min-width: 0;
 }
 
-.section-label {
+.panel-1 { background: var(--sage); }
+.panel-2 { background: var(--sage-light); }
+.panel-3 { background: var(--olive); }
+.panel-4 { background: var(--olive-light); }
+
+.panel-label {
   display: block;
-  font-size: 16px;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.4em;
-  color: var(--blue-muted);
+  letter-spacing: 0.3em;
+  color: var(--teal);
   text-transform: uppercase;
-  margin-bottom: 20px;
-  width: fit-content;
-  padding-bottom: 6px;
-  border-bottom: 3px solid var(--tan);
+  margin-bottom: 10px;
 }
 
-/* TILES */
+/* TLAČÍTKA */
 .tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  gap: 10px;
 }
 
 .tile {
-  height: 80px;
-  background: var(--tile-bg);
-  border: 1px solid rgba(174,188,201,0.55);
-  border-radius: 14px;
+  min-height: 46px;
+  padding: 4px 6px;
+  background: var(--btn-bg);
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-transform: uppercase;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--blue-muted);
+  letter-spacing: 0.08em;
+  color: var(--ink);
   text-align: center;
-  line-height: 1.4;
-  box-shadow: 0 8px 22px var(--tile-shadow);
-  backdrop-filter: blur(2px);
+  line-height: 1.35;
+  box-shadow: 0 3px 8px var(--shadow);
   text-decoration: none;
   cursor: pointer;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 
 .tile:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 14px 32px rgba(46,52,80,0.35);
-  background: var(--cream);
-  color: var(--navy);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px var(--shadow);
+  background: var(--teal);
+  color: var(--bg);
 }
 
-/* SIDE PANEL */
-.side {
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-}
-
-.side-tiles {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-
-/* NOTES */
+/* POZNÁMKY */
 .notes {
-  flex: 1;
-  background: var(--notes-bg);
-  border-top: 4px solid var(--tan);
-  border-radius: 26px;
-  padding: 28px;
-  box-shadow: 0 8px 26px rgba(46,52,80,0.14);
+  background: var(--olive-light);
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: 0 6px 16px var(--shadow);
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .notes h2 {
-  font-size: 12px;
-  letter-spacing: 0.24em;
-  margin-bottom: 18px;
-  color: var(--blue-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  margin-bottom: 10px;
+  color: var(--teal);
+  text-transform: uppercase;
 }
 
 .notes textarea {
   flex: 1;
+  min-height: 0;
   border: none;
-  background: transparent;
+  background: var(--btn-bg);
+  border-radius: 10px;
+  padding: 10px;
   resize: none;
   font-family: inherit;
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.55;
   color: var(--ink);
   outline: none;
 }
 
 /* FOOTER */
 footer {
-  background: var(--tan);
-  border-top: 2px solid var(--blue-line);
-  padding: 32px 56px;
-  height: 120px;
-  display: flex;
-  align-items: center;
-  color: var(--navy);
-  font-size: 13px;
+  flex-shrink: 0;
+  background: var(--olive);
+  padding: 8px 28px;
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
 }
 
 </style>
@@ -227,9 +214,9 @@ footer {
 <nav class="topbar">
   <h1>DASHBOARD</h1>
   <div class="palette-dots" aria-hidden="true">
-    <span style="background:#aebcc9"></span>
-    <span style="background:#ddd6b4"></span>
-    <span style="background:#f2f0dd"></span>
+    <span style="background:#7baa8c"></span>
+    <span style="background:#c4d19b"></span>
+    <span style="background:#e7efcc"></span>
   </div>
   <div class="bar-clock">
     <div id="clock-time">--:--:--</div>
@@ -238,11 +225,10 @@ footer {
 </nav>
 
 <main>
-  <div class="content">
-  <div class="col-left">
+  <div class="col">
 
-    <div class="section-container">
-      <span class="section-label">Produkty</span>
+    <div class="panel panel-1">
+      <span class="panel-label">Produkty</span>
       <div class="tiles">
         <a class="tile" href="https://bo.golibe.com/" target="_blank">AC</a>
         <a class="tile" href="https://docs.google.com/spreadsheets/d/18cAQwVzeSfboPnsGZ81aw8PVmEIUmxRQ9Rmly6b7bS4/edit" target="_blank">IMPLEMENTACE</a>
@@ -252,8 +238,8 @@ footer {
       </div>
     </div>
 
-    <div class="section-container">
-      <span class="section-label">Tools and Sources</span>
+    <div class="panel panel-2">
+      <span class="panel-label">Tools and Sources</span>
       <div class="tiles">
         <a class="tile" href="https://www.notion.so/cee-travel-systems/1-1-notes-baba7099a10f821f8ab5817fc0c0d81e" target="_blank">MANUÁLY<br>NOTION</a>
         <a class="tile" href="https://docs.google.com/spreadsheets/d/1PwXopixBNOhwgZTDGmHUTCzz9dZPqtHiGZIkAVO4aw0/edit" target="_blank">VDV</a>
@@ -263,8 +249,8 @@ footer {
       </div>
     </div>
 
-    <div class="section-container">
-      <span class="section-label">Data</span>
+    <div class="panel panel-3">
+      <span class="panel-label">Data</span>
       <div class="tiles">
         <a class="tile" href="http://localhost:3000/dashboard/2-gol-dashboard-v1" target="_blank">METABASE</a>
         <a class="tile" href="http://localhost:8080/air-reservations.html" target="_blank">AIR<br>RESERVATIONS</a>
@@ -272,8 +258,8 @@ footer {
       </div>
     </div>
 
-    <div class="section-container">
-      <span class="section-label">Other</span>
+    <div class="panel panel-4">
+      <span class="panel-label">Other</span>
       <div class="tiles">
         <a class="tile" href="https://cee-support.zendesk.com/agent/filters/65499989" target="_blank">ZENDESK</a>
         <a class="tile" href="https://docs.google.com/spreadsheets/d/1c-T04jgfgC1aMb-XUcvGKN6R0nuqEHVZZKcvt6uV_Q4/edit?gid=0#gid=0" target="_blank">KARLIN</a>
@@ -285,10 +271,10 @@ footer {
     </div>
 
   </div>
-  <div class="col-right">
+  <div class="col">
 
-    <div class="section-container">
-      <span class="section-label">Gitlab</span>
+    <div class="panel panel-3">
+      <span class="panel-label">Gitlab</span>
       <div class="tiles">
         <a class="tile" href="https://gitlab.in.cee-systems.com/gol-support/frontends/-/blob/master/etc/d4_frontends.yml" target="_blank">MAGIC</a>
         <a class="tile" href="https://gitlab.in.cee-systems.com/support/project-management/-/boards" target="_blank">DEVELOPMENT</a>
@@ -296,8 +282,8 @@ footer {
       </div>
     </div>
 
-    <div class="section-container">
-      <span class="section-label">Kluci</span>
+    <div class="panel panel-4">
+      <span class="panel-label">Kluci</span>
       <div class="tiles">
         <a class="tile" href="https://chatgpt.com/" target="_blank">GPT</a>
         <a class="tile" href="https://claude.ai/" target="_blank">CLAUDE</a>
@@ -307,19 +293,24 @@ footer {
       </div>
     </div>
 
-  </div>
+    <div class="panel panel-1">
+      <span class="panel-label">Mail &amp; Kalendář</span>
+      <div class="tiles">
+        <a class="tile" href="mailto:">EMAIL</a>
+        <a class="tile" href="https://mail.google.com/mail/u/0/?tab=rm&ogbl#inbox" target="_blank">GMAIL</a>
+        <a class="tile" href="https://calendar.google.com/calendar/u/0/r" target="_blank">KALENDÁŘ</a>
+      </div>
+    </div>
+
+    <div class="panel panel-2">
+      <!-- volný panel do zásoby -->
+    </div>
+
   </div>
 
-  <aside class="side">
-    <div class="side-tiles">
-      <a class="tile" href="mailto:">EMAIL</a>
-      <a class="tile" href="https://mail.google.com/mail/u/0/?tab=rm&ogbl#inbox" target="_blank">GMAIL</a>
-      <a class="tile" href="https://calendar.google.com/calendar/u/0/r" target="_blank">KALENDÁŘ</a>
-    </div>
-    <div class="notes">
-      <h2>POZNÁMKY</h2>
-      <textarea id="notes" placeholder="Klidné poznámky…"></textarea>
-    </div>
+  <aside class="notes">
+    <h2>Poznámky</h2>
+    <textarea id="notes" placeholder="Klidné poznámky…"></textarea>
   </aside>
 </main>
 

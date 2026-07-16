@@ -378,6 +378,131 @@ body {
   flex-shrink: 0;
 }
 
+/* ── YOY STRIP ──────────────────────────────────────────── */
+.yoy-strip { margin-top: 18px; }
+.yoy-cards {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.yoy-card {
+  flex: 1;
+  min-width: 140px;
+  background: rgba(245,246,244,0.7);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 14px;
+}
+.yoy-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.yoy-desc { font-size: 10px; color: var(--muted); margin-bottom: 8px; opacity: 0.7; }
+.yoy-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; font-size: 12px; }
+.yoy-metric { color: var(--muted); flex: 1; }
+.yoy-val { font-weight: 800; min-width: 54px; text-align: right; }
+.yoy-abs { color: var(--muted); font-size: 11px; min-width: 46px; text-align: right; }
+.yoy-up   { color: #2e7d52; }
+.yoy-down { color: var(--issued); }
+.yoy-loading { font-size: 12px; color: var(--muted); padding: 8px 0; }
+
+/* period tabs */
+.yoy-period-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+.yoy-period-tabs span {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+.yoy-tab {
+  padding: 5px 13px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.yoy-tab:hover { background: rgba(66,92,94,0.08); }
+.yoy-tab.active {
+  background: var(--issued);
+  border-color: var(--issued);
+  color: #fff;
+}
+
+/* two-panel agency layout */
+.yoy-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.yoy-panel {
+  background: rgba(245,246,244,0.6);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.yoy-panel-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.yoy-ag-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(66,92,94,0.06);
+  font-size: 12px;
+}
+.yoy-ag-row:last-child { border-bottom: none; }
+.yoy-ag-name {
+  flex: 1;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+.yoy-ag-cnt {
+  color: var(--muted);
+  font-size: 11px;
+  min-width: 40px;
+  text-align: right;
+}
+.yoy-ag-delta {
+  font-weight: 800;
+  font-size: 12px;
+  min-width: 58px;
+  text-align: right;
+}
+.yoy-ag-rank {
+  color: var(--muted);
+  font-size: 10px;
+  min-width: 18px;
+}
+
 /* ── CHART SECTION ──────────────────────────────────────── */
 .chart-section {
   background: var(--panel);
@@ -929,6 +1054,14 @@ td.cell-empty { color: var(--muted); }
       <span id="server-status-text">Připojuji...</span>
     </div>
     <a class="download-server-link" id="download-server-link" href="air-reservations-server.zip" download>Stáhnout server ZIP</a>
+    <div style="position:relative">
+      <button class="btn-sm btn-outline" onclick="var m=document.getElementById('setup-menu');m.style.display=m.style.display==='block'?'none':'block'" title="Soubory pro spuštění serveru">⬇ Soubory</button>
+      <div id="setup-menu" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--paper-solid);border:1.5px solid var(--border);border-radius:10px;box-shadow:0 6px 20px var(--shadow);min-width:230px;z-index:200;padding:8px 0;">
+        <a href="install-autostart.bat" download style="display:block;padding:10px 16px;color:var(--ink);text-decoration:none;font-size:12px;font-weight:700;letter-spacing:0.04em;" onmouseover="this.style.background='var(--row-hover)'" onmouseout="this.style.background=''">⬇ install-autostart.bat<br><span style="font-weight:400;color:var(--muted)">Autostart s Windows (spustit jednou)</span></a>
+        <a href="start-server.bat" download style="display:block;padding:10px 16px;color:var(--ink);text-decoration:none;font-size:12px;font-weight:700;letter-spacing:0.04em;" onmouseover="this.style.background='var(--row-hover)'" onmouseout="this.style.background=''">⬇ start-server.bat<br><span style="font-weight:400;color:var(--muted)">Ruční spuštění serveru</span></a>
+        <a href="export_csv.py" download style="display:block;padding:10px 16px;color:var(--ink);text-decoration:none;font-size:12px;font-weight:700;letter-spacing:0.04em;" onmouseover="this.style.background='var(--row-hover)'" onmouseout="this.style.background=''">⬇ export_csv.py<br><span style="font-weight:400;color:var(--muted)">Export dat z DB na GitHub Pages</span></a>
+      </div>
+    </div>
     <a class="btn-sm btn-primary btn-launch-top" href="#" id="btn-launch" onclick="launchDashboard(); return false;">▶ Spustit lokálně</a>
     <a class="btn-sm btn-primary" href="#" id="btn-update" onclick="updateData(); return false;">Aktualizovat data</a>
     <button class="btn-sm btn-outline" id="btn-refresh" onclick="loadData()">Obnovit</button>
@@ -957,7 +1090,22 @@ td.cell-empty { color: var(--muted); }
   <div class="offline-panel" id="offline-panel">
     <div class="offline-title">Server není spuštěn</div>
     <div class="offline-sub">
-      Spusť <strong>start-server.bat</strong> nebo použij tlačítko výše <strong>Spustit a načíst data</strong>.
+      Dashboard se připojuje k lokálnímu serveru na <strong>localhost:8080</strong> — ten čte data přímo z vašeho Dockeru/PostgreSQL.<br>
+      Stáhněte potřebné soubory níže a spusťte je jednou.
+    </div>
+    <div class="offline-actions">
+      <a class="offline-btn primary" href="install-autostart.bat" download title="Spusťte JEDNOU — server se pak spouští automaticky s Windows">
+        ⬇ install-autostart.bat<br><small style="font-weight:400;letter-spacing:0;text-transform:none">Nastavit autostart (spustit jednou)</small>
+      </a>
+      <a class="offline-btn" href="start-server.bat" download title="Manuální spuštění serveru">
+        ⬇ start-server.bat<br><small style="font-weight:400;letter-spacing:0;text-transform:none">Spustit server ručně</small>
+      </a>
+      <a class="offline-btn" href="export_csv.py" download title="Exportuje data z DB a pushne na GitHub">
+        ⬇ export_csv.py<br><small style="font-weight:400;letter-spacing:0;text-transform:none">Aktualizovat data na webu</small>
+      </a>
+      <a class="offline-btn" href="http://localhost:8080/air-reservations.html">
+        → Otevřít lokálně<br><small style="font-weight:400;letter-spacing:0;text-transform:none">Po spuštění serveru</small>
+      </a>
     </div>
   </div>
 
@@ -1103,6 +1251,7 @@ td.cell-empty { color: var(--muted); }
     </div>
     <div class="breakdown-col-title" id="chart-group-title" style="margin-top:6px">Agentura – celkem / vystaveno</div>
     <div id="chart-top-body"></div>
+    <div class="yoy-strip" id="yoy-strip"></div>
   </div>
 
   <!-- BREAKDOWN: 6 panelů -->
@@ -1785,32 +1934,6 @@ function buildBreakdownCharts(stats) {
 // Stats (agregované query) obvykle dorazí dřív → KPI + graf se zobrazí okamžitě.
 // Tabulka se zobrazí, jakmile dorazí záznamy.
 
-async function isServerOnline() {
-  try {
-    const res = await fetch(`${API}/api/health`, { signal: AbortSignal.timeout(2500) });
-    const data = await res.json();
-    return !!(data.ok && data.db);
-  } catch {
-    return false;
-  }
-}
-
-async function triggerApiRefresh() {
-  const res = await fetch(`${API}/api/refresh-data`, { method: "POST" });
-  const data = await res.json();
-  if (!data.ok) throw new Error(data.error || "Aktualizace dat selhala");
-}
-
-async function updateData() {
-  const btn = document.getElementById("btn-update");
-  if (btn) btn.style.pointerEvents = "none";
-  try {
-    await loadData({ refresh: true });
-  } finally {
-    if (btn) btn.style.pointerEvents = "";
-  }
-}
-
 function isLocalHost() {
   return location.hostname === "localhost" || location.hostname === "127.0.0.1";
 }
@@ -1880,43 +2003,65 @@ async function maybeRedirectToLocal() {
   }
 }
 
+async function isServerOnline() {
+  try {
+    const res = await fetch(`${API}/api/health`, { signal: AbortSignal.timeout(2500) });
+    const data = await res.json();
+    return !!(data.ok && data.db);
+  } catch {
+    return false;
+  }
+}
+
+async function triggerApiRefresh() {
+  const res = await fetch(`${API}/api/refresh-data`, { method: "POST" });
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || "Aktualizace dat selhala");
+}
+
+async function updateData() {
+  const btn = document.getElementById("btn-update");
+  if (btn) btn.style.pointerEvents = "none";
+  try {
+    await loadData({ refresh: true });
+  } finally {
+    if (btn) btn.style.pointerEvents = "";
+  }
+}
+
 async function loadData(options = {}) {
   const btn = document.getElementById("btn-refresh");
   const refresh = options.refresh === true;
   if (!refresh) {
-    btn.disabled = true;
-    btn.textContent = "...";
+    btn.disabled = true; btn.textContent = "...";
   }
   _statsLoaded = false;
-  showLoadingState();
+  showLoadingState("Připojuji se k serveru…");
   hideError();
 
   try {
-    let data;
-    const serverUp = await isServerOnline();
-
-    if (serverUp) {
+    // 1. Zkus API server (PostgreSQL) — primární zdroj
+    try {
+      setLoadingMsg("Načítám z databáze…");
       if (refresh) await triggerApiRefresh();
-      data = await loadApiReservations();
+      const data = await loadApiReservations();
       dataMode = "api";
-    } else {
-      try {
-        data = await loadStaticSnapshot();
-        dataMode = "static";
-      } catch (staticError) {
-        data = await loadApiReservations();
-        dataMode = "api";
-      }
+      hydrateRows(data);
+      buildControls(true);
+      await loadFilterOptions();
+      computeKPIs();
+      applyFilters();
+      await reloadStats();
+      updateDataMeta(data);
+      updateServerStatus(true, dataMode);
+      return;
+    } catch(apiErr) {
+      // Server není spuštěn — přepni na streaming CSV zálohu
     }
 
-    hydrateRows(data);
-    buildControls();
-    if (dataMode === "api") await loadFilterOptions();
-    else loadFilterOptionsFromRows();
-    computeKPIs();
-    applyFilters();
-    reloadStats();
-    updateDataMeta(data);
+    // 2. Záloha: streaming z CSV (GitHub Pages)
+    dataMode = "static";
+    await loadStaticStreaming();
     updateServerStatus(true, dataMode);
   } catch(e) {
     showError(e.message);
@@ -1924,17 +2069,96 @@ async function loadData(options = {}) {
     updateServerStatus(false, dataMode);
   } finally {
     if (!refresh) {
-      btn.disabled = false;
-      btn.textContent = "Obnovit";
+      btn.disabled = false; btn.textContent = "Obnovit";
     }
   }
 }
 
+// Streamuje CSV řádek po řádku — první dávka se zobrazí hned jak přijde,
+// zbytek se donačte na pozadí bez blokování UI.
+async function loadStaticStreaming() {
+  setLoadingMsg("Připojuji se…");
+  const res = await fetch(STATIC_DATA_URL);
+  if (!res.ok) throw new Error(`Static data ${res.status}`);
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder("utf-8");
+  let buffer = "";
+  let columns = null;
+  let delimiter = null;
+  let rowCount = 0;
+  const FIRST_RENDER_AT = 3000; // zobraz první data po N řádcích
+
+  const flush = (final) => {
+    const lines = buffer.split("\n");
+    buffer = final ? "" : (lines.pop() ?? "");
+
+    for (const line of lines) {
+      if (!line || line === "\r") continue;
+      const values = parseCsvRow(line, delimiter);
+
+      if (!columns) {
+        // první řádek = hlavička
+        const raw = line.endsWith("\r") ? line.slice(0, -1) : line;
+        delimiter = (raw.match(/;/g) || []).length >= (raw.match(/,/g) || []).length ? ";" : ",";
+        columns = parseCsvRow(raw, delimiter);
+        allColumns = columns;
+        specialCols = detectCols(columns);
+        continue;
+      }
+
+      if (!values.some(v => v !== "")) continue;
+      allRows.push(Object.fromEntries(
+        columns.map((col, j) => [col, values[j] === "" ? null : values[j] ?? null])
+      ));
+      rowCount++;
+    }
+
+    if (rowCount >= FIRST_RENDER_AT && !_firstRenderDone) {
+      _firstRenderDone = true;
+      loadFilterOptionsFromRows();
+      computeKPIs();
+      applyFilters();
+      reloadStats();
+      updateDataMeta({ total: rowCount, count: rowCount });
+      setLoadingMsg(`Načteno ${rowCount.toLocaleString("cs-CZ")} záznamů, donačítám…`);
+    }
+  };
+
+  allRows = [];
+  allColumns = [];
+  window._firstRenderDone = false;
+  setLoadingMsg("Stahuji data…");
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (value) buffer += decoder.decode(value, { stream: !done });
+    flush(done);
+    if (done) break;
+
+    const loaded = allRows.length;
+    if (loaded % 5000 === 0 && loaded > 0) {
+      setLoadingMsg(`Načteno ${loaded.toLocaleString("cs-CZ")} záznamů…`);
+      await new Promise(r => setTimeout(r, 0));
+    }
+  }
+
+  // Finální render po načtení všech dat — force přepíše datum na správný rozsah
+  buildControls(true);
+  loadFilterOptionsFromRows();
+  computeKPIs();
+  applyFilters();
+  reloadStats();
+  updateDataMeta({ total: allRows.length, count: allRows.length });
+}
+
 async function loadStaticSnapshot() {
-  const res = await fetch(`${STATIC_DATA_URL}?v=${Date.now()}`, { cache: "no-store" });
+  setLoadingMsg("Stahuji CSV…");
+  const res = await fetch(STATIC_DATA_URL);
   if (!res.ok) throw new Error(`Static data ${res.status}`);
   const text = await res.text();
-  const parsed = parseCsv(text);
+  setLoadingMsg(`Zpracovávám ${Math.round(text.length / 1024)} kB dat…`);
+  const parsed = await parseCsvAsync(text);
   return {
     ok: true,
     source: "csv-web",
@@ -1957,55 +2181,80 @@ function findCol(name) {
   return allColumns.find(col => normName(col) === wanted) || null;
 }
 
-function parseCsv(text) {
-  const rows = [];
-  let row = [];
+function parseCsvRow(line, delimiter) {
+  const fields = [];
   let field = "";
-  let inQuotes = false;
-  const firstLine = text.slice(0, text.indexOf("\n") > -1 ? text.indexOf("\n") : text.length);
-  const delimiter = (firstLine.match(/;/g) || []).length > (firstLine.match(/,/g) || []).length ? ";" : ",";
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    const next = text[i + 1];
-    if (inQuotes) {
-      if (ch === '"' && next === '"') {
-        field += '"';
-        i++;
-      } else if (ch === '"') {
-        inQuotes = false;
-      } else {
-        field += ch;
-      }
+  let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQ) {
+      if (ch === '"' && line[i + 1] === '"') { field += '"'; i++; }
+      else if (ch === '"') { inQ = false; }
+      else { field += ch; }
     } else if (ch === '"') {
-      inQuotes = true;
+      inQ = true;
     } else if (ch === delimiter) {
-      row.push(field);
-      field = "";
-    } else if (ch === "\n") {
-      row.push(field);
-      rows.push(row);
-      row = [];
-      field = "";
+      fields.push(field); field = "";
     } else if (ch !== "\r") {
       field += ch;
     }
   }
-  if (field || row.length) {
-    row.push(field);
-    rows.push(row);
+  fields.push(field);
+  return fields;
+}
+
+async function parseCsvAsync(text) {
+  const nl = text.indexOf("\n");
+  const firstLine = nl > -1 ? text.slice(0, nl) : text;
+  const delimiter = (firstLine.match(/;/g) || []).length > (firstLine.match(/,/g) || []).length ? ";" : ",";
+  const lines = text.split("\n");
+  const columns = parseCsvRow(lines[0], delimiter);
+  const rows = [];
+  const CHUNK = 5000;
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line || line === "\r") continue;
+    const values = parseCsvRow(line, delimiter);
+    if (!values.some(v => v !== "")) continue;
+    rows.push(Object.fromEntries(columns.map((col, j) => [col, values[j] === "" ? null : values[j] ?? null])));
+    if (i % CHUNK === 0) await new Promise(r => setTimeout(r, 0));
   }
-  const columns = rows.shift() || [];
-  return {
-    columns,
-    rows: rows
-      .filter(values => values.some(v => v !== ""))
-      .map(values => Object.fromEntries(columns.map((col, i) => [col, values[i] === "" ? null : values[i] ?? null])))
-  };
+  return { columns, rows };
+}
+
+function parseCsv(text) {
+  const nl = text.indexOf("\n");
+  const firstLine = nl > -1 ? text.slice(0, nl) : text;
+  const delimiter = (firstLine.match(/;/g) || []).length > (firstLine.match(/,/g) || []).length ? ";" : ",";
+  const lines = text.split("\n");
+  const columns = parseCsvRow(lines[0], delimiter);
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line || line === "\r") continue;
+    const values = parseCsvRow(line, delimiter);
+    if (!values.some(v => v !== "")) continue;
+    rows.push(Object.fromEntries(columns.map((col, j) => [col, values[j] === "" ? null : values[j] ?? null])));
+  }
+  return { columns, rows };
+}
+
+async function fetchWithTimeout(url, ms = 1500) {
+  const ctrl = new AbortController();
+  const tid = setTimeout(() => ctrl.abort(), ms);
+  try {
+    const res = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(tid);
+    return res;
+  } catch(e) {
+    clearTimeout(tid);
+    throw e;
+  }
 }
 
 async function loadApiReservations() {
   const limit = window._loadAll ? 0 : 200;
-  const res = await fetch(`${API}/api/reservations?limit=${limit}`);
+  const res = await fetchWithTimeout(`${API}/api/reservations?limit=${limit}`);
   const data = await res.json();
   if (!data.ok) throw new Error(data.error || "Neznama chyba");
   return data;
@@ -2021,9 +2270,9 @@ function hydrateRows(data) {
 
 function updateDataMeta(data) {
   const t = new Date().toLocaleTimeString("cs-CZ",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-  const realTotal = Number(data.total || data.count || allRows.length);
+  const realTotal = Number(data?.total || data?.count || allRows.length);
   const limitBanner = document.getElementById("limit-banner");
-  if (dataMode === "api" && data.limited) {
+  if (dataMode === "api" && data?.limited) {
     limitBanner.style.display = "";
     limitBanner.innerHTML = `Zobrazeno <strong>${data.count.toLocaleString("cs-CZ")}</strong> nejnovejsich zaznamu`
       + ` z celkovych <strong>${realTotal.toLocaleString("cs-CZ")}</strong>.`
@@ -2036,18 +2285,18 @@ function updateDataMeta(data) {
     `${label}: ${t}<br>${allRows.length.toLocaleString("cs-CZ")} z ${realTotal.toLocaleString("cs-CZ")} zaznamu`;
 }
 
-function buildControls() {
+function buildControls(force) {
   const {date, agency} = specialCols;
 
-  // Nastav výchozí časový rozsah podle dat v tabulce
+  // Nastav výchozí časový rozsah: od 1. 1. 2025 do posledního data v datech
   if (date) {
     const dates = allRows.map(r => parseDate(r[date])).filter(Boolean).sort((a,b)=>a-b);
     if (dates.length) {
-      const last  = dates[dates.length-1];
-      const from3 = new Date(last); from3.setMonth(from3.getMonth()-3);
-      if (!document.getElementById("f-date-from").value)
-        document.getElementById("f-date-from").value = toISO(from3);
-      if (!document.getElementById("f-date-to").value)
+      const last = dates[dates.length-1];
+      const defaultFrom = "2025-01-01";
+      if (force || !document.getElementById("f-date-from").value)
+        document.getElementById("f-date-from").value = defaultFrom;
+      if (force || !document.getElementById("f-date-to").value)
         document.getElementById("f-date-to").value   = toISO(last);
     }
   }
@@ -2239,8 +2488,7 @@ function handleSearchInput() {
 
 function clearFilters() {
   document.getElementById("f-search").value    = "";
-  document.getElementById("f-date-from").value = "";
-  document.getElementById("f-date-to").value   = "";
+  buildControls(true); // reset datum na 2025-01-01 → poslední datum
   document.getElementById("f-agency").value    = "";
   document.getElementById("f-dealer").value    = "";
   document.getElementById("f-country").value   = "";
@@ -2279,9 +2527,203 @@ function setRange(months, btn) {
   reloadStats();
 }
 
-// Načte stats z backendu dle aktivních filtrů
-function reloadStats() {
+// Načte stats — z API serveru nebo client-side z načtených řádků
+async function reloadStats() {
+  if (dataMode === "api") {
+    try {
+      const params = buildApiFilterParams();
+      const res = await fetchWithTimeout(`${API}/api/stats?${params}`);
+      const data = await res.json();
+      if (data.ok) { applyStats(data); loadYoyComparison(); return; }
+    } catch(e) { /* fallback na client-side */ }
+  }
   applyStats(buildStatsFromRows(filteredRows), { local: true });
+  loadYoyComparison();
+}
+
+// ── YoY / 6M / 1M porovnání ──────────────────────────────────────────────────
+
+async function fetchPeriodStats(dateFrom, dateTo) {
+  if (dataMode === "api") {
+    try {
+      // Zachovej aktivní filtry (agentura, dealer…) ale přepiš datum
+      const params = buildApiFilterParams();
+      params.set("date_from", dateFrom);
+      params.set("date_to",   dateTo);
+      const res = await fetchWithTimeout(`${API}/api/stats?${params}`, 4000);
+      const d = await res.json();
+      if (d.ok) return { total: Number(d.total||0), issued: Number(d.issued||0) };
+    } catch(e) {}
+  }
+  // fallback: počítej z allRows podle datumu
+  const colDate = findCol("reservation_date");
+  const rows = allRows.filter(r => {
+    if (!colDate) return true;
+    const raw = r[colDate]; if (!raw) return false;
+    let iso = raw;
+    const m = String(raw).match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+    if (m) iso = `${m[3]}-${m[2]}-${m[1]}`;
+    return iso >= dateFrom && iso <= dateTo;
+  });
+  const colIss = findCol("issuance_date") || findCol("status");
+  const issued = rows.filter(r => {
+    if (!colIss) return false;
+    const v = String(r[colIss]||"").toUpperCase();
+    return v.includes("ISSUE") || (findCol("issuance_date") && r[findCol("issuance_date")]);
+  }).length;
+  return { total: rows.length, issued };
+}
+
+async function loadYoyComparison() {
+  const el = document.getElementById("yoy-strip");
+  if (!el) return;
+  const now = new Date();
+  const fmt = d => d.toISOString().slice(0,10);
+  const today = fmt(now);
+  const y = now.getFullYear(), pY = y - 1;
+  const mm = String(now.getMonth()+1).padStart(2,"0");
+  const dd = String(now.getDate()).padStart(2,"0");
+  const sixMAgo = new Date(now); sixMAgo.setMonth(sixMAgo.getMonth()-6);
+  const twMAgo  = new Date(now); twMAgo.setMonth(twMAgo.getMonth()-12);
+  const sevenDAgo  = new Date(now); sevenDAgo.setDate(sevenDAgo.getDate()-7);
+  const fourteenDAgo = new Date(now); fourteenDAgo.setDate(fourteenDAgo.getDate()-14);
+  const periods = [
+    { label:"YoY", desc:`${y} vs ${pY}`,
+      curr:[`${y}-01-01`, today], prev:[`${pY}-01-01`,`${pY}-${mm}-${dd}`] },
+    { label:"6M",  desc:"posl. 6M vs předchozí 6M",
+      curr:[fmt(sixMAgo), today], prev:[fmt(twMAgo), fmt(sixMAgo)] },
+    { label:"1M",  desc:`${mm}/${y} vs ${mm}/${pY}`,
+      curr:[`${y}-${mm}-01`, today], prev:[`${pY}-${mm}-01`,`${pY}-${mm}-${dd}`] },
+    { label:"1T",  desc:"posl. 7 dní vs předchozích 7 dní",
+      curr:[fmt(sevenDAgo), today], prev:[fmt(fourteenDAgo), fmt(sevenDAgo)] },
+  ];
+
+  el.innerHTML = `<div class="yoy-loading">Počítám porovnání…</div>`;
+
+  const pct = (c,p) => !p ? null : ((c-p)/p*100).toFixed(1);
+  const arr = v => v===null?"": Number(v)>=0?"↑":"↓";
+  const cls = v => v===null?"": Number(v)>=0?"yoy-up":"yoy-down";
+  const cell = (v, abs) => `<span class="yoy-val ${cls(v)}">${arr(v)} ${v!==null?v+"%":"—"}</span> <span class="yoy-abs">${abs.toLocaleString("cs-CZ")}</span>`;
+
+  try {
+    // Summary cards — fetch all 4 periods in parallel
+    const results = await Promise.all(periods.map(async p => {
+      const [cc, cp] = await Promise.all([
+        fetchPeriodStats(p.curr[0], p.curr[1]),
+        fetchPeriodStats(p.prev[0], p.prev[1]),
+      ]);
+      return { ...p, cc, cp };
+    }));
+
+    const cards = results.map(r => {
+      const pc = pct(r.cc.total, r.cp.total);
+      const pi = pct(r.cc.issued, r.cp.issued);
+      return `<div class="yoy-card">
+        <div class="yoy-label">${r.label}</div>
+        <div class="yoy-desc">${r.desc}</div>
+        <div class="yoy-row"><span class="yoy-metric">Celkem</span>${cell(pc, r.cc.total)}</div>
+        <div class="yoy-row"><span class="yoy-metric">Vystaveno</span>${cell(pi, r.cc.issued)}</div>
+      </div>`;
+    }).join("");
+
+    // Per-agency panels — only in API mode
+    let panelsHtml = "";
+    if (dataMode === "api") {
+      // Fetch agency data for all 4 periods
+      const agData = await Promise.all(periods.map(async p => {
+        try {
+          const qc = new URLSearchParams(buildApiFilterParams());
+          qc.set("date_from", p.curr[0]); qc.set("date_to", p.curr[1]);
+          const qp2 = new URLSearchParams(buildApiFilterParams());
+          qp2.set("date_from", p.prev[0]); qp2.set("date_to", p.prev[1]);
+          const [rc, rp] = await Promise.all([
+            fetchWithTimeout(`${API}/api/stats?${qc}`, 5000).then(r=>r.json()),
+            fetchWithTimeout(`${API}/api/stats?${qp2}`, 5000).then(r=>r.json()),
+          ]);
+          const curr = Object.fromEntries((rc.by_agency||[]).map(a=>[a.label,{cnt:Number(a.cnt||0)}]));
+          const prev = Object.fromEntries((rp.by_agency||[]).map(a=>[a.label,{cnt:Number(a.cnt||0)}]));
+          return { label:p.label, desc:p.desc, curr, prev };
+        } catch(e) { return { label:p.label, desc:p.desc, curr:{}, prev:{} }; }
+      }));
+
+      // Top 20 agencies — pool from all periods (curr + prev) so right panel is never empty
+      const allAg = [...new Set(agData.flatMap(d => [...Object.keys(d.curr), ...Object.keys(d.prev)]))];
+      const top20 = allAg.sort((a,b) => {
+        const sumA = agData.reduce((s,d) => s + (d.curr[a]?.cnt||0) + (d.prev[a]?.cnt||0), 0);
+        const sumB = agData.reduce((s,d) => s + (d.curr[b]?.cnt||0) + (d.prev[b]?.cnt||0), 0);
+        return sumB - sumA;
+      }).slice(0,20);
+
+      if (top20.length > 0) {
+        // Build panel rows for a given period index
+        function buildPanelRows(agencies, periodIdx, rankOffset=0) {
+          const d = agData[periodIdx];
+          return agencies.map((ag, i) => {
+            const c = d.curr[ag]?.cnt||0;
+            const p2 = d.prev[ag]?.cnt||0;
+            const v = pct(c, p2);
+            return `<div class="yoy-ag-row">
+              <span class="yoy-ag-rank">${i+1+rankOffset}</span>
+              <span class="yoy-ag-name" title="${ag}">${ag}</span>
+              <span class="yoy-ag-cnt">${c.toLocaleString("cs-CZ")}</span>
+              <span class="yoy-ag-delta ${cls(v)}">${arr(v)} ${v!==null?v+"%":"—"}</span>
+            </div>`;
+          }).join("");
+        }
+
+        // Period tabs + panels container (period index stored as data attr)
+        const tabsHtml = periods.map((p,i) =>
+          `<button class="yoy-tab${i===0?" active":""}" onclick="yoySelectPeriod(${i})">${p.label}</button>`
+        ).join("");
+
+        const left10  = top20.slice(0,10);
+        const right10 = top20.slice(10,20);
+
+        // Pre-render all 4 sets of panels (hidden except active)
+        const allPanels = periods.map((p,i) => `
+          <div class="yoy-panels" id="yoy-panels-${i}" style="${i===0?"":"display:none"}">
+            <div class="yoy-panel">
+              <div class="yoy-panel-title">TOP 20 &nbsp;·&nbsp; 1–10 &nbsp;·&nbsp; ${p.label}: ${p.desc}</div>
+              ${buildPanelRows(left10, i)}
+            </div>
+            <div class="yoy-panel">
+              <div class="yoy-panel-title">TOP 20 &nbsp;·&nbsp; 11–20 &nbsp;·&nbsp; ${p.label}: ${p.desc}</div>
+              ${buildPanelRows(right10, i, 10)}
+            </div>
+          </div>`).join("");
+
+        panelsHtml = `
+          <div class="yoy-period-tabs">
+            <span>Období:</span>${tabsHtml}
+          </div>
+          ${allPanels}`;
+      }
+    }
+
+    el.innerHTML = `<div class="yoy-cards">${cards}</div>${panelsHtml}`;
+  } catch(e) { el.innerHTML = ""; }
+}
+
+function yoySelectPeriod(idx) {
+  document.querySelectorAll(".yoy-tab").forEach((t,i) => t.classList.toggle("active", i===idx));
+  document.querySelectorAll("[id^='yoy-panels-']").forEach(p => {
+    p.style.display = p.id === `yoy-panels-${idx}` ? "" : "none";
+  });
+}
+
+function buildApiFilterParams() {
+  const p = new URLSearchParams();
+  const v = id => document.getElementById(id)?.value || "";
+  if (v("f-date-from")) p.set("date_from", v("f-date-from"));
+  if (v("f-date-to"))   p.set("date_to",   v("f-date-to"));
+  if (v("f-agency"))    p.set("agency",     v("f-agency"));
+  if (v("f-dealer"))    p.set("dealer",     v("f-dealer"));
+  if (v("f-country"))   p.set("agency_country", v("f-country"));
+  if (v("f-status"))    p.set("status",     v("f-status"));
+  if (v("f-connector")) p.set("connector",  v("f-connector"));
+  if (v("f-currency"))  p.set("currency",   v("f-currency"));
+  if (v("f-search"))    p.set("search",     v("f-search"));
+  return p.toString();
 }
 
 function buildStatsFromRows(rows) {
@@ -2478,14 +2920,19 @@ function exportCSV() {
 
 // ── States ────────────────────────────────────────────────────────
 
-function showLoadingState() {
+function showLoadingState(msg) {
   document.getElementById("table-container").innerHTML = `
     <div class="state">
       <div class="spinner"></div>
-      <div class="state-title">Nacitam data...</div>
-      <div class="state-sub">Stahuji data z webu</div>
+      <div class="state-title">Načítám data…</div>
+      <div class="state-sub" id="loading-sub">${msg || "Stahuji data z webu"}</div>
     </div>`;
-  document.getElementById("topbar-meta").textContent = "Nacitam...";
+  document.getElementById("topbar-meta").textContent = "Načítám…";
+}
+
+function setLoadingMsg(msg) {
+  const el = document.getElementById("loading-sub");
+  if (el) el.textContent = msg;
 }
 
 function showErrorState() {

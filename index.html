@@ -6,14 +6,11 @@
 
 <style>
 :root {
-  --ink: #1f2a2a;
-  --blue-muted: #4f6a6c;
-  --blue-line: #425c5e;
-  --paper: rgba(245,246,244,0.92);
-  --tile-bg: rgba(245,246,244,0.9);
-  --tile-shadow: rgba(90,115,115,0.35);
-  --notes-bg: rgba(245,246,244,0.94);
-  --octopus: #8f3e4a;
+  --light: #cad2c5;        /* nejsvětlejší šedá – pozadí, lišty, tlačítka */
+  --green: #84a98c;        /* světlá zelená – velké dlaždice */
+  --ink: #2f3e46;          /* nejtmavší šedá – písmo */
+  --pink: #efd3d7;         /* růžová – stav po prokliku */
+  --shadow: rgba(47,62,70,0.22);
 }
 
 * {
@@ -23,212 +20,198 @@
 }
 
 body {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   font-family: "Segoe UI", system-ui, sans-serif;
-  background: url("botanicus.png") repeat;
+  background: var(--light);
   color: var(--ink);
 }
 
-/* HEADER */
-header {
-  padding: 36px 56px 24px;
-}
-
-.header-row {
+/* TOP BAR */
+.topbar {
   display: flex;
   align-items: center;
-  gap: 22px;
-}
-
-#clock {
-  margin-left: auto;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  color: var(--blue-muted);
-  text-align: right;
-  line-height: 1.5;
+  gap: 16px;
+  padding: 10px 28px;
+  background: var(--light);
+  box-shadow: 0 3px 12px var(--shadow);
+  flex-shrink: 0;
 }
 
 h1 {
-  font-size: 28px;
+  font-size: 17px;
   letter-spacing: 0.28em;
   font-weight: 800;
   color: var(--ink);
-  text-shadow: 0 1px 4px rgba(90,115,115,0.18);
 }
 
-.divider {
-  height: 2px;
-  background: var(--blue-line);
-  margin-top: 18px;
+.palette-dots {
+  display: flex;
+  gap: 6px;
 }
 
-/* MAIN */
-main {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 44px;
-  padding: 40px 56px;
+.palette-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
 }
 
-.content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0 44px;
-  align-items: start;
-}
-
-.col-left, .col-right {
-  min-width: 0;
-}
-
-/* SECTIONS */
-.section-container {
-  margin-bottom: 45px;
-}
-
-.section-label {
-  display: block;
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: 0.4em;
-  color: var(--blue-muted);
-  text-transform: uppercase;
-  margin-bottom: 20px;
-  width: fit-content;
-}
-
-/* TILES */
-.tiles {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+.bar-clock {
+  margin-left: auto;
+  display: flex;
+  align-items: baseline;
   gap: 14px;
 }
 
-.tile {
-  height: 80px;
-  background: var(--tile-bg);
+#clock-time {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+#clock-date {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+}
+
+/* MAIN – 3 sloupce × 3 řady = 9 dlaždic */
+main {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 36px;
+  padding: 20px 32px;
+  overflow: auto;
+}
+
+.col {
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  gap: 36px;
+  min-width: 0;
+}
+
+/* PANELY */
+.panel {
+  background: var(--green);
   border-radius: 14px;
+  padding: 12px 14px 14px;
+  box-shadow: 0 2px 4px var(--shadow), 0 10px 24px var(--shadow), 0 18px 40px rgba(47,62,70,0.16);
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.panel-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  color: var(--ink);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.panel-label + .tiles + .panel-label {
+  margin-top: 12px;
+}
+
+/* TLAČÍTKA */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 10px;
+  align-content: start;
+}
+
+.tile {
+  min-height: 44px;
+  padding: 4px 6px;
+  background: var(--light);
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-transform: uppercase;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--blue-muted);
+  letter-spacing: 0.08em;
+  color: var(--ink);
   text-align: center;
-  line-height: 1.4;
-  box-shadow: 0 8px 22px var(--tile-shadow);
-  backdrop-filter: blur(2px);
+  line-height: 1.35;
+  box-shadow: 0 1px 2px var(--shadow), 0 4px 10px var(--shadow), 0 8px 18px rgba(47,62,70,0.14);
   text-decoration: none;
   cursor: pointer;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.tile:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 14px 32px rgba(90,115,115,0.45);
+.tile:active,
+.tile.clicked {
+  background: var(--pink);
 }
 
-/* SIDE PANEL */
-.side {
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-}
-
-.side-tiles {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-
-/* NOTES */
-.notes {
+/* POZNÁMKY */
+.panel-note textarea {
   flex: 1;
-  background: var(--notes-bg);
-  border-radius: 26px;
-  padding: 28px;
-  box-shadow: 0 8px 26px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-}
-
-.notes h2 {
-  font-size: 12px;
-  letter-spacing: 0.24em;
-  margin-bottom: 18px;
-  color: var(--blue-muted);
-}
-
-.notes textarea {
-  flex: 1;
+  min-height: 0;
   border: none;
-  background: transparent;
+  background: var(--light);
+  border-radius: 10px;
+  padding: 10px;
   resize: none;
   font-family: inherit;
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.55;
   color: var(--ink);
   outline: none;
+  box-shadow: inset 0 1px 4px rgba(47,62,70,0.14);
 }
 
 /* FOOTER */
 footer {
-  background: var(--paper);
-  border-top: 2px solid var(--blue-line);
-  padding: 32px 56px;
-  height: 120px;
-  display: flex;
-  align-items: center;
-  color: var(--blue-muted);
-  font-size: 13px;
+  flex-shrink: 0;
+  background: var(--light);
+  padding: 8px 28px;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  box-shadow: 0 -3px 12px var(--shadow);
 }
 
-/* OCTOPUS */
-.logo-chobotnice {
-  color: var(--octopus);
-  width: 56px;
-  height: 56px;
-}
 </style>
 </head>
 
 <body>
 
-<header>
-  <div class="header-row">
-    <svg class="logo-chobotnice" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="50" cy="40" r="25" fill="currentColor"/>
-      <g fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round">
-        <path d="M50 65 C45 75 55 85 50 95"/>
-        <path d="M40 63 C30 75 45 85 35 95"/>
-        <path d="M60 63 C70 75 55 85 65 95"/>
-        <path d="M30 58 C15 70 35 85 20 92"/>
-        <path d="M70 58 C85 70 65 85 80 92"/>
-      </g>
-      <g fill="white">
-        <circle cx="42" cy="40" r="3.5"/>
-        <circle cx="58" cy="40" r="3.5"/>
-      </g>
-    </svg>
-    <h1>DASHBOARD</h1>
-    <div id="clock"></div>
+<nav class="topbar">
+  <h1>DASHBOARD</h1>
+  <div class="palette-dots" aria-hidden="true">
+    <span style="background:#cad2c5"></span>
+    <span style="background:#84a98c"></span>
+    <span style="background:#52796f"></span>
+    <span style="background:#354f52"></span>
+    <span style="background:#2f3e46"></span>
   </div>
-  <div class="divider"></div>
-</header>
+  <div class="bar-clock">
+    <div id="clock-time">--:--:--</div>
+    <div id="clock-date"></div>
+  </div>
+</nav>
 
 <main>
-  <div class="content">
-  <div class="col-left">
+  <div class="col">
 
-    <div class="section-container">
-      <span class="section-label">Produkty</span>
+    <div class="panel">
+      <span class="panel-label">Produkty</span>
       <div class="tiles">
         <a class="tile" href="https://bo.golibe.com/" target="_blank">AC</a>
         <a class="tile" href="https://docs.google.com/spreadsheets/d/18cAQwVzeSfboPnsGZ81aw8PVmEIUmxRQ9Rmly6b7bS4/edit" target="_blank">IMPLEMENTACE</a>
@@ -238,41 +221,38 @@ footer {
       </div>
     </div>
 
-    <div class="section-container">
-      <span class="section-label">Tools and Sources</span>
+    <div class="panel">
+      <span class="panel-label">Tools and Sources</span>
       <div class="tiles">
         <a class="tile" href="https://www.notion.so/cee-travel-systems/1-1-notes-baba7099a10f821f8ab5817fc0c0d81e" target="_blank">MANUÁLY<br>NOTION</a>
-        <a class="tile" href="https://docs.google.com/spreadsheets/d/1PwXopixBNOhwgZTDGmHUTCzz9dZPqtHiGZIkAVO4aw0/edit" target="_blank">VDV</a>
-        <a class="tile" href="https://docs.google.com/spreadsheets/d/1F1HjyKIFm5dDzMzM1-GAIKnH13lbHRYgYWgArbI00yg/edit" target="_blank">ZALETSI</a>
         <a class="tile" href="https://docs.google.com/spreadsheets/d/1vV6rIQCL9OCMG9xSV1OrXYyZldABPSe8CwF7_wPCLiQ/edit?gid=0#gid=0" target="_blank">PÁTEK<br>REPORT</a>
         <a class="tile" href="https://podio.com/home" target="_blank">PODIO</a>
       </div>
     </div>
 
-    <div class="section-container">
-      <span class="section-label">Data</span>
-      <div class="tiles">
-        <a class="tile" href="http://localhost:3000/dashboard/2-gol-dashboard-v1" target="_blank">METABASE</a>
-        <a class="tile" href="air-reservations.html?launch=1">AIR<br>RESERVATIONS</a>
-      </div>
-    </div>
-
-    <div class="section-container">
-      <span class="section-label">Other</span>
+    <div class="panel">
+      <span class="panel-label">Other</span>
       <div class="tiles">
         <a class="tile" href="https://cee-support.zendesk.com/agent/filters/65499989" target="_blank">ZENDESK</a>
         <a class="tile" href="https://docs.google.com/spreadsheets/d/1c-T04jgfgC1aMb-XUcvGKN6R0nuqEHVZZKcvt6uV_Q4/edit?gid=0#gid=0" target="_blank">KARLIN</a>
         <a class="tile" href="https://danielavokalova.github.io/task-dashboard/task-dashboard.html" target="_blank">TO DO</a>
         <a class="tile" href="https://danielavokalova.github.io/dashboard/ideas.html" target="_blank">IDEAS</a>
         <a class="tile" href="calendar-booking.html">AGENT<br>KALENDÁŘ</a>
+        <a class="tile" href="email-guru.html" target="_blank">EMAIL<br>GURU</a>
       </div>
     </div>
 
   </div>
-  <div class="col-right">
+  <div class="col">
 
-    <div class="section-container">
-      <span class="section-label">Gitlab</span>
+    <div class="panel">
+      <span class="panel-label">Data</span>
+      <div class="tiles">
+        <a class="tile" href="http://localhost:3000/dashboard/2-gol-dashboard-v1" target="_blank">METABASE</a>
+        <a class="tile" href="air-reservations.html?launch=1" target="_blank">AIR<br>RESERVATIONS</a>
+        <a class="tile" href="air-stats.html" target="_blank">STATISTICS</a>
+      </div>
+      <span class="panel-label">Gitlab</span>
       <div class="tiles">
         <a class="tile" href="https://gitlab.in.cee-systems.com/gol-support/frontends/-/blob/master/etc/d4_frontends.yml" target="_blank">MAGIC</a>
         <a class="tile" href="https://gitlab.in.cee-systems.com/support/project-management/-/boards" target="_blank">DEVELOPMENT</a>
@@ -280,19 +260,49 @@ footer {
       </div>
     </div>
 
-  </div>
-  </div>
+    <div class="panel">
+      <span class="panel-label">Kluci</span>
+      <div class="tiles">
+        <a class="tile" href="https://chatgpt.com/" target="_blank">GPT</a>
+        <a class="tile" href="https://claude.ai/" target="_blank">CLAUDE</a>
+        <a class="tile" href="https://gemini.google.com/app" target="_blank">GEMINI</a>
+        <a class="tile" href="https://gemini.google.com/gem/5bd8204b5ebd" target="_blank">EMAIL ASISTENT</a>
+        <a class="tile" href="https://cursor.com/agents" target="_blank">CURSOR</a>
+      </div>
+    </div>
 
-  <aside class="side">
-    <div class="side-tiles">
-      <a class="tile" href="mailto:">EMAIL</a>
-      <a class="tile" href="https://calendar.google.com/calendar/u/0/r" target="_blank">KALENDÁŘ</a>
+    <div class="panel">
+      <span class="panel-label">Mail &amp; Kalendář</span>
+      <div class="tiles">
+        <a class="tile" href="mailto:">EMAIL</a>
+        <a class="tile" href="https://mail.google.com/mail/u/0/?tab=rm&ogbl#inbox" target="_blank">GMAIL</a>
+        <a class="tile" href="https://calendar.google.com/calendar/u/0/r" target="_blank">KALENDÁŘ</a>
+      </div>
     </div>
-    <div class="notes">
-      <h2>POZNÁMKY</h2>
-      <textarea id="notes" placeholder="Klidné poznámky…"></textarea>
+
+  </div>
+  <div class="col">
+
+    <div class="panel panel-note">
+      <span class="panel-label">Poznámky</span>
+      <textarea class="note" data-key="dashboardNote1" placeholder="Poznámky…"></textarea>
     </div>
-  </aside>
+
+    <div class="panel">
+      <span class="panel-label">Customers</span>
+      <div class="tiles">
+        <a class="tile" href="https://docs.google.com/spreadsheets/d/1F1HjyKIFm5dDzMzM1-GAIKnH13lbHRYgYWgArbI00yg/edit" target="_blank">ZALETSI</a>
+        <a class="tile" href="https://docs.google.com/spreadsheets/d/1PwXopixBNOhwgZTDGmHUTCzz9dZPqtHiGZIkAVO4aw0/edit" target="_blank">VDV</a>
+        <a class="tile" href="https://docs.google.com/spreadsheets/d/1CmWea_hECo4XGR4SlL7Z55EviUg6XCYIvX-xVo4ek1A/edit?usp=sharing" target="_blank">ULIX</a>
+        <a class="tile" href="https://docs.google.com/spreadsheets/d/1p9HAfzbtDRaBM7J_P9yS2B2i_rG6HWkPdk09Oja0x_8/edit?usp=sharing" target="_blank">LOVEC</a>
+      </div>
+    </div>
+
+    <div class="panel">
+      <!-- volná dlaždice do zásoby -->
+    </div>
+
+  </div>
 </main>
 
 <footer>
@@ -300,18 +310,36 @@ footer {
 </footer>
 
 <script>
-const textarea = document.getElementById("notes");
-textarea.value = localStorage.getItem("dashboardNotes") || "";
-textarea.addEventListener("input", () => {
-  localStorage.setItem("dashboardNotes", textarea.value);
+document.querySelectorAll(".tile").forEach(tile => {
+  tile.addEventListener("click", () => {
+    tile.classList.add("clicked");
+    setTimeout(() => tile.classList.remove("clicked"), 400);
+  });
 });
 
-const clock = document.getElementById("clock");
+document.querySelectorAll(".note").forEach(area => {
+  const key = area.dataset.key;
+  area.value = localStorage.getItem(key)
+    || (key === "dashboardNote1" ? localStorage.getItem("dashboardNotes") || "" : "");
+  area.addEventListener("input", () => {
+    localStorage.setItem(key, area.value);
+  });
+});
+
+const clockTime = document.getElementById("clock-time");
+const clockDate = document.getElementById("clock-date");
+function isoWeek(d) {
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const day = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  return Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
+}
 function updateClock() {
   const now = new Date();
-  const date = now.toLocaleDateString("cs-CZ", { weekday: "short", day: "numeric", month: "long", year: "numeric" });
-  const time = now.toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-  clock.innerHTML = `${date}<br>${time}`;
+  clockTime.textContent = now.toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  const date = now.toLocaleDateString("cs-CZ", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  clockDate.textContent = `${date} · ${isoWeek(now)}. týden`;
 }
 updateClock();
 setInterval(updateClock, 1000);

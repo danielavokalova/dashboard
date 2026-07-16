@@ -10,10 +10,56 @@ from dotenv import load_dotenv
 # Prefer values from local .env over inherited shell variables.
 load_dotenv(override=True)
 
-TABLE = os.getenv("TABLE_NAME", "gol_reservations_sourcedata_3_20260311130217")
 PORT  = int(os.getenv("PORT", 8080))
 BASE  = os.path.dirname(os.path.abspath(__file__))
 SYNC_WAIT_SECONDS = int(os.getenv("SYNC_WAIT_SECONDS", "12"))
+
+def _find_latest_table():
+    """Vrátí TABLE_NAME z .env, nebo najde tabulku s nejnovějšími daty (max datum) mezi gol_reservations_*."""
+    explicit = os.getenv("TABLE_NAME", "").strip()
+    if explicit:
+        return explicit
+    try:
+        conn = psycopg2.connect(
+            host=os.getenv("DB_HOST","localhost"), port=int(os.getenv("DB_PORT","5432")),
+            dbname=os.getenv("DB_NAME","postgres"), user=os.getenv("DB_USER","postgres"),
+            password=os.getenv("DB_PASSWORD",""),
+        )
+        cur = conn.cursor()
+        # Najdi všechny kandidátní tabulky
+        cur.execute("""
+            SELECT table_name FROM information_schema.tables
+            WHERE table_schema = 'public'
+              AND table_name LIKE 'gol_reservations%'
+            ORDER BY table_name DESC
+            LIMIT 10
+        """)
+        candidates = [r[0] for r in cur.fetchall()]
+
+        best_table, best_date = None, None
+        date_expr = """CASE
+            WHEN reservation_date ~ '^\\d{2}\\.\\d{2}\\.\\d{4}$' THEN to_date(reservation_date,'DD.MM.YYYY')
+            WHEN reservation_date ~ '^\\d{4}-\\d{2}-\\d{2}' THEN reservation_date::date
+            ELSE NULL END"""
+        for t in candidates:
+            try:
+                cur.execute(f'SELECT MAX({date_expr}) FROM "{t}"')
+                row = cur.fetchone()
+                d = row[0] if row else None
+                if d and (best_date is None or d > best_date):
+                    best_date, best_table = d, t
+            except Exception:
+                pass
+
+        cur.close(); conn.close()
+        if best_table:
+            print(f"[server] Vybrána tabulka s nejnovějšími daty: {best_table} (max datum: {best_date})")
+            return best_table
+    except Exception as e:
+        print(f"[server] Nelze detekovat tabulku: {e}")
+    return "gol_reservations_sourcedata_3_20260311130217"
+
+TABLE = _find_latest_table()
 
 app = Flask(__name__, static_folder=BASE)
 CORS(app)
@@ -240,6 +286,183 @@ def filter_options():
     except Exception as e:
         return jresp({"ok":False,"error":str(e)}, 500)
 
+# ── /api/gsheet-stream  ────────────────────────────────────────────────────────
+
+GSHEET_CSV = (
+    "https://docs.google.com/spreadsheets/d/"
+    "1PnxOaenFjIPbmEnySChbE6h13HehIsFM9VNnwytsY4k"
+    "/export?format=csv&gid=413463191"
+)
+DATE_FROM = "2026-01-01"
+
+@app.route("/api/gsheet-stream")
+def gsheet_stream():
+    """Streamuje záznamy z Google Sheets od DATE_FROM jako NDJSON s progress."""
+    import urllib.request, csv, io
+
+    def generate():
+        try:
+            req = urllib.request.urlopen(GSHEET_CSV, timeout=30)
+            raw = req.read().decode("utf-8-sig")
+        except Exception as e:
+            yield json.dumps({"error": str(e)}) + "\n"
+            return
+
+        reader = csv.DictReader(io.StringIO(raw))
+        rows = list(reader)
+        total = len(rows)
+        sent = 0
+        yield json.dumps({"total": total}) + "\n"
+
+        for row in rows:
+            date_val = (row.get("Reservation date") or row.get("reservation_date") or "").strip()
+            # support DD.MM.YYYY and YYYY-MM-DD
+            try:
+                if "." in date_val:
+                    parts = date_val.split(".")
+                    date_iso = f"{parts[2]}-{parts[1].zfill(2)}-{parts[0].zfill(2)}"
+                else:
+                    date_iso = date_val[:10]
+            except Exception:
+                date_iso = ""
+
+            if date_iso >= DATE_FROM:
+                yield json.dumps(row) + "\n"
+            sent += 1
+            if sent % 500 == 0:
+                yield json.dumps({"progress": sent, "total": total}) + "\n"
+
+        yield json.dumps({"done": True, "total": total}) + "\n"
+
+    return Response(generate(), mimetype="application/x-ndjson",
+                    headers={"Cache-Control": "no-store"})
+
+# ── /api/gsheet-stats ──────────────────────────────────────────────────────────
+
+@app.route("/api/gsheet-stats")
+def gsheet_stats():
+    """Statistiky přímo z Google Sheets (bez PostgreSQL)."""
+    import urllib.request, csv, io, re
+    from collections import defaultdict
+
+    def parse_date(v):
+        s = str(v).strip()
+        if re.match(r'^\d{2}\.\d{2}\.\d{4}$', s):
+            d,m,y = s.split('.'); return f"{y}-{m}-{d}"
+        if re.match(r'^\d{4}-\d{2}-\d{2}', s): return s[:10]
+        return ""
+
+    def is_issued(row):
+        st = str(row.get('Status','') or row.get('status','')).upper()
+        if 'ISSUE' in st: return True
+        return bool(str(row.get('Issuance date','') or row.get('issuance_date','')).strip())
+
+    try:
+        req = urllib.request.urlopen(GSHEET_CSV, timeout=30)
+        raw = req.read().decode("utf-8-sig")
+        reader = csv.DictReader(io.StringIO(raw))
+        rows = list(reader)
+
+        # Apply filters from request args
+        date_from = request.args.get('date_from','')
+        date_to   = request.args.get('date_to','')
+        f_agency  = request.args.get('agency','')
+        f_status  = request.args.get('status','')
+        f_country = request.args.get('agency_country','')
+
+        def get(row, *keys):
+            for k in keys:
+                v = row.get(k,'')
+                if v: return v
+            return ''
+
+        filtered = []
+        for r in rows:
+            d = parse_date(get(r,'Reservation date','reservation_date'))
+            if date_from and (not d or d < date_from): continue
+            if date_to   and (not d or d > date_to):   continue
+            if f_agency  and get(r,'Agency','agency') != f_agency: continue
+            if f_status  and get(r,'Status','status') != f_status: continue
+            if f_country and get(r,'Agency Country','agency_country') != f_country: continue
+            filtered.append(r)
+
+        issued = sum(1 for r in filtered if is_issued(r))
+        agencies  = len({get(r,'Agency','agency') for r in filtered if get(r,'Agency','agency')})
+        countries = len({get(r,'Agency Country','agency_country') for r in filtered if get(r,'Agency Country','agency_country')})
+        totals = {"total": len(filtered), "issued": issued, "agencies": agencies, "countries": countries}
+
+        mon = defaultdict(lambda: {"total":0,"issued":0})
+        for r in filtered:
+            d = parse_date(get(r,'Reservation date','reservation_date'))
+            if d:
+                mon[d[:7]]["total"] += 1
+                if is_issued(r): mon[d[:7]]["issued"] += 1
+        monthly = [{"month":k,"total":v["total"],"issued":v["issued"]} for k,v in sorted(mon.items())]
+
+        def grp(key_opts, lim=None):
+            cnt = defaultdict(int)
+            for r in filtered:
+                v = get(r, *key_opts) or '(prázdné)'
+                cnt[v] += 1
+            res = sorted(cnt.items(), key=lambda x:-x[1])
+            if lim: res = res[:lim]
+            return [{"label":k,"cnt":v} for k,v in res]
+
+        def grp_agency():
+            cnt = defaultdict(lambda:{"cnt":0,"issued":0})
+            for r in filtered:
+                a = get(r,'Agency','agency') or '(prázdné)'
+                cnt[a]["cnt"] += 1
+                if is_issued(r): cnt[a]["issued"] += 1
+            res = sorted(cnt.items(), key=lambda x:-x[1]["cnt"])[:15]
+            return [{"label":k,"cnt":v["cnt"],"issued":v["issued"]} for k,v in res]
+
+        def grp_currency():
+            cnt = defaultdict(lambda:{"cnt":0,"revenue":0})
+            for r in filtered:
+                c = get(r,'Currency','currency') or '(prázdné)'
+                cnt[c]["cnt"] += 1
+                try: cnt[c]["revenue"] += float(get(r,'Total Price','total_price') or 0)
+                except: pass
+            return [{"label":k,"cnt":v["cnt"],"revenue":round(v["revenue"],0)} for k,v in sorted(cnt.items(),key=lambda x:-x[1]["cnt"])]
+
+        return jresp({"ok":True,"totals":totals,"monthly":monthly,
+                      "by_status":     grp(['Status','status']),
+                      "by_last_status":grp(['Last Status','last_status'],10),
+                      "by_agency":     grp_agency(),
+                      "by_country":    grp(['Agency Country','agency_country'],15),
+                      "by_currency":   grp_currency(),
+                      "by_connector":  grp(['Connector','connector']),
+                      "by_type":       grp(['Type','type'])})
+    except Exception as e:
+        return jresp({"ok":False,"error":str(e)}, 500)
+
+@app.route("/api/gsheet-filter-options")
+def gsheet_filter_options():
+    """Unikátní hodnoty filtrů přímo z Google Sheets."""
+    import urllib.request, csv, io
+    try:
+        req = urllib.request.urlopen(GSHEET_CSV, timeout=30)
+        raw = req.read().decode("utf-8-sig")
+        reader = csv.DictReader(io.StringIO(raw))
+        rows = list(reader)
+        def vals(*keys):
+            s = set()
+            for r in rows:
+                for k in keys:
+                    v = (r.get(k,'') or '').strip()
+                    if v: s.add(v)
+            return sorted(s)
+        return jresp({"ok":True,
+                      "status":   vals('Status','status'),
+                      "agency":   vals('Agency','agency'),
+                      "agency_country": vals('Agency Country','agency_country'),
+                      "currency": vals('Currency','currency'),
+                      "connector":vals('Connector','connector'),
+                      "type":     vals('Type','type')})
+    except Exception as e:
+        return jresp({"ok":False,"error":str(e)}, 500)
+
 # ── Static files ───────────────────────────────────────────────────────────────
 
 @app.route("/")
@@ -252,4 +475,4 @@ def static_files(path="index.html"):
 
 if __name__ == "__main__":
     print(f'\n  Air Reservations → http://localhost:{PORT}/air-reservations.html\n')
-    app.run(host="0.0.0.0", port=PORT, debug=False)
+    app.run(host="127.0.0.1", port=PORT, debug=False)

@@ -93,9 +93,10 @@ function renderBrief(record, series) {
   const addonTotal = metrics.uniqa + metrics.parking + metrics.lounge + metrics.assistance;
   const addonRate = metrics.bookings ? (addonTotal / metrics.bookings) * 100 : 0;
   $("briefVolume").textContent = fmt.format(metrics.bookings);
-  $("briefVolumeText").textContent = `${fmt.format(metrics.travelers)} cestujících, průměr ${metrics.travelersPerBooking.toLocaleString("cs-CZ")} na rezervaci.`;
+  const monthlyAverage = record.months?.length ? metrics.bookings / record.months.length : metrics.bookings;
+  $("briefVolumeText").textContent = `Průměr ${monthlyAverage.toLocaleString("cs-CZ", { maximumFractionDigits: 1 })} rezervací za měsíc.`;
   $("briefConversion").textContent = pct(metrics.successRate);
-  $("briefConversionText").textContent = metrics.successRate >= 70 ? "Silná konverze rozhodnutých rezervací — prostor držet výkon." : "Konverze nabízí téma k diskusi: expirace, ceny nebo proces vystavení.";
+  $("briefConversionText").textContent = metrics.successRate >= 70 ? "Silná konverze všech rezervací — prostor držet výkon." : "Konverze nabízí téma k diskusi: expirace, ceny nebo proces vystavení.";
   $("briefTrend").textContent = delta === null ? "Bez srovnání" : `${delta >= 0 ? "+" : ""}${delta.toLocaleString("cs-CZ", { maximumFractionDigits: 1 })} %`;
   $("briefTrendText").textContent = `${delta >= 0 ? "Objem v posledním období roste." : "Objem v posledním období klesá."} Hlavní technologický zdroj: ${bestRoute}.`;
   $("briefOpportunity").textContent = pct(addonRate);
@@ -226,7 +227,8 @@ document.querySelectorAll(".nav-link").forEach((link) => link.addEventListener("
 $("copyBrief").addEventListener("click", async () => {
   const record = state.current;
   if (!record) return;
-  const text = `${record.name}\nRezervace: ${fmt.format(record.overall.bookings)}\nVystaveno: ${fmt.format(record.overall.issued)} (${pct(record.overall.issueRate)})\nÚspěšnost: ${pct(record.overall.successRate)}\nCestující: ${fmt.format(record.overall.travelers)}\nTop trasa: ${topName(record.topRoutes)}\nTop dopravce: ${topName(record.topAirlines)}`;
+  const average = record.months?.length ? record.overall.bookings / record.months.length : record.overall.bookings;
+  const text = `${record.name}\nRezervace: ${fmt.format(record.overall.bookings)}\nVystaveno: ${fmt.format(record.overall.issued)} (${pct(record.overall.issueRate)})\nKonverze: ${pct(record.overall.successRate)}\nMěsíční průměr: ${average.toLocaleString("cs-CZ", { maximumFractionDigits: 1 })}\nHlavní konektor: ${topName(record.topConnectors?.length ? record.topConnectors : state.data.rankings.connectors)}`;
   try { await navigator.clipboard.writeText(text); showToast("Shrnutí je zkopírované"); }
   catch { showToast("Kopírování není v tomto prohlížeči dostupné"); }
 });

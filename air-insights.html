@@ -2,178 +2,53 @@
 <html lang="cs">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="GOL Air Insights — trendy rezervací, konverze a příprava na schůzky s agenturami.">
-  <meta name="theme-color" content="#171b25">
-  <title>GOL Air Insights</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Manrope:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="GOL & Tripgate Dashboard">
+  <title>GOL & Tripgate Dashboard</title>
   <link rel="stylesheet" href="assets/air-insights.css">
 </head>
 <body>
-  <div class="shell">
-    <aside class="sidebar" aria-label="Navigace dashboardu">
-      <a class="brand" href="air-insights.html" aria-label="GOL Air Insights">
-        <span class="brand-mark">G</span>
-        <span><strong>GOL</strong><small>AIR INSIGHTS</small></span>
-      </a>
-      <nav>
-        <a class="nav-link active" href="#overview"><span>01</span>Přehled</a>
-        <a class="nav-link" href="#trends"><span>02</span>Trendy</a>
-        <a class="nav-link" href="#conversion"><span>03</span>Konverze</a>
-        <a class="nav-link" href="#market"><span>04</span>Trh</a>
-        <a class="nav-link" href="#meeting"><span>05</span>Na schůzku</a>
-      </nav>
-      <div class="side-note">
-        <span class="pulse"></span>
-        <div><strong>Automatická data</strong><small>Každé pondělí v 8:00</small></div>
+  <header class="app-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html"><span>G</span><strong>GOL &amp; Tripgate</strong></a>
+      <nav aria-label="Hlavní navigace"><a class="active" href="#dashboard">Dashboard</a><a href="#trend">Vývoj</a><a href="#changes">Změny</a><a href="#rankings">Agentury</a></nav>
+    </div>
+  </header>
+  <main id="dashboard">
+    <div class="page-title"><div><h1>GOL &amp; Tripgate <span>Dashboard</span></h1><p id="dataInfo">Načítám statistiky…</p></div><button class="primary" id="refreshButton">Obnovit data</button></div>
+    <section class="card filters" aria-label="Filtry dashboardu">
+      <h2>Filtry</h2>
+      <div class="filter-grid">
+        <label><span>Agentura</span><select id="agencyFilter"><option value="all">Všechny agentury</option></select></label>
+        <label><span>Status</span><select id="statusFilter"><option value="all">Vše</option><option value="issued">Vystavené</option><option value="other">Nevystavené / ostatní</option></select></label>
+        <label><span>Měsíc od</span><select id="monthFrom"></select></label>
+        <label><span>Měsíc do</span><select id="monthTo"></select></label>
+        <label><span>Země agentury</span><select id="countryFilter"><option value="all">Všechny země</option></select></label>
       </div>
-      <a class="back-link" href="index.html">← Zpět na hlavní dashboard</a>
-    </aside>
-
-    <main>
-      <header class="topbar">
-        <button class="mobile-menu" id="mobileMenu" aria-label="Otevřít navigaci">☰</button>
-        <div class="eyebrow"><span>LIVE REPORT</span><i></i><span id="dataRange">Načítám období…</span></div>
-        <div class="top-actions">
-          <label class="agency-picker">
-            <span>Agentura</span>
-            <select id="agencySelect" aria-label="Filtrovat podle agentury">
-              <option value="__all__">Všechny agentury</option>
-            </select>
-          </label>
-          <button class="refresh-button" id="refreshButton" title="Znovu načíst data" aria-label="Znovu načíst data">↻</button>
-        </div>
-      </header>
-
-      <section class="hero" id="overview">
-        <div>
-          <p class="kicker">AIR PERFORMANCE / <span id="heroPeriod">CELÉ OBDOBÍ</span></p>
-          <h1>Rezervace pod kontrolou.<br><em>Schůzky s kontextem.</em></h1>
-          <p class="hero-copy">Dlouhodobý obraz i poslední týdny na jednom místě. Vyberte agenturu a celý dashboard se přepočítá.</p>
-        </div>
-        <div class="hero-meta">
-          <span>VYBRANÝ POHLED</span>
-          <strong id="selectedAgency">Všechny agentury</strong>
-          <small id="selectedCountry">Globální portfolio</small>
-        </div>
-      </section>
-
-      <section class="metrics-grid" aria-label="Hlavní metriky">
-        <article class="metric-card dark">
-          <div class="metric-top"><span>Rezervace</span><b id="bookingDelta" class="delta">—</b></div>
-          <strong id="bookingsValue">—</strong>
-          <small>celkem ve vybraném pohledu</small>
-          <div class="micro-bars" id="bookingSpark" aria-hidden="true"></div>
-        </article>
-        <article class="metric-card coral">
-          <div class="metric-top"><span>Vystaveno</span><b id="issuedDelta" class="delta light">—</b></div>
-          <strong id="issuedValue">—</strong>
-          <small>ticketed rezervací</small>
-          <div class="metric-foot"><span>Podíl</span><b id="issueRateValue">—</b></div>
-        </article>
-        <article class="metric-card cream">
-          <div class="metric-top"><span>Konverze</span><b id="successDelta" class="delta">—</b></div>
-          <strong id="successRateValue">—</strong>
-          <small>vystaveno ze všech rezervací</small>
-          <div class="progress"><i id="successProgress"></i></div>
-        </article>
-        <article class="metric-card outline">
-          <div class="metric-top"><span>Měsíční průměr</span><b id="travelerDelta" class="delta">—</b></div>
-          <strong id="travelersValue">—</strong>
-          <small>rezervací za měsíc v průměru</small>
-          <div class="people" id="peopleViz" aria-hidden="true"></div>
-        </article>
-      </section>
-
-      <section class="section" id="trends">
-        <div class="section-heading">
-          <div><span>02 / TRENDY</span><h2>Vývoj v čase</h2></div>
-          <div class="segmented" role="group" aria-label="Období trendu">
-            <button data-period="weeks" class="active">Krátkodobě</button>
-            <button data-period="months">Dlouhodobě</button>
-          </div>
-        </div>
-        <div class="trend-layout">
-          <article class="panel trend-panel">
-            <div class="panel-head">
-              <div><span>REZERVACE &amp; VYSTAVENÍ</span><strong id="trendHeadline">Krátkodobý trend</strong></div>
-              <div class="legend"><span><i class="navy-dot"></i>Rezervace</span><span><i class="coral-dot"></i>Vystaveno</span></div>
-            </div>
-            <div id="trendChart" class="line-chart" role="img" aria-label="Trend rezervací a vystavení"></div>
-          </article>
-          <article class="panel pulse-panel">
-            <span class="panel-kicker">POSLEDNÍ 4 OBDOBÍ</span>
-            <h3>Aktuální puls</h3>
-            <div class="pulse-score"><strong id="pulseScore">—</strong><span>/ 100</span></div>
-            <p id="pulseText">Počítám aktuální dynamiku…</p>
-            <div class="mini-stat"><span>Rezervace</span><b id="recentBookings">—</b></div>
-            <div class="mini-stat"><span>Vystaveno</span><b id="recentIssued">—</b></div>
-            <div class="mini-stat"><span>Zrušeno</span><b id="recentCanceled">—</b></div>
-          </article>
-        </div>
-      </section>
-
-      <section class="section" id="conversion">
-        <div class="section-heading">
-          <div><span>03 / KONVERZE</span><h2>Od rezervace k vystavení</h2></div>
-          <p>Stav portfolia a poměry, které ukazují kvalitu rezervací.</p>
-        </div>
-        <div class="conversion-grid">
-          <article class="panel funnel-panel">
-            <div class="funnel-row"><span>Všechny rezervace</span><strong id="funnelBookings">—</strong><i style="--width:100%"></i></div>
-            <div class="funnel-row"><span>Nevystavené / ostatní</span><strong id="funnelActive">—</strong><i id="activeBar"></i></div>
-            <div class="funnel-row"><span>Vystavené</span><strong id="funnelIssued">—</strong><i id="issuedBar"></i></div>
-            <div class="funnel-row"><span>Zrušené</span><strong id="funnelCanceled">—</strong><i id="canceledBar"></i></div>
-          </article>
-          <article class="panel split-panel">
-            <span class="panel-kicker">ZPŮSOB REZERVACE</span>
-            <div class="donut" id="tripDonut"><span><strong id="returnShare">—</strong><small>offline</small></span></div>
-            <div class="split-legend"><span><i></i>Offline <b id="returnCount">—</b></span><span><i></i>Online / ostatní <b id="onewayCount">—</b></span></div>
-          </article>
-          <article class="panel ancillary-panel">
-            <span class="panel-kicker">DOPLŇKOVÉ SLUŽBY</span>
-            <h3>Co se přidává k letu</h3>
-            <div id="ancillaryBars" class="rank-bars"></div>
-          </article>
-        </div>
-      </section>
-
-      <section class="section" id="market">
-        <div class="section-heading">
-          <div><span>04 / TRH</span><h2>Kdo a kam létá</h2></div>
-          <p>Největší agentury, stav portfolia a technologické zdroje.</p>
-        </div>
-        <div class="market-grid">
-          <article class="panel ranking-panel"><div class="panel-head"><strong>Top agentury</strong><span>REZERVACE</span></div><div id="routesList" class="ranking-list"></div></article>
-          <article class="panel ranking-panel"><div class="panel-head"><strong>Stav portfolia</strong><span>POČET</span></div><div id="airlinesList" class="ranking-list"></div></article>
-          <article class="panel ranking-panel"><div class="panel-head"><strong>Konektory</strong><span>REZERVACE</span></div><div id="connectorsList" class="ranking-list"></div></article>
-        </div>
-      </section>
-
-      <section class="section meeting-section" id="meeting">
-        <div class="section-heading light-heading">
-          <div><span>05 / PŘÍPRAVA NA SCHŮZKU</span><h2>Co si odnést k agentuře</h2></div>
-          <button id="copyBrief">Kopírovat shrnutí</button>
-        </div>
-        <div class="brief-grid">
-          <article><span>01</span><small>OBJEM</small><strong id="briefVolume">—</strong><p id="briefVolumeText">—</p></article>
-          <article><span>02</span><small>KONVERZE</small><strong id="briefConversion">—</strong><p id="briefConversionText">—</p></article>
-          <article><span>03</span><small>SMĚR</small><strong id="briefTrend">—</strong><p id="briefTrendText">—</p></article>
-          <article><span>04</span><small>PŘÍLEŽITOST</small><strong id="briefOpportunity">—</strong><p id="briefOpportunityText">—</p></article>
-        </div>
-      </section>
-
-      <footer>
-        <div><strong>GOL AIR INSIGHTS</strong><span>Souhrnná obchodní data bez osobních údajů</span></div>
-        <div class="footer-status"><span class="pulse"></span><span id="lastUpdated">Načítám aktualizaci…</span></div>
-      </footer>
-    </main>
-  </div>
-
-  <div class="loading" id="loading"><span></span><strong>Počítám letecké insighty…</strong></div>
-  <div class="toast" id="toast" role="status"></div>
+      <div class="filter-footer"><button class="secondary" id="clearFilters">Vymazat filtry</button><span id="selectionInfo">Všechny agentury</span></div>
+    </section>
+    <section class="kpi-grid" aria-label="Hlavní ukazatele">
+      <article class="card kpi neutral"><span>Celkem rezervací</span><strong id="kpiBookings">—</strong><small id="kpiBookingsSub">ve vybraném období</small></article>
+      <article class="card kpi blue"><span>Vystavené</span><strong id="kpiIssued">—</strong><small id="kpiIssuedSub">podíl z rezervací</small></article>
+      <article class="card kpi purple"><span>Nevystavené / ostatní</span><strong id="kpiOther">—</strong><small id="kpiOtherSub">ve vybraném období</small></article>
+      <article class="card kpi orange"><span>Offline</span><strong id="kpiOffline">—</strong><small id="kpiOfflineSub">souhrn za agentury</small></article>
+      <article class="card kpi teal"><span>Konverze</span><strong id="kpiConversion">—</strong><small>vystavené / všechny</small></article>
+    </section>
+    <section class="card chart-card" id="trend">
+      <div class="card-heading"><div><h2>Vývoj rezervací v čase</h2><p>Rezervace, vystavené a nevystavené podle měsíců</p></div><div class="legend"><span><i class="blue-dot"></i>Rezervace</span><span><i class="purple-dot"></i>Vystavené</span><span><i class="gray-dot"></i>Ostatní</span></div></div>
+      <div class="bar-chart" id="trendChart" role="img" aria-label="Vývoj rezervací v čase"></div>
+    </section>
+    <section class="card changes-card" id="changes">
+      <div class="card-heading"><div><h2>Největší změny počtu rezervací u agentur</h2><p>Porovnání posledních dvou měsíců ve vybraném období</p></div><div class="period-pills"><button data-limit="5">Top 5</button><button class="active" data-limit="10">Top 10</button><button data-limit="20">Top 20</button></div></div>
+      <div class="changes-grid"><div><h3 class="up">Největší nárůst</h3><div id="growthList" class="change-list"></div></div><div><h3 class="down">Největší pokles</h3><div id="declineList" class="change-list"></div></div></div>
+    </section>
+    <section class="ranking-grid" id="rankings">
+      <article class="card ranking-card"><div class="card-heading"><div><h2>TOP 10 agentur — rezervace</h2><p>Podle vybraných filtrů</p></div></div><div id="agencyRanking" class="horizontal-chart"></div></article>
+      <article class="card ranking-card"><div class="card-heading"><div><h2>TOP 10 agentur — konverze</h2><p>Minimálně 10 rezervací</p></div></div><div id="conversionRanking" class="horizontal-chart"></div></article>
+    </section>
+    <section class="card connectors-card"><div class="card-heading"><div><h2>Rezervace podle konektoru</h2><p>Souhrn dostupných zdrojů</p></div></div><div id="connectorChart" class="connector-grid"></div></section>
+  </main>
+  <div class="loading" id="loading"><span></span>Načítám data…</div><div class="toast" id="toast" role="status"></div>
   <script src="assets/air-insights.js" defer></script>
 </body>
 </html>
